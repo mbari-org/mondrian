@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RoiMarker implements Roi<MarkerView> {
+public class RoiTranslatorMarker implements RoiTranslator<MarkerView> {
 
     public static final String LINK_NAME = "localization-point";
     private static final Double DEFAULT_RADIUS = 10D;

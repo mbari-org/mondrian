@@ -1,7 +1,6 @@
 package org.mbari.mondrian.javafx;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -14,7 +13,7 @@ import org.mbari.vars.services.model.Association;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface Roi<C extends DataView<? extends Data, ? extends Shape>> {
+public interface RoiTranslator<C extends DataView<? extends Data, ? extends Shape>> {
 
     String MEDIA_TYPE = "application/json";
 

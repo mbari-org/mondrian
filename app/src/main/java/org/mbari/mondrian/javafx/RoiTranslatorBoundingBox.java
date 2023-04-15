@@ -15,7 +15,7 @@ import org.mbari.vars.services.model.Association;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RoiBoundingBox implements Roi<RectangleView> {
+public class RoiTranslatorBoundingBox implements RoiTranslator<RectangleView> {
 
     public static String LINK_NAME = "bounding box";
 

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RoiLine implements Roi<LineView> {
+public class RoiTranslatorLine implements RoiTranslator<LineView> {
 
     public static String LINK_NAME = "localization-line";
 

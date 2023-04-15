@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class RoiPolygon implements Roi<PolygonView>{
+public class RoiTranslatorPolygon implements RoiTranslator<PolygonView> {
 
     public static String LINK_NAME = "localization-polygon";
 
