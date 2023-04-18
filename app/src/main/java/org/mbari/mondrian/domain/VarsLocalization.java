@@ -11,13 +11,11 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.imgfx.roi.RectangleView;
-import org.mbari.mondrian.javafx.RoiTranslatorFactory;
+import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.RoiTranslators;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 //import org.mbari.vars.ui.javafx.imgfx.AnnotationLifecycleDecorator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -27,7 +25,7 @@ public class VarsLocalization {
     private final Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization;
     private final BooleanProperty dirtyConcept = new SimpleBooleanProperty(false);
     private final BooleanProperty dirtyLocalization = new SimpleBooleanProperty(false);
-    private static final Logger log = LoggerFactory.getLogger(VarsLocalization.class);
+    private static final Logging log = new Logging(VarsLocalization.class);
 
 
     public VarsLocalization(Annotation annotation,
@@ -89,17 +87,11 @@ public class VarsLocalization {
                                                   Association association,
                                                   AutoscalePaneController<ImageView> autoscalePaneController,
                                                   ObjectProperty<Color> editedColor) {
-        var opt = RoiTranslatorFactory.translatorFor(association.getLinkName());
+        var opt = RoiTranslators.findByLinkName(association.getLinkName());
         if (opt.isPresent()) {
-            log.debug("Found ROI in " + association);
-            // verify that the annotation contains the association
-//            var ok = annotation.getAssociations()
-//                    .stream()
-//                    .anyMatch(a -> a.getUuid().equals(association.getUuid()));
-
-//            if (ok) {
+            log.atDebug().log("Found ROI in " + association);
             final var roiTranslator = opt.get();
-            log.debug("Building ROI using " + association);
+            log.atDebug().log("Building ROI using " + association);
             return roiTranslator.fromAssociation(annotation.getConcept(),
                             association,
                             autoscalePaneController,

@@ -1,6 +1,7 @@
 package org.mbari.mondrian.javafx;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import org.mbari.imgfx.AutoscalePaneController;
@@ -19,10 +20,10 @@ public class RoiTranslatorLine implements RoiTranslator<LineView> {
     public static String LINK_NAME = "localization-line";
 
     @Override
-    public Optional<Localization<LineView, ImageView>> fromAssociation(String concept,
-             Association association,
-             AutoscalePaneController<ImageView> paneController,
-             ObjectProperty<Color> editedColor) {
+    public<C extends Node> Optional<Localization<LineView, C>> fromAssociation(String concept,
+                                                                                       Association association,
+                                                                                       AutoscalePaneController<C> paneController,
+                                                                                       ObjectProperty<Color> editedColor) {
         var points = Json.GSON.fromJson(association.getLinkValue(), Points.class);
         return LineView.fromImageCoords(points.getX().get(0),
                 points.getY().get(0),
@@ -33,7 +34,7 @@ public class RoiTranslatorLine implements RoiTranslator<LineView> {
     }
 
     @Override
-    public Association fromLocalization(Localization<LineView, ImageView> localization, UUID imageReferenceUuid, String comment) {
+    public Association fromLocalization(Localization<LineView, ? extends Node> localization, UUID imageReferenceUuid, String comment) {
         var line = localization.getDataView().getData();
         var x0 = toInt(line.getStartX());
         var y0 = toInt(line.getStartY());

@@ -1,6 +1,7 @@
 package org.mbari.mondrian.javafx;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import org.mbari.imgfx.AutoscalePaneController;
@@ -20,11 +21,10 @@ public class RoiTranslatorBoundingBox implements RoiTranslator<RectangleView> {
     public static String LINK_NAME = "bounding box";
 
     @Override
-    public Optional<Localization<RectangleView, ImageView>> fromAssociation(String concept,
+    public <C extends Node> Optional<Localization<RectangleView, C>> fromAssociation(String concept,
                                                                             Association association,
-                                                                            AutoscalePaneController<ImageView> paneController,
+                                                                            AutoscalePaneController<C> paneController,
                                                                             ObjectProperty<Color> editedColor) {
-
         var boundingBox = Json.GSON.fromJson(association.getLinkValue(), BoundingBox.class);
         return RectangleView.fromImageCoords(
                         boundingBox.getX().doubleValue(),
@@ -42,7 +42,7 @@ public class RoiTranslatorBoundingBox implements RoiTranslator<RectangleView> {
     }
 
     @Override
-    public Association fromLocalization(Localization<RectangleView, ImageView> localization,
+    public Association fromLocalization(Localization<RectangleView, ? extends Node> localization,
                                         UUID imageReferenceUuid,
                                         String comment) {
         var rect = localization.getDataView().getData();

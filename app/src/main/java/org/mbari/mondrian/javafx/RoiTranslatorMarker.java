@@ -1,6 +1,7 @@
 package org.mbari.mondrian.javafx;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import org.mbari.imgfx.AutoscalePaneController;
@@ -20,20 +21,23 @@ public class RoiTranslatorMarker implements RoiTranslator<MarkerView> {
     private static final Double DEFAULT_RADIUS = 10D;
 
     @Override
-    public Optional<Localization<MarkerView, ImageView>> fromAssociation(String concept,
-                                                                         Association association,
-                                                                         AutoscalePaneController<ImageView> paneController,
-                                                                         ObjectProperty<Color> editedColor) {
+    public <C extends Node> Optional<Localization<MarkerView, C>> fromAssociation(String concept,
+                                                                                         Association association, AutoscalePaneController<C> paneController, ObjectProperty<Color> editedColor) {
         var points = Json.GSON.fromJson(association.getLinkValue(), Points.class);
+        var view = paneController.getView();
+        var radius = 1D;
+        if (paneController instanceof ImageView iv) {
+            radius = estimateRadius(iv);
+        }
         return MarkerView.fromImageCoords(points.getX().get(0).doubleValue(),
                 points.getY().get(0).doubleValue(),
-                estimateRadius(paneController.getView()),
+                radius,
                 paneController.getAutoscale())
             .map(dataView -> new Localization<>(dataView, paneController, association.getUuid(), concept));
     }
 
     @Override
-    public Association fromLocalization(Localization<MarkerView, ImageView> localization, UUID imageReferenceUuid, String comment) {
+    public Association fromLocalization(Localization<MarkerView, ? extends Node> localization, UUID imageReferenceUuid, String comment) {
         var marker = localization.getDataView().getData();
         var x = toInt(marker.getCenterX());
         var y = toInt(marker.getCenterY());
