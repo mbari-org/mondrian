@@ -23,9 +23,9 @@ public class RoiTranslatorPolygon implements RoiTranslator<PolygonView> {
     public static String LINK_NAME = "localization-polygon";
 
     @Override
-    public <C extends Node> Optional<Localization<PolygonView, C>> fromAssociation(String concept,
+    public Optional<Localization<PolygonView, ImageView>> fromAssociation(String concept,
                                                                                    Association association,
-                                                                                   AutoscalePaneController<C> paneController,
+                                                                                   AutoscalePaneController<ImageView> paneController,
                                                                                    ObjectProperty<Color> editedColor) {
         var points = Json.GSON.fromJson(association.getLinkValue(), Points.class);
         var points2D = IntStream.range(0, points.getX().size())
@@ -41,7 +41,7 @@ public class RoiTranslatorPolygon implements RoiTranslator<PolygonView> {
     }
 
     @Override
-    public Association fromLocalization(Localization<PolygonView, ? extends Node> localization,
+    public Association fromLocalization(Localization<PolygonView, ImageView> localization,
                                         UUID imageReferenceUuid,
                                         String comment) {
         var polygon = localization.getDataView().getData();

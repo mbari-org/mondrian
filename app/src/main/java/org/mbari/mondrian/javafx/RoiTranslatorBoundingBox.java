@@ -21,9 +21,9 @@ public class RoiTranslatorBoundingBox implements RoiTranslator<RectangleView> {
     public static String LINK_NAME = "bounding box";
 
     @Override
-    public <C extends Node> Optional<Localization<RectangleView, C>> fromAssociation(String concept,
+    public Optional<Localization<RectangleView, ImageView>> fromAssociation(String concept,
                                                                             Association association,
-                                                                            AutoscalePaneController<C> paneController,
+                                                                            AutoscalePaneController<ImageView> paneController,
                                                                             ObjectProperty<Color> editedColor) {
         var boundingBox = Json.GSON.fromJson(association.getLinkValue(), BoundingBox.class);
         return RectangleView.fromImageCoords(
@@ -42,7 +42,7 @@ public class RoiTranslatorBoundingBox implements RoiTranslator<RectangleView> {
     }
 
     @Override
-    public Association fromLocalization(Localization<RectangleView, ? extends Node> localization,
+    public Association fromLocalization(Localization<RectangleView, ImageView> localization,
                                         UUID imageReferenceUuid,
                                         String comment) {
         var rect = localization.getDataView().getData();

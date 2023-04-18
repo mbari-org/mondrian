@@ -23,12 +23,12 @@ public interface RoiTranslator<C extends DataView<? extends Data, ? extends Shap
 
     String MEDIA_TYPE = "application/json";
 
-    <D extends Node> Optional<Localization<C, D>> fromAssociation(String concept,
+    Optional<Localization<C, ImageView>> fromAssociation(String concept,
                                                          Association association,
-                                                         AutoscalePaneController<D> paneController,
+                                                         AutoscalePaneController<ImageView> paneController,
                                                          ObjectProperty<Color> editedColor);
 
-    Association fromLocalization(Localization<C, ? extends Node> localization, UUID imageReferenceUuid, String comment);
+    Association fromLocalization(Localization<C, ImageView> localization, UUID imageReferenceUuid, String comment);
 
     /**
      * Data in the UI is represented as double values. We convert to pixels (integer)
