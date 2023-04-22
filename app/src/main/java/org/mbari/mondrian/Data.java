@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *     <li>varsLocalization - All the localizations found in the annotations/associations for the currently selected image.</li>
  * </ul>
  */
-public class IFXData {
+public class Data {
 
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
@@ -29,8 +29,7 @@ public class IFXData {
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
 
 
-
-    public IFXData() {
+    public Data() {
         init();
 
     }

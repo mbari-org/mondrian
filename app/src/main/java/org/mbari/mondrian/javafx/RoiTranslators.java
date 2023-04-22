@@ -67,7 +67,6 @@ public class RoiTranslators {
         var dataView = localization.getDataView();
         Association association = null;
 
-
         if (dataView instanceof MarkerView) {
             var loc = (Localization<MarkerView, ImageView>) localization;
             association = roiMarker.fromLocalization(loc, imageReferenceUuid, comment);
