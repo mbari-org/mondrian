@@ -11,4 +11,5 @@ public record Page<T>(List<T> content, long size, long page, Long totalSize) {
     public long offset() {
         return page * size;
     }
+
 }

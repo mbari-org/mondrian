@@ -4,6 +4,8 @@ import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.services.AnnotationService;
 import org.mbari.vars.services.MediaService;
 import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.services.model.Media;
+import org.mbari.vars.services.model.MultiRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,22 +50,55 @@ public class AnnosaurusAnnotationService implements AnnotationService {
 
     @Override
     public CompletableFuture<Page<Annotation>> findByMediaUuid(UUID mediaUuid, int size, int page) {
-        return null;
+        var limit = (long) size;
+        var offset = (long) page * size;
+        return annotationService.countAnnotations(mediaUuid)
+                .thenCompose(annotationCount ->
+                    annotationService.findAnnotations(mediaUuid, limit, offset)
+                            .thenApply(annos -> new Page<>(annos, size, page, annotationCount.getCount().longValue()))
+                );
     }
 
     @Override
     public CompletableFuture<Page<Annotation>> findByVideoSequenceName(String videoSequenceName, int size, int page) {
-
-        return null;
+        var limit = (long) size;
+        var offset = (long) page * size;
+        return mediaService.findByVideoSequenceName(videoSequenceName)
+                .thenCompose(media -> {
+                    var videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
+                    var multiRequest = new MultiRequest(videoReferenceUuids);
+                    return annotationService.countByMultiRequest(multiRequest)
+                            .thenCompose(mrc ->
+                                annotationService.findByMultiRequest(multiRequest, limit, offset)
+                                        .thenApply(annos -> new Page<>(annos, size, page, mrc.getCount()))
+                            );
+                });
     }
 
     @Override
     public CompletableFuture<Page<Annotation>> findByVideoName(String videoName, int size, int page) {
-        return null;
+        var limit = (long) size;
+        var offset = (long) page * size;
+        return mediaService.findByVideoName(videoName)
+                .thenCompose(media -> {
+                    var videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
+                    var multiRequest = new MultiRequest(videoReferenceUuids);
+                    return annotationService.countByMultiRequest(multiRequest)
+                            .thenCompose(mrc ->
+                                    annotationService.findByMultiRequest(multiRequest, limit, offset)
+                                            .thenApply(annos -> new Page<>(annos, size, page, mrc.getCount()))
+                            );
+                });
     }
 
     @Override
     public CompletableFuture<Page<Annotation>> findByConceptName(String conceptName, int size, int page, boolean includeDescendants) {
-        return null;
+        var limit = (long) size;
+        var offset = (long) page * size;
+        return annotationService.countObservationsByConcept(conceptName)
+                        .thenCompose(cc ->
+                            annotationService.findByConcept(conceptName, limit, offset, true)
+                                    .thenApply(annos -> new Page<>(annos, size, page, cc.getCount().longValue()))
+                        );
     }
 }

@@ -71,13 +71,14 @@ public class Raziel implements ConfigurationService {
         }
     }
 
-    private final ClientSupport clientSupport = new ClientSupport();
+    private final ClientSupport clientSupport;
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Duration.class, new DurationConverter())
             .create();
     private final Logging log = new Logging(getClass());
 
-    public Raziel() {
+    public Raziel(ClientSupport clientSupport) {
+        this.clientSupport = clientSupport;
     }
 
     @Override
