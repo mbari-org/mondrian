@@ -38,6 +38,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:3.14.4")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.mbari.commons:jcommons:0.0.6")
     implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
     implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
     implementation("org.mbari:imgfx:0.0.13")
@@ -51,7 +52,18 @@ testing {
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
             useJUnitJupiter("5.9.1")
+
         }
+    }
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+
+    maxHeapSize = "1G"
+
+    testLogging {
+        events("passed")
     }
 }
 

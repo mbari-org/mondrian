@@ -1,5 +1,6 @@
 package org.mbari.mondrian.services;
 
+import org.mbari.mondrian.domain.Counter;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.vars.services.model.Image;
 
@@ -14,5 +15,6 @@ public interface ImageService {
     CompletableFuture<Page<Image>> findByVideoSequenceName(String videoSequenceName, int size, int page);
     CompletableFuture<Page<Image>> findByVideoName(String videoName, int size, int page);
     CompletableFuture<Page<Image>> findByConceptName(String conceptName, int size, int page, boolean includeDescendants);
+    CompletableFuture<Counter> countImagesByMediaUuid(UUID mediaUuid);
 
 }

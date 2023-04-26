@@ -1,6 +1,7 @@
 package org.mbari.mondrian;
 
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.etc.okhttp3.ClientSupport;
 import org.mbari.mondrian.services.vars.Raziel;
 import org.mbari.vars.core.crypto.AES;
 import org.mbari.vars.services.Services;
@@ -61,7 +62,7 @@ public class Initializer {
         var opt = Raziel.ConnectionParams.load();
         if (opt.isPresent()) {
             var rcp = opt.get();
-            final var service = new Raziel();
+            final var service = new Raziel(new ClientSupport());
             var future = service.authenticate(rcp.url(), rcp.username(), rcp.password())
                     .thenCompose(auth -> service.endpoints(rcp.url(), auth.getAccessToken()))
                     .thenApply(ServicesBuilder::buildForUI)
