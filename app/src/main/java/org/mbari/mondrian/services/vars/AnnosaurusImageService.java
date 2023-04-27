@@ -2,7 +2,6 @@ package org.mbari.mondrian.services.vars;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-import org.mbari.jcommons.math.Matlib;
 import org.mbari.mondrian.domain.Counter;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.etc.gson.Json;
@@ -83,36 +82,34 @@ public class AnnosaurusImageService implements ImageService {
         return clientSupport.execRequest(request, s -> Json.decode(s, Counter.class));
     }
 
-    @Override
-    public CompletableFuture<Page<Image>> findByVideoSequenceName(String videoSequenceName, int size, int page) {
-        // get videoReferenceUuids for videoSequenceName order by start date of video sequence
+    private CompletableFuture<Page<Image>> findImages(List<Media> media, int size, int page) {
         var totalCount = new AtomicLong(0);
-        return  mediaService.findByVideoSequenceName(videoSequenceName)
-                .thenCompose(media ->
-                    AsyncUtils.collectAll(media, m -> countImagesByMediaUuid(m.getVideoReferenceUuid())
-                            .thenApply(c -> new MediaCount(m, c.count().longValue())))
-                            .thenApply(xs -> {
-                                var total = xs.stream().mapToLong(MediaCount::imageCount).sum();
-                                totalCount.set(total);
-                                return xs;
-                            })
-                            .thenApply(xs -> xs.stream().sorted(Comparator.comparing(a -> a.media().getStartTimestamp())).toList())
-                            .thenApply(xs -> FetchRange.fromPage(xs, size, page, MediaCount::imageCount))
-                            .thenCompose(xs -> AsyncUtils.collectAll(xs, mc -> fetchImagesByMediaUuid(mc.data().media().getVideoReferenceUuid(), mc.limit(), mc.offset())))
-                            .thenApply(xs -> {
-                                var image = xs.stream().flatMap(List::stream).toList();
-                                return new Page<>(image, size, page, totalCount.get());
-                            })
-                );
-        // get count for each videoRef
-        // Calculate fetch
-
+        return AsyncUtils.collectAll(media, m -> countImagesByMediaUuid(m.getVideoReferenceUuid())
+                        .thenApply(c -> new MediaCount(m, c.count().longValue())))
+                .thenApply(xs -> {
+                    var total = xs.stream().mapToLong(MediaCount::imageCount).sum();
+                    totalCount.set(total);
+                    return xs;
+                })
+                .thenApply(xs -> xs.stream().sorted(Comparator.comparing(a -> a.media().getStartTimestamp())).toList())
+                .thenApply(xs -> FetchRange.fromPage(xs, size, page, MediaCount::imageCount))
+                .thenCompose(xs -> AsyncUtils.collectAll(xs, mc -> fetchImagesByMediaUuid(mc.data().media().getVideoReferenceUuid(), mc.limit(), mc.offset())))
+                .thenApply(xs -> {
+                    var image = xs.stream().flatMap(List::stream).toList();
+                    return new Page<>(image, size, page, totalCount.get());
+                });
     }
 
+    @Override
+    public CompletableFuture<Page<Image>> findByVideoSequenceName(String videoSequenceName, int size, int page) {
+        return  mediaService.findByVideoSequenceName(videoSequenceName)
+                .thenCompose(media -> findImages(media, size, page));
+    }
 
     @Override
     public CompletableFuture<Page<Image>> findByVideoName(String videoName, int size, int page) {
-        return null;
+        return mediaService.findByVideoName(videoName)
+                .thenCompose(media -> findImages(media, size, page));
     }
 
     @Override

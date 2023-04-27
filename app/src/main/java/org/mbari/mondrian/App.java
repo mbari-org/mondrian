@@ -7,25 +7,20 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.imgfx.etc.rx.events.Event;
-import org.mbari.imgfx.imageview.editor.AnnotationPaneController;
+import org.mbari.mondrian.javafx.AnnotationPaneController;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+
 
 public class App extends Application {
 
-    private static final System.Logger log = System.getLogger(org.mbari.imgfx.imageview.editor.App.class.getSimpleName());
+    private static final System.Logger log = System.getLogger(App.class.getSimpleName());
+    private final ToolBox toolbox = Initializer.getToolBox();
+    private final AppController appController = new AppController(toolbox);
 
     @Override
     public void start(Stage stage) throws Exception {
-        var eventBus = new EventBus();
-        var paneController = new AnnotationPaneController(eventBus);
-        var concepts = loadDefaultConcepts();
-        paneController.setConcepts(concepts);
+        var paneController = new AnnotationPaneController(toolbox.eventBus(), toolbox.data().getConcepts());
 
         var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
         var image = new Image(imageUrl.toExternalForm());
@@ -44,17 +39,6 @@ public class App extends Application {
 
     }
 
-    private List<String> loadDefaultConcepts() {
-        var url = getClass().getResource("/default-concepts.txt");
-        System.out.println(url);
-        try {
-            return Files.readAllLines(Path.of(url.toURI()),
-                    StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return List.of("Apple", "Banana", "Nanomia", "Nanomia bijuga");
-        }
-    }
 
 
     public static void main(String[] args) {

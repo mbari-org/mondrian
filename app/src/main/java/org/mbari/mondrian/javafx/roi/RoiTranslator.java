@@ -1,4 +1,4 @@
-package org.mbari.mondrian.javafx;
+package org.mbari.mondrian.javafx.roi;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Node;

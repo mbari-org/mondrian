@@ -1,4 +1,9 @@
 package org.mbari.mondrian.services;
 
-public class MediaService {
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+public interface MediaService {
+
+    CompletableFuture<List<String>> findAllCameraDeployments();
 }

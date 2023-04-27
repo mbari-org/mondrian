@@ -2,6 +2,8 @@ package org.mbari.mondrian;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -25,39 +27,9 @@ public class Data {
 
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
-    private final SortedSet<UUID> sortedImageReferenceUuids = Collections.synchronizedSortedSet(new TreeSet<>());
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
-
-
-    public Data() {
-        init();
-
-    }
-
-    private void init() {
-
-        images.addListener((ListChangeListener<? super Image>) c -> {
-            while (c.next()) {
-                if (c.wasAdded()) {
-                    var added = c.getAddedSubList()
-                            .stream()
-                            .map(Image::getImageReferenceUuid)
-                            .collect(Collectors.toList());
-                    sortedImageReferenceUuids.addAll(added);
-                }
-                if (c.wasRemoved()) {
-                    var removed = c.getRemoved()
-                            .stream()
-                            .map(Image::getImageReferenceUuid)
-                            .collect(Collectors.toList());
-                    removed.forEach(sortedImageReferenceUuids::remove);
-                }
-            }
-        });
-
-//        varsLocalizations.addListener((ListChangeListener<? super VarsLocalization>) );
-
-    }
+    private final ObservableList<String> concepts = FXCollections.observableArrayList();
+    private final StringProperty selectedConcept = new SimpleStringProperty();
 
     public Image getSelectedImage() {
         return selectedImage.get();
@@ -75,17 +47,24 @@ public class Data {
         return images;
     }
 
-    /**
-     * This is a collection of imageReferenceUuids for all images listed in the data
-     * object. It is synced automatically with the image collection
-     * @return
-     */
-    public SortedSet<UUID> getSortedImageReferenceUuids() {
-        return Collections.unmodifiableSortedSet(sortedImageReferenceUuids);
-    }
-
     public ObservableList<VarsLocalization> getVarsLocalizations() {
         return varsLocalizations;
+    }
+
+    public ObservableList<String> getConcepts() {
+        return concepts;
+    }
+
+    public String getSelectedConcept() {
+        return selectedConcept.get();
+    }
+
+    public StringProperty selectedConceptProperty() {
+        return selectedConcept;
+    }
+
+    public void setSelectedConcept(String selectedConcept) {
+        this.selectedConcept.set(selectedConcept);
     }
 }
 

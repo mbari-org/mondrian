@@ -1,22 +1,34 @@
 package org.mbari.mondrian;
 
+import javafx.beans.property.SimpleObjectProperty;
+import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.etc.okhttp3.ClientSupport;
-import org.mbari.mondrian.services.vars.Raziel;
+import org.mbari.mondrian.services.ServiceFactory;
+import org.mbari.mondrian.services.vars.VarsServiceFactory;
 import org.mbari.vars.core.crypto.AES;
-import org.mbari.vars.services.Services;
-import org.mbari.vars.services.ServicesBuilder;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class Initializer {
 
     private static final Logging log = new Logging(Initializer.class);
     private static Path settingsDirectory;
+    private static ToolBox toolBox;
+    private static final Object lock = new Object(){};
+
+    public static void reset() {
+        synchronized (lock) {
+            toolBox = null;
+        }
+    }
 
     public static AES getAes() {
         return new AES("brian@mbari.org 1993-08-21");
@@ -58,30 +70,31 @@ public class Initializer {
         return createdPath;
     }
 
-    public static Services loadServices() {
-        var opt = Raziel.ConnectionParams.load();
-        if (opt.isPresent()) {
-            var rcp = opt.get();
-            final var service = new Raziel(new ClientSupport());
-            var future = service.authenticate(rcp.url(), rcp.username(), rcp.password())
-                    .thenCompose(auth -> service.endpoints(rcp.url(), auth.getAccessToken()))
-                    .thenApply(ServicesBuilder::buildForUI)
-                    .handle((services, ex) -> {
-                        if (ex != null) {
-                            log.atWarn().withCause(ex).log(() -> "Failed to retrieve server configurations from Raziel at " + rcp.url());
-                            return ServicesBuilder.noop();
-                        }
-                        return services;
-                    });
+    public static ServiceFactory newServiceFactory() {
+        return new VarsServiceFactory();
+    }
 
-            try {
-                return future.get(10, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                log.atWarn().withCause(e).log(() -> "Failed to retrieve server configurations from Raziel at " + rcp.url());
-                return ServicesBuilder.noop();
+    public static ToolBox getToolBox() {
+        if (toolBox == null) {
+            synchronized (lock) {
+                var eventBus = new EventBus();
+                var i18n = ResourceBundle.getBundle("i18n",
+                        Locale.getDefault());
+                var data = new Data();
+                var services = newServiceFactory().newServices();
+                var stylesheets = List.of(
+                        Objects.requireNonNull(Initializer.class.getResource("/css/mondrian.css")).toExternalForm()
+                );
+                toolBox = new ToolBox(eventBus,
+                        i18n,
+                        data,
+                        new Localizations(eventBus),
+                        new AnnotationColors(),
+                        new SimpleObjectProperty<>(services),
+                        stylesheets,
+                        getAes());
             }
-
         }
-        return ServicesBuilder.noop();
+        return toolBox;
     }
 }

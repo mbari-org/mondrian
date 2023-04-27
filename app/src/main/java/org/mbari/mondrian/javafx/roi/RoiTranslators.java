@@ -1,6 +1,5 @@
-package org.mbari.mondrian.javafx;
+package org.mbari.mondrian.javafx.roi;
 
-import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.roi.*;
