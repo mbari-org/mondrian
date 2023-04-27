@@ -16,6 +16,7 @@ import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.imageview.ImagePaneController;
 import org.mbari.mondrian.AnnotationColors;
 import org.mbari.mondrian.Localizations;
+import org.mbari.mondrian.ToolBox;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
@@ -33,14 +34,16 @@ public class AnnotationPaneController {
     private final EventBus eventBus;
     private final Localizations localizations;
     private final ObservableList<String> concepts;
+    private final ToolBox toolBox;
     private static final Logger log = System.getLogger(AutoscalePaneController.class.getName());
 
 
 
-    public AnnotationPaneController(EventBus eventBus, ObservableList<String> concepts) {
-        this.eventBus = eventBus;
-        this.localizations = new Localizations(eventBus);
-        this.concepts = concepts;
+    public AnnotationPaneController(ToolBox toolBox) {
+        this.toolBox = toolBox;
+        this.eventBus = toolBox.eventBus();
+        this.localizations = toolBox.localizations();
+        this.concepts = toolBox.data().getConcepts();
         init();
     }
 
@@ -54,7 +57,7 @@ public class AnnotationPaneController {
                 eventBus,
                 annotationColorPaneController.getAnnotationColors(),
                 localizations);
-        conceptPaneController = new ConceptPaneController(this);
+        conceptPaneController = new ConceptPaneController(toolBox);
 
         var autoscalePane = autoscalePaneController.getPane();
         autoscalePane.getChildren().addAll(crossHairs.getNodes());

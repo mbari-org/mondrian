@@ -15,12 +15,14 @@ import org.mbari.mondrian.javafx.AnnotationPaneController;
 public class App extends Application {
 
     private static final System.Logger log = System.getLogger(App.class.getSimpleName());
-    private final ToolBox toolbox = Initializer.getToolBox();
-    private final AppController appController = new AppController(toolbox);
+//    private final ToolBox toolbox = Initializer.getToolBox();
+//    private final AppController appController = new AppController(toolbox);
 
     @Override
     public void start(Stage stage) throws Exception {
-        var paneController = new AnnotationPaneController(toolbox.eventBus(), toolbox.data().getConcepts());
+        var toolbox = Initializer.getToolBox();
+        var appController = new AppController(toolbox);
+        var paneController = new AnnotationPaneController(toolbox);
 
         var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
         var image = new Image(imageUrl.toExternalForm());

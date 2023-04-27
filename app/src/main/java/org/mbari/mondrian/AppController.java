@@ -48,13 +48,17 @@ public class AppController {
     }
 
     private void reloadConcepts() {
+        log.atInfo().log("Loading concepts");
         // Reload concepts for the new services
         // TODO we're only loading 10,000 names here. Need to page these to use worms
         toolBox.servicesProperty()
                 .get()
                 .namesService()
                 .listNames(10000, 0)
-                .thenAccept(page -> Platform.runLater(() -> toolBox.data().getConcepts().setAll(page.content())));
+                .thenAccept(page -> {
+                    log.atInfo().log(page.content().size() + " concepts loaded");
+                    Platform.runLater(() -> toolBox.data().getConcepts().setAll(page.content()));
+                });
     }
 
     private void setSelectedConcept(String conceptName) {

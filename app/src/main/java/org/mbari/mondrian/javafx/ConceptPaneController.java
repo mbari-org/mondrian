@@ -14,23 +14,24 @@ import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
+import org.mbari.mondrian.ToolBox;
 
 import java.util.ArrayList;
 
 public class ConceptPaneController {
     private HBox pane;
-    private final AnnotationPaneController paneController;
+    private final ToolBox toolBox;
     private ComboBox<String> conceptComboBox;
 
-    public ConceptPaneController(AnnotationPaneController paneController) {
-        this.paneController = paneController;
+    public ConceptPaneController(ToolBox toolBox) {
+        this.toolBox = toolBox;
         init();
     }
 
     private void init() {
         pane = new HBox();
         pane.getStyleClass().add("concept-pane");
-        conceptComboBox = new ComboBox<>();
+        conceptComboBox = new ComboBox<>(toolBox.data().getConcepts());
         conceptComboBox.getStyleClass().add("concept-combo-box");
         new FilteredComboBoxDecorator<>(conceptComboBox,
                 FilteredComboBoxDecorator.STARTSWITH_IGNORE_SPACES);
@@ -38,11 +39,10 @@ public class ConceptPaneController {
         conceptComboBox.setOnKeyReleased(v -> {
             if (v.getCode() == KeyCode.ENTER) {
                 var item = conceptComboBox.getValue();
-                var selected = new ArrayList<>(paneController.getLocalizations().getSelectedLocalizations());
+                var selected = new ArrayList<>(toolBox.localizations().getSelectedLocalizations());
                 if (item != null && !selected.isEmpty()) {
                     selected.forEach(loc -> loc.setLabel(item));
-                    paneController.getEventBus()
-                            .publish(new UpdatedLocalizationsEvent(selected));
+                    toolBox.eventBus().publish(new UpdatedLocalizationsEvent(selected));
                 }
             }
         });
@@ -52,16 +52,8 @@ public class ConceptPaneController {
 
         pane.getChildren().add(conceptComboBox);
 
-        // Listen for changes to the concepts set in the main AnnotationPaneController.
-        this.paneController
-                .getConcepts()
-                .addListener((ListChangeListener<? super String>) c -> {
-                    var concepts = this.paneController.getConcepts();
-                    conceptComboBox.setItems(concepts);
-                });
 
-        this.paneController
-                .getLocalizations()
+        toolBox.localizations()
                 .getSelectedLocalizations()
                 .addListener((ListChangeListener<? super Localization<? extends DataView<? extends Data,? extends Node>,? extends Node>>) c -> {
                     Platform.runLater(() -> {
@@ -72,7 +64,7 @@ public class ConceptPaneController {
                 });
 
 
-        paneController.getEventBus()
+        toolBox.eventBus()
                 .toObserverable()
                 .ofType(AddLocalizationEvent.class)
                 .subscribe(event -> {

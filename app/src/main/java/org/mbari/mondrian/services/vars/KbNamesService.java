@@ -2,6 +2,7 @@ package org.mbari.mondrian.services.vars;
 
 import org.mbari.mondrian.domain.Concept;
 import org.mbari.mondrian.domain.Page;
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.services.NamesService;
 import org.mbari.vars.services.ConceptService;
 
@@ -13,17 +14,23 @@ public class KbNamesService implements NamesService {
 
     private final ConceptService conceptService;
 
+    private static final Logging log = new Logging(KbNamesService.class);
+
     public KbNamesService(ConceptService conceptService) {
         this.conceptService = conceptService;
     }
 
     @Override
     public CompletableFuture<Page<String>> listNames(long size, long page) {
+
         int a = (int) (size * page);
         int b = (int) (a + size);
+        log.atInfo().log("Loading concept names in range " + a + "-" + b);
         return conceptService.findAllNames()
                 .thenApply(names -> {
+                    log.atInfo().log("Loaded " + names.size() + " concept names");
                     var xs = names.subList(a, b);
+                    log.atInfo().log("" + xs);
                     return new Page<>(xs, size, page, (long) names.size());
                 });
     }
