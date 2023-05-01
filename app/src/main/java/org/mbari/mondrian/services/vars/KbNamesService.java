@@ -28,9 +28,11 @@ public class KbNamesService implements NamesService {
         log.atInfo().log("Loading concept names in range " + a + "-" + b);
         return conceptService.findAllNames()
                 .thenApply(names -> {
-                    log.atInfo().log("Loaded " + names.size() + " concept names");
-                    var xs = names.subList(a, b);
-                    log.atInfo().log("" + xs);
+                    var c = Math.min(b, names.size());
+                    log.atInfo().log("Loaded " + names.size()
+                            + " concept names. Taking sublist of " + a + "-" + c);
+                    var xs = names.subList(a, c);
+//                    var xs = names.subList(a, b);
                     return new Page<>(xs, size, page, (long) names.size());
                 });
     }

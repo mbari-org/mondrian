@@ -33,7 +33,6 @@ public class AnnotationPaneController {
     private CrossHairs crossHairs;
     private final EventBus eventBus;
     private final Localizations localizations;
-    private final ObservableList<String> concepts;
     private final ToolBox toolBox;
     private static final Logger log = System.getLogger(AutoscalePaneController.class.getName());
 
@@ -43,7 +42,6 @@ public class AnnotationPaneController {
         this.toolBox = toolBox;
         this.eventBus = toolBox.eventBus();
         this.localizations = toolBox.localizations();
-        this.concepts = toolBox.data().getConcepts();
         init();
     }
 
@@ -116,32 +114,12 @@ public class AnnotationPaneController {
         return crossHairs;
     }
 
-    public Localizations getLocalizations() {
-        return localizations;
-    }
 
-    public ObservableList<String> getConcepts() {
-        return concepts;
-    }
-
-    public void setConcepts(List<String> concepts) {
-        this.concepts.setAll(concepts);
-    }
-
-    public void setSelectedConcept(String concept) {
-        if (this.concepts.contains(concept)) {
-            conceptPaneController.getConceptComboBox()
-                    .getSelectionModel().select(concept);
-        }
-    }
 
     public EventBus getEventBus() {
         return eventBus;
     }
 
-    public AnnotationColors getAnnotationColors() {
-        return annotationColorPaneController.getAnnotationColors();
-    }
 
 
 }

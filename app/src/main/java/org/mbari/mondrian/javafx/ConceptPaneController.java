@@ -2,6 +2,7 @@ package org.mbari.mondrian.javafx;
 
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -15,13 +16,19 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.msg.messages.ReloadMsg;
+import org.mbari.mondrian.msg.messages.SetSelectedConcept;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ConceptPaneController {
     private HBox pane;
     private final ToolBox toolBox;
     private ComboBox<String> conceptComboBox;
+    private final Logging log = new Logging(getClass());
+    private static final String KEY_CONCEPT_DEFAULT = "data.concept.default";
 
     public ConceptPaneController(ToolBox toolBox) {
         this.toolBox = toolBox;
@@ -31,27 +38,22 @@ public class ConceptPaneController {
     private void init() {
         pane = new HBox();
         pane.getStyleClass().add("concept-pane");
-        conceptComboBox = new ComboBox<>(toolBox.data().getConcepts());
+        conceptComboBox = new ComboBox<>();
         conceptComboBox.getStyleClass().add("concept-combo-box");
         new FilteredComboBoxDecorator<>(conceptComboBox,
                 FilteredComboBoxDecorator.STARTSWITH_IGNORE_SPACES);
         conceptComboBox.setEditable(false);
         conceptComboBox.setOnKeyReleased(v -> {
             if (v.getCode() == KeyCode.ENTER) {
-                var item = conceptComboBox.getValue();
-                var selected = new ArrayList<>(toolBox.localizations().getSelectedLocalizations());
-                if (item != null && !selected.isEmpty()) {
-                    selected.forEach(loc -> loc.setLabel(item));
-                    toolBox.eventBus().publish(new UpdatedLocalizationsEvent(selected));
-                }
+                updateSelectedConcept();
             }
         });
+
         var tooltip = new Tooltip();
         tooltip.getStyleClass().add("tooltip-combobox");
         conceptComboBox.setTooltip(tooltip);
 
         pane.getChildren().add(conceptComboBox);
-
 
         toolBox.localizations()
                 .getSelectedLocalizations()
@@ -63,19 +65,46 @@ public class ConceptPaneController {
                     });
                 });
 
+        var rx = toolBox.eventBus().toObserverable();
 
-        toolBox.eventBus()
-                .toObserverable()
-                .ofType(AddLocalizationEvent.class)
-                .subscribe(event -> {
-                    var loc = event.localization();
-                    var selectedConcept = conceptComboBox.getSelectionModel().getSelectedItem();
-                    if (selectedConcept != null) {
-                        loc.setLabel(selectedConcept);
-                    }
-                });
+        rx.ofType(ReloadMsg.class)
+                        .subscribe(e -> loadConcepts());
+
+        loadConcepts();
+        log.atDebug().log("Initialized");
 
     }
+
+    private void updateSelectedConcept() {
+        var item = conceptComboBox.getValue();
+        if (item != null) {
+            toolBox.servicesProperty()
+                    .get()
+                    .namesService()
+                    .findConcept(item)
+                    .thenAccept(opt -> {
+                        opt.ifPresent(concept -> {
+                            var msg = new SetSelectedConcept(concept.primaryName());
+                            toolBox.eventBus().publish(msg);
+                        });
+                    });
+        }
+    }
+
+    private void loadConcepts() {
+        // TODO - This is a hack. Need to page for WoRMS
+        toolBox.servicesProperty()
+                .get()
+                .namesService()
+                .listNames(10000, 0)
+                .thenAccept(page -> {
+                    log.atInfo().log("Using " + page.content().size() + " concepts");
+                    var observableList = FXCollections.observableList(page.content());
+                    Platform.runLater(() -> conceptComboBox.setItems(observableList));
+                });
+    }
+
+
 
     public HBox getPane() {
         return pane;

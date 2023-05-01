@@ -1,9 +1,23 @@
 package org.mbari.mondrian;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.scene.shape.Shape;
+import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
+import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
+import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
+import org.mbari.imgfx.roi.CircleData;
+import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedConcept;
+import org.mbari.mondrian.msg.messages.SetSelectedImage;
+
+import javax.imageio.ImageIO;
+import java.util.ArrayList;
 
 public class AppController {
 
@@ -17,49 +31,82 @@ public class AppController {
     }
 
     private void init() {
-        var eventBus = toolBox.eventBus();
+        var rx = toolBox.eventBus().toObserverable();
 
-        eventBus.toObserverable()
-                .ofType(ReloadMsg.class)
+        // Reload/refresh data from services
+        rx.ofType(ReloadMsg.class)
                 .subscribe(
                         msg -> reload(),
                         throwable -> log.atError()
                                 .withCause(throwable)
                                 .log("An error occurred while handling a ReloadMsg"));
 
-        eventBus.toObserverable()
-                .ofType(SetSelectedConcept.class)
+        // Sets the concept use for new annotations
+        rx.ofType(SetSelectedConcept.class)
                 .subscribe(msg -> setSelectedConcept(msg.concept()));
 
-        // Run some stuff off main thread
-        new Thread(() -> {
-            reloadConcepts();
-        }).start();
+        rx.ofType(SetSelectedImage.class)
+                .subscribe(msg -> toolBox.data().setSelectedImage(msg.image()));
+
+        // Handles when a new localizaion is added to the view. Typically after a user click
+        // At this point the localization data has not been saved via the services
+        rx.ofType(AddLocalizationEvent.class)
+                .subscribe(this::addLocalization);
+
+        rx.ofType(UpdatedLocalizationsEvent.class)
+                .subscribe(this::updateLocalization);
+
+        // TODO This is a HACK to make marker scaled to image size. Need to add a user setting for this.
+        rx.ofType(AddMarkerEvent.class)
+                .subscribe(evt -> {
+                    var data = (CircleData) evt.localization().getDataView().getData();
+                    var image = toolBox.data().getSelectedImage();
+                    if (image != null) {
+                        if (image.getWidth() == null) {
+                            // TODO read image
+                            var img = ImageIO.read(image.getUrl());
+                            image.setWidth(img.getWidth());
+                            image.setHeight(img.getHeight());
+                        }
+                        var radius = image.getWidth() / 100D;
+                        Platform.runLater(() -> data.radiusProperty().set(radius));
+
+                    }
+                });
+
+        // When the selected concept is changed. Use it to update the labels of
+        toolBox.data()
+                .selectedConceptProperty()
+                .addListener((obs, oldv, newv) -> {
+                    if (newv != null) {
+                        var selected = new ArrayList<>(toolBox.localizations().getSelectedLocalizations());
+                        selected.forEach(loc -> loc.setLabel(newv));
+                        toolBox.eventBus().publish(new UpdatedLocalizationsEvent(selected));
+                    }
+                });
+
+    }
+
+    private void addLocalization(AddLocalizationEvent<? extends Data, ? extends Shape> event) {
+        var loc = event.localization();
+        var selectedConcept = toolBox.data().getSelectedConcept();
+        if (selectedConcept != null) {
+            loc.setLabel(selectedConcept);
+            // TODO create a new annotation and association via the service
+        }
+    }
+
+    private void updateLocalization(UpdatedLocalizationsEvent event) {
+        // TODO update the existing annotation/association via the service
     }
 
     private void reload() {
-
         // Reload services as they may have changed
         var serviceFactory = Initializer.newServiceFactory();
         var services = serviceFactory.newServices();
         toolBox.servicesProperty().set(services);
-        reloadConcepts();
-
     }
 
-    private void reloadConcepts() {
-        log.atInfo().log("Loading concepts");
-        // Reload concepts for the new services
-        // TODO we're only loading 10,000 names here. Need to page these to use worms
-        toolBox.servicesProperty()
-                .get()
-                .namesService()
-                .listNames(10000, 0)
-                .thenAccept(page -> {
-                    log.atInfo().log(page.content().size() + " concepts loaded");
-                    Platform.runLater(() -> toolBox.data().getConcepts().setAll(page.content()));
-                });
-    }
 
     private void setSelectedConcept(String conceptName) {
         var services = toolBox.servicesProperty().get();

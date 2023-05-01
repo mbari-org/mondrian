@@ -74,7 +74,7 @@ public class ToolsPaneController {
         var row = 0;
         var selectionToggle = new ToggleButton();
         selectionToggle.getStyleClass().add("glyph-icon");
-        selectionToggle.setGraphic(Icons.HIGHLIGHT_ALT.standardSize());
+        selectionToggle.setGraphic(org.mbari.imgfx.Icons.HIGHLIGHT_ALT.standardSize());
         selectionToggle.selectedProperty()
                 .addListener((obs, oldv, newv) -> {
                     var rect = selectionRectangle.getRectangle();
@@ -122,19 +122,19 @@ public class ToolsPaneController {
         row++;
 
 
-        addBuilderToogle(Icons.CLOSE.standardSize(),
+        addBuilderToogle(org.mbari.imgfx.Icons.CLOSE.standardSize(),
                 new MarkerBuilder(paneController, eventBus), row);
         row++;
 
-        addBuilderToogle(Icons.SLASH.standardSize(),
+        addBuilderToogle(org.mbari.imgfx.Icons.SLASH.standardSize(),
                 new LineBuilder(paneController, eventBus), row);
         row++;
 
-        addBuilderToogle(Icons.BOUNDING_BOX.standardSize(),
+        addBuilderToogle(org.mbari.imgfx.Icons.BOUNDING_BOX.standardSize(),
                 new RectangleBuilder(paneController, eventBus), row);
         row++;
 
-        addBuilderToogle(Icons.HEXAGON.standardSize(),
+        addBuilderToogle(org.mbari.imgfx.Icons.HEXAGON.standardSize(),
                 new PolygonBuilder(paneController, eventBus), row);
         row++;
 
@@ -171,6 +171,15 @@ public class ToolsPaneController {
         hbox.setAlignment(Pos.CENTER);
         pane.add(hbox, 0, row, 2, 1);
         row++;
+
+        var resetColorSliderButton = new Button("Reset");
+        resetColorSliderButton.setOnAction(event -> {
+            contrastSlider.adjustValue(0);
+            hueSlider.adjustValue(0);
+            saturationSlider.adjustValue(0);
+            brightSlider.adjustValue(0);
+        });
+        pane.add(resetColorSliderButton, 0, row, 2, 1);
 
 
 

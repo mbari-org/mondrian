@@ -9,28 +9,36 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.mbari.imgfx.etc.rx.events.Event;
 import org.mbari.mondrian.javafx.AnnotationPaneController;
-
+import org.mbari.mondrian.msg.messages.SetSelectedImage;
 
 
 public class App extends Application {
 
     private static final System.Logger log = System.getLogger(App.class.getSimpleName());
-//    private final ToolBox toolbox = Initializer.getToolBox();
-//    private final AppController appController = new AppController(toolbox);
+    private final ToolBox toolbox = Initializer.getToolBox();
+    private final AppController appController = new AppController(toolbox);
 
     @Override
     public void start(Stage stage) throws Exception {
-        var toolbox = Initializer.getToolBox();
-        var appController = new AppController(toolbox);
         var paneController = new AnnotationPaneController(toolbox);
 
-        var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
-        var image = new Image(imageUrl.toExternalForm());
-        paneController.getAutoscalePaneController()
-                .getView()
-                .setImage(image);
+        toolbox.data()
+                .selectedImageProperty()
+                .addListener((obs, oldv, newv) -> {
+                    var image = newv == null ? null : new Image(newv.getUrl().toExternalForm());
+                    paneController.getAutoscalePaneController()
+                            .getView()
+                            .setImage(image);
+                });
 
-        paneController.getEventBus()
+        // TODO HAck for development
+        var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
+        var image = new org.mbari.vars.services.model.Image();
+        image.setUrl(imageUrl);
+        toolbox.eventBus().publish(new SetSelectedImage(image));
+
+
+        toolbox.eventBus()
                 .toObserverable()
                 .ofType(Event.class)
                 .subscribe(event -> log.log(System.Logger.Level.INFO, event));
