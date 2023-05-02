@@ -1,6 +1,7 @@
 package org.mbari.mondrian.services.vars;
 
 import org.mbari.mondrian.domain.Page;
+import org.mbari.mondrian.etc.okhttp3.ClientSupport;
 import org.mbari.mondrian.services.AnnotationService;
 import org.mbari.vars.services.MediaService;
 import org.mbari.vars.services.model.Annotation;
@@ -17,7 +18,8 @@ public class AnnosaurusAnnotationService implements AnnotationService {
     private final org.mbari.vars.services.AnnotationService annotationService;
     private final MediaService mediaService;
 
-    public AnnosaurusAnnotationService(org.mbari.vars.services.AnnotationService annotationService, MediaService mediaService) {
+    public AnnosaurusAnnotationService(org.mbari.vars.services.AnnotationService annotationService,
+                                       MediaService mediaService) {
         this.annotationService = annotationService;
         this.mediaService = mediaService;
     }
@@ -47,6 +49,7 @@ public class AnnosaurusAnnotationService implements AnnotationService {
     public CompletableFuture<List<Annotation>> findByImageUuid(UUID imageUuid) {
         return annotationService.findByImageReference(imageUuid);
     }
+
 
     @Override
     public CompletableFuture<Page<Annotation>> findByMediaUuid(UUID mediaUuid, int size, int page) {

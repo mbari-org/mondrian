@@ -5,6 +5,7 @@ import okhttp3.Request;
 import org.mbari.mondrian.domain.Counter;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.etc.gson.Json;
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.etc.okhttp3.ClientSupport;
 import org.mbari.mondrian.services.ImageService;
 import org.mbari.mondrian.util.FetchRange;
@@ -28,6 +29,7 @@ public class AnnosaurusImageService implements ImageService {
     private final EndpointConfig annosaurusEndpointConfig;
     public record MediaCount(Media media, Long imageCount) {}
     public record MediaRequest(Media media, int limit, int offset) {}
+    private static final Logging log = new Logging(AnnosaurusImageService.class);
 
     public AnnosaurusImageService(AnnotationService annotationService,
                                   MediaService mediaService,
@@ -70,7 +72,10 @@ public class AnnosaurusImageService implements ImageService {
                 .url(httpUrl)
                 .header("Accept", "application/json")
                 .build();
-        return clientSupport.execRequest(request, s -> Json.decodeArray(s, Image.class));
+        return clientSupport.execRequest(request, s -> {
+            log.atDebug().log(s);
+            return Json.decodeArray(s, Image.class);
+        });
     }
 
     @Override

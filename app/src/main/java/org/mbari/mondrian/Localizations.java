@@ -20,10 +20,10 @@ import java.util.List;
 
 public class Localizations {
 
-    private ObservableList<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> localizations = FXCollections.observableArrayList();
-    private ObservableList<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> selectedLocalizations = FXCollections.observableArrayList();
-    private ObjectProperty<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> editedLocalization = new SimpleObjectProperty<>();
-    private ObservableMap<Object, Boolean> visibleDataViewTypes =  FXCollections.observableHashMap();
+    private final ObservableList<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> localizations = FXCollections.observableArrayList();
+    private final ObservableList<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> selectedLocalizations = FXCollections.observableArrayList();
+    private final ObjectProperty<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> editedLocalization = new SimpleObjectProperty<>();
+    private final ObservableMap<Object, Boolean> visibleDataViewTypes =  FXCollections.observableHashMap();
 
     public Localizations(EventBus eventBus) {
         init(eventBus);
@@ -48,16 +48,16 @@ public class Localizations {
             updateVisibility();
         });
 
-        eventBus.toObserverable()
-                .ofType(AddLocalizationEvent.class)
+        var rx = eventBus.toObserverable();
+
+        rx.ofType(AddLocalizationEvent.class)
                 .subscribe(a -> {
                     localizations.add(a.localization());
                     var visible = visibleDataViewTypes.getOrDefault(a.localization().getDataView().getClass(), true);
                     a.localization().setVisible(visible);
                 });
 
-        eventBus.toObserverable()
-                .ofType(RemoveLocalizationEvent.class)
+        rx.ofType(RemoveLocalizationEvent.class)
                 .subscribe(a -> {
                     a.localization().setVisible(false);
                     localizations.remove(a.localization());
@@ -70,12 +70,10 @@ public class Localizations {
 
                 });
 
-        eventBus.toObserverable()
-                .ofType(EditLocalizationEvent.class)
+        rx.ofType(EditLocalizationEvent.class)
                 .subscribe(a -> editedLocalization.set(a.localization()));
 
-        eventBus.toObserverable()
-                .ofType(ClearLocalizations.class)
+        rx.ofType(ClearLocalizations.class)
                 .subscribe(a -> {
                     localizations.forEach(loc -> loc.setVisible(false));
                     editedLocalization.set(null);
@@ -83,12 +81,10 @@ public class Localizations {
                     localizations.clear();
                 });
 
-        eventBus.toObserverable()
-                .ofType(ShowDataViewType.class)
+        rx.ofType(ShowDataViewType.class)
                 .subscribe(show -> setVisibility(show.dataViewType(), true));
 
-        eventBus.toObserverable()
-                .ofType(HideDataViewType.class)
+        rx.ofType(HideDataViewType.class)
                 .subscribe(hide -> setVisibility(hide.dataViewType(), false));
     }
 

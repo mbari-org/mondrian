@@ -42,7 +42,9 @@ dependencies {
     implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
     implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
     implementation("org.mbari:imgfx:0.0.13")
+    implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("io.github.palexdev:materialfx:11.16.1")
+    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1")
     runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
     runtimeOnly("ch.qos.logback:logback-classic:1.4.7")
 }

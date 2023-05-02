@@ -10,18 +10,13 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import org.mbari.imgfx.etc.javafx.controls.FilteredComboBoxDecorator;
-import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
-import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
-import org.mbari.mondrian.msg.messages.SetSelectedConcept;
-
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
+import org.mbari.mondrian.msg.messages.SetSelectedConceptMsg;
 
 public class ConceptPaneController {
     private HBox pane;
@@ -84,7 +79,7 @@ public class ConceptPaneController {
                     .findConcept(item)
                     .thenAccept(opt -> {
                         opt.ifPresent(concept -> {
-                            var msg = new SetSelectedConcept(concept.primaryName());
+                            var msg = new SetSelectedConceptMsg(concept.primaryName());
                             toolBox.eventBus().publish(msg);
                         });
                     });

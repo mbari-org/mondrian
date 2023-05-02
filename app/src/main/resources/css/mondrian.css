@@ -1,0 +1,174 @@
+.root {
+    -attention-color: #FFB74D;
+    -concurrent-color: #FDD835;
+    -default-color: #2b3940;
+    -default-compliment-color-dark: #000000; /* darkened by 25% and spun by 8 degrees */
+    -default-compliment-color-light: #5e778c; /* lightened by 25% and spun by 8 degrees */
+    -default-compliment-monochrome: #3b637e;
+    -default-table-text: #79c9ff;
+    -default-text: #B3A9A3;
+    -emphasis-color: #5D3D3D;
+    -hover-color: #454545;
+    -image-color: #1E88E5;
+    -sample-color: #00600f;
+    -search-color: #388e3c;
+    -selected-color: #F0544C;
+    -selected-text: #FFFFFF;
+
+    -cancel-color: #FF6663;
+    -accept-color: #DDF093;
+
+    -fx-base: -default-color;
+    -fx-background: -default-color;
+    -fx-background: #2b3940;
+    -icons-color: -default-text;
+}
+
+.annotation-color-pane {
+    -fx-padding: 5px;
+}
+
+.button {
+    -fx-background-radius: 5 5 5 5;
+    -fx-background-color: -default-color;
+    -fx-text-fill: -default-text;
+}
+
+.button:hover {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: -selected-text;
+}
+
+.button:hover .glyph-icon {
+    -fx-text-fill: -selected-text;
+    -fx-fill: -selected-text;
+}
+
+.cell {
+    -fx-background-color: -default-color;
+    -fx-text-fill: -default-text;
+}
+
+.cell:odd {
+    -fx-background-color: -default-color;
+}
+
+.cell:hover {
+    -fx-background-color: -hover-color;
+}
+
+.cell:selected {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: -selected-text;
+}
+
+.color-picker {
+
+}
+
+.color-picker:armed {
+    -fx-text-fill: -selected-text;
+    -fx-border-color: -selected-color
+}
+
+.color-picker:hover {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: -selected-text;
+}
+
+.color-picker:showing {
+    -fx-text-fill: -selected-text;
+    -fx-border-color: -selected-color
+}
+
+.combo-box {
+    -fx-background-color: -default-color;
+    -fx-text-fill: -default-text;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: -default-color;
+}
+
+.combo-box .combo-box-popup .list-cell:hover {
+    -fx-text-fill: -selected-text;
+    -fx-background-color: -selected-color;
+}
+
+.combo-box .combo-box-popup .list-cell:selected {
+    -fx-text-fill: -selected-text;
+    -fx-background-color: -selected-color;
+}
+
+.combo-box-popup .list-view {
+    -fx-text-fill: -selected-text;
+}
+
+.combo-box-base:hover {
+    -fx-color: -selected-color;
+}
+
+.combo-box-base:showing {
+    -fx-color: -selected-color;
+}
+
+.combo-box-base:focused {
+    -fx-background-color: -selected-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-radius: 6.4, 4, 5, 3;
+    -fx-background-insets: -1.4, 0, 1, 2;
+}
+
+.concept-pane {
+    -fx-padding: 10px;
+    -fx-alignment: center;
+}
+
+
+.glyph-icon {
+    -fx-text-fill: -default-text;
+    -fx-fill: -default-text;
+}
+
+
+/*.pane {*/
+/*    padding: 10px;*/
+/*}*/
+
+.toggle-button:hover {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: -selected-text;
+}
+
+.toggle-button:hover .glyph-icon {
+    -fx-text-fill: -selected-text;
+    -fx-fill: -selected-text;
+}
+
+.toggle-button:selected {
+    -fx-text-fill: -selected-text;
+    -fx-border-color: -selected-color
+}
+
+.toggle-button:selected .glyph-icon {
+    -fx-text-fill: -selected-text;
+    -fx-fill: -selected-text;
+}
+
+.tools-pane {
+    -fx-padding: 5px;
+    -fx-hgap: 5px;
+    -fx-vgap: 5px;
+    -fx-alignment: center;
+}
+
+.tools-pane-label {
+    -fx-label-padding: 10px 0px 0px 0px;
+}
+
+.tooltip-combobox {
+    -fx-background-color: -default-compliment-color-light;
+    -fx-font-size: 20pt;
+    -fx-opacity: 0.5;
+}

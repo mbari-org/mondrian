@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
 import java.util.*;
@@ -27,6 +28,7 @@ public class Data {
 
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
+    private final ObservableList<Annotation> annotationsForSelectedImage = FXCollections.observableArrayList();
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
     private final ObservableList<String> concepts = FXCollections.observableArrayList();
     private final StringProperty selectedConcept = new SimpleStringProperty();
@@ -45,6 +47,10 @@ public class Data {
 
     public ObservableList<Image> getImages() {
         return images;
+    }
+
+    public ObservableList<Annotation> getAnnotationsForSelectedImage() {
+        return annotationsForSelectedImage;
     }
 
     public ObservableList<VarsLocalization> getVarsLocalizations() {

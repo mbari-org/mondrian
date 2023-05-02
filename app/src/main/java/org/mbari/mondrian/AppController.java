@@ -1,20 +1,14 @@
 package org.mbari.mondrian;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
+
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.CircleData;
-import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.msg.messages.ReloadMsg;
-import org.mbari.mondrian.msg.messages.SetSelectedConcept;
-import org.mbari.mondrian.msg.messages.SetSelectedImage;
+import org.mbari.mondrian.msg.messages.*;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
@@ -42,11 +36,17 @@ public class AppController {
                                 .log("An error occurred while handling a ReloadMsg"));
 
         // Sets the concept use for new annotations
-        rx.ofType(SetSelectedConcept.class)
+        rx.ofType(SetSelectedConceptMsg.class)
                 .subscribe(msg -> setSelectedConcept(msg.concept()));
 
-        rx.ofType(SetSelectedImage.class)
-                .subscribe(msg -> toolBox.data().setSelectedImage(msg.image()));
+        rx.ofType(SetSelectedImageMsg.class)
+                .subscribe(msg -> Platform.runLater(() -> toolBox.data().setSelectedImage(msg.image())));
+
+        rx.ofType(SetImagesMsg.class)
+                .subscribe(msg -> Platform.runLater(() -> toolBox.data().getImages().setAll(msg.images())));
+
+        rx.ofType(SetAnnotationsForSelectedImageMsg.class)
+                    .subscribe(msg -> Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(msg.annotations())));
 
         // Handles when a new localizaion is added to the view. Typically after a user click
         // At this point the localization data has not been saved via the services

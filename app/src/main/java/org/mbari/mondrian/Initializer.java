@@ -1,6 +1,7 @@
 package org.mbari.mondrian;
 
 import javafx.beans.property.SimpleObjectProperty;
+import org.mbari.imgfx.Autoscale;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.services.ServiceFactory;

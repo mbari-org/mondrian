@@ -22,6 +22,7 @@
     <logger name="javafx" level="WARn" />
     <logger name="jdk" level="WARN" />
     <logger name="org.gradle" level="WARN" />
+    <logger name="org.mbari.mondrian.etc.okhttp3.ClientSupport" level="WARN" />
     <logger name="org.mbari.vars" level="INFO" />
     <logger name="sun" level="WARN" />
 

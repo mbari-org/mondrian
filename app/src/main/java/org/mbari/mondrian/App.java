@@ -4,12 +4,13 @@
 package org.mbari.mondrian;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.mbari.imgfx.etc.rx.events.Event;
-import org.mbari.mondrian.javafx.AnnotationPaneController;
-import org.mbari.mondrian.msg.messages.SetSelectedImage;
+import org.mbari.mondrian.javafx.AppPaneController;
+import org.mbari.mondrian.msg.messages.SetSelectedImageMsg;
+import org.mbari.mondrian.util.JFXUtilities;
 
 
 public class App extends Application {
@@ -18,40 +19,49 @@ public class App extends Application {
     private final ToolBox toolbox = Initializer.getToolBox();
     private final AppController appController = new AppController(toolbox);
 
+
     @Override
     public void start(Stage stage) throws Exception {
-        var paneController = new AnnotationPaneController(toolbox);
 
-        toolbox.data()
-                .selectedImageProperty()
-                .addListener((obs, oldv, newv) -> {
-                    var image = newv == null ? null : new Image(newv.getUrl().toExternalForm());
-                    paneController.getAutoscalePaneController()
-                            .getView()
-                            .setImage(image);
-                });
+        var appPaneController = new AppPaneController(toolbox);
 
         // TODO HAck for development
         var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
         var image = new org.mbari.vars.services.model.Image();
         image.setUrl(imageUrl);
-        toolbox.eventBus().publish(new SetSelectedImage(image));
+        toolbox.eventBus().publish(new SetSelectedImageMsg(image));
 
 
         toolbox.eventBus()
                 .toObserverable()
-                .ofType(Event.class)
                 .subscribe(event -> log.log(System.Logger.Level.INFO, event));
 
-        var scene = new Scene(paneController.getPane(), 640, 480);
+        var scene = new Scene(appPaneController.getRoot(), 640, 480);
         stage.setScene(scene);
+
+        // Save/load previous size
+        final Class clazz = getClass();
+        JFXUtilities.loadStageSize(stage, clazz);
+        stage.setOnCloseRequest(e -> {
+            // Save size on exit
+            JFXUtilities.saveStageSize(stage, clazz);
+            Platform.exit();
+            System.exit(0);
+        });
         stage.show();
 
     }
 
 
 
+
+
     public static void main(String[] args) {
+        System.getProperties().setProperty("user.timezone", "UTC");
+        //Log uncaught Exceptions
+        Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
+            log.log(System.Logger.Level.ERROR, "Exception in thread [" + thread.getName() + "]", ex);
+        });
         launch(args);
     }
 }
