@@ -12,9 +12,8 @@ import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.vars.core.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.function.Predicate;
 
@@ -25,7 +24,7 @@ import java.util.function.Predicate;
 public class FilteredComboBoxDecorator<T>  {
 
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logging log = new Logging(getClass());
     private static final String EMPTY = "";
     private StringProperty filter = new SimpleStringProperty(EMPTY);
     private AutoCompleteComparator<T> comparator;
@@ -36,6 +35,17 @@ public class FilteredComboBoxDecorator<T>  {
                                      AutoCompleteComparator<T> comparator) {
         this.comboBox = comboBox;
         this.comparator = comparator;
+
+        // HACK workaround for bug that consumes spaces in combobox
+        // this may be different in JDK 9+
+        // https://stackoverflow.com/questions/50013972/how-to-prevent-closing-of-autocompletecombobox-popupmenu-on-space-key-press-in-j
+        ComboBoxListViewSkin<T> skin = new ComboBoxListViewSkin<>(comboBox);
+        skin.getPopupContent().addEventFilter(KeyEvent.ANY, e -> {
+            if (e.getCode() == KeyCode.SPACE) {
+                e.consume();
+            }
+        });
+        comboBox.setSkin(skin);
 
         filteredItems = new FilteredList<>(comboBox.getItems());
         comboBox.setItems(filteredItems);
@@ -49,7 +59,7 @@ public class FilteredComboBoxDecorator<T>  {
 
         comboBox.itemsProperty().addListener((obs, oldV, newV) -> {
             if (newV != filteredItems) {
-//                log.info("New list of size " + newV.size());
+                log.atInfo().log("New list of size " + newV.size());
                 if (!(newV instanceof FilteredList)) {
                     filteredItems = new FilteredList<>(newV);
                 }
@@ -60,16 +70,6 @@ public class FilteredComboBoxDecorator<T>  {
             }
         });
 
-        // HACK workaround for bug that consumes spaces in combobox
-        // this may be different in JDK 9+
-        // https://stackoverflow.com/questions/50013972/how-to-prevent-closing-of-autocompletecombobox-popupmenu-on-space-key-press-in-j
-        ComboBoxListViewSkin<T> skin = new ComboBoxListViewSkin<>(comboBox);
-        skin.getPopupContent().addEventFilter(KeyEvent.ANY, e -> {
-            if (e.getCode() == KeyCode.SPACE) {
-                e.consume();
-            }
-        });
-        comboBox.setSkin(skin);
 
     }
 
@@ -117,7 +117,7 @@ public class FilteredComboBoxDecorator<T>  {
         KeyCode code = keyEvent.getCode();
         if (!keyEvent.isMetaDown()) {
             String filterValue = filter.get();
-            log.debug("Handling KeyCode = " + code);
+//            log.atInfo().log("Handling KeyCode = " + code);
             if (code.isLetterKey() || code.isDigitKey() || code == KeyCode.MINUS) {
                 filterValue += keyEvent.getText();
             } else if ((code == KeyCode.BACK_SPACE) && (filterValue.length() > 0)) {

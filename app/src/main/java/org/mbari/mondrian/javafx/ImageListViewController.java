@@ -1,0 +1,135 @@
+package org.mbari.mondrian.javafx;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.VBox;
+import javafx.util.Callback;
+import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.util.URLUtils;
+import org.mbari.vars.services.model.Image;
+
+import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+/**
+ * Displays a filterable and selectable list of VARS Images. General usage is:
+ *
+ * <pre>
+ *     <code>
+ *         // onImageSelection does work when an image is selected
+ *         var controller = new ImageListViewController()
+ *         Consumer&lt;Image&gt; onImageSelection = selection -> {
+ *             if (selection.source() != controller) {
+ *                 System.out.println(image.getUrl + "");
+ *             }
+ *         };
+ *         var vbox = controller.getPane();
+ *         // add vbox to scene
+ *         controller.setImages(myImages);
+ *     </code>
+ * </pre>
+ */
+public class ImageListViewController {
+
+    private ListView<Image> listView;
+    private ComboBox<String> imageTypeComboBox;
+    private VBox vbox;
+    Consumer<Selection<Image>> onImageSelection = imageSelection -> {};
+    ObservableList<Image> images = FXCollections.observableArrayList();
+
+    public ImageListViewController() {
+        init();
+    }
+
+    public void setOnImageSelection(Consumer<Selection<Image>> onImageSelection) {
+        if (onImageSelection == null) {
+            onImageSelection = imageSelection -> {};
+        }
+        this.onImageSelection = onImageSelection;
+    }
+
+    public void setImages(Collection<Image> images) {
+        this.images.setAll(images);
+        applyImageType();
+    }
+
+    public VBox getPane() {
+        return vbox;
+    }
+
+    private void init() {
+        listView = new ListView<>();
+        imageTypeComboBox = new ComboBox<>();
+        vbox = new VBox(listView, imageTypeComboBox);
+
+        listView.setCellFactory(new Callback<>() {
+            @Override
+            public ListCell<Image> call(ListView<Image> param) {
+                return new ListCell<>() {
+                    @Override
+                    protected void updateItem(Image item, boolean empty) {
+                        Platform.runLater(() -> {
+                            super.updateItem(item, empty);
+                            if (item == null || empty) {
+                                setText("");
+                                setTooltip(null);
+                            } else {
+                                var s = URLUtils.filename(item.getUrl());
+                                setText(s);
+                                setTooltip(new Tooltip(s));
+                            }
+                        });
+                    }
+                };
+            }
+        });
+
+        // When an image is selected in the list, show it in the editor pane
+        listView.getSelectionModel()
+                .getSelectedItems()
+                .addListener((ListChangeListener<? super Image>) c -> {
+                    var item = listView.getSelectionModel().getSelectedItem();
+                    var selection = new Selection<>(ImageListViewController.this, item);
+                    onImageSelection.accept(selection);
+                });
+
+        // When a filter is selected apply it
+        imageTypeComboBox.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldv, newv) -> {
+                    applyImageType();
+                });
+
+        // Populate the filter combobox
+        images.addListener((ListChangeListener<? super Image>) c -> {
+            var exts = images.stream()
+                    .map(i -> URLUtils.extension(i.getUrl()))
+                    .distinct()
+                    .collect(Collectors.toList());
+            Platform.runLater(() -> imageTypeComboBox.getItems().setAll(exts));
+        });
+
+        applyImageType();
+    }
+
+    private void applyImageType() {
+        var filteredImages = images.filtered(this::isImageTypeShown);
+        Platform.runLater(() -> listView.setItems(filteredImages));
+    }
+
+    private boolean isImageTypeShown(Image image) {
+        var imageUrl = image.getUrl();
+        var imageExt = imageTypeComboBox.getSelectionModel().getSelectedItem();
+        if (imageExt == null || imageExt.isEmpty() || imageExt.isBlank()) {
+            return true;
+        }
+        return imageUrl.toExternalForm().endsWith(imageExt);
+    }
+}

@@ -6,9 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.mbari.imgfx.AutoscalePaneController;
 import org.mbari.imgfx.etc.javafx.controls.CrossHairs;
 import org.mbari.imgfx.etc.rx.EventBus;
@@ -22,6 +21,7 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class AnnotationPaneController {
 
@@ -58,11 +58,13 @@ public class AnnotationPaneController {
         conceptPaneController = new ConceptPaneController(toolBox);
 
         var autoscalePane = autoscalePaneController.getPane();
+        autoscalePane.getStyleClass().add("autoscale-pane");
+//        autoscalePane.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, null, null)));
         autoscalePane.getChildren().addAll(crossHairs.getNodes());
         pane = new BorderPane(autoscalePaneController.getPane());
         pane.setBottom(conceptPaneController.getPane());
         pane.getStylesheets()
-                .addAll("imgfx.css");
+                .addAll(toolBox.stylesheets());
 
         var leftPane = new VBox();
         leftPane.setSpacing(5);
@@ -97,7 +99,8 @@ public class AnnotationPaneController {
     }
 
     public void resetUsingImage(Image image) {
-        log.log(Level.DEBUG, () -> String.format("resetUsingImage(%s)", image.getUrl()));
+        log.log(Level.DEBUG, () -> String.format("resetUsingImage(%s)",
+                Optional.ofNullable(image).map(Image::getUrl).orElse("null")));
         localizations.getLocalizations()
                 .forEach(loc -> loc.setVisible(false));
         localizations.getSelectedLocalizations().clear();

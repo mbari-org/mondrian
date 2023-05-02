@@ -8,6 +8,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.layout.BorderPane;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
+import org.mbari.mondrian.msg.messages.ReloadMsg;
 
 import java.util.Optional;
 
@@ -21,6 +22,16 @@ public class CameraDeploymentDialogController {
 
     public CameraDeploymentDialogController(ToolBox toolBox) {
         this.toolBox = toolBox;
+        init();
+    }
+
+    private void init() {
+        toolBox.eventBus()
+                .toObserverable()
+                .ofType(ReloadMsg.class)
+                .subscribe(msg -> {
+                    dialog = null;
+                });
     }
 
     public Optional<String> focus() {
@@ -51,21 +62,28 @@ public class CameraDeploymentDialogController {
                 }
                 return null;
             });
-            new FilteredComboBoxDecorator<>(comboBox, FilteredComboBoxDecorator.CONTAINS_CHARS_IN_ORDER);
+
+            var cameraDeployments = toolBox.servicesProperty()
+                    .get()
+                    .mediaService()
+                    .findAllCameraDeployments()
+                    .join();
+
+            Platform.runLater(() -> {
+                var observableList = FXCollections.observableList(cameraDeployments);
+                comboBox.setItems(observableList);
+                new FilteredComboBoxDecorator<>(comboBox, FilteredComboBoxDecorator.CONTAINS_CHARS_IN_ORDER);
+            });
+
             dialog.getDialogPane()
                     .getStylesheets()
                     .addAll(toolBox.stylesheets());
         }
 
         // Reload deployments
-        comboBox.getItems().clear();
-        var cameraDeployments = toolBox.servicesProperty()
-                .get()
-                .mediaService()
-                .findAllCameraDeployments()
-                .join();
-        var observableList = FXCollections.observableList(cameraDeployments);
-        comboBox.setItems(observableList);
+
+//        comboBox.getItems().setAll(cameraDeployments);
+
 
 
         return dialog;

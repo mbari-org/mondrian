@@ -2,6 +2,7 @@ package org.mbari.mondrian.javafx;
 
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
@@ -18,6 +19,7 @@ import org.mbari.mondrian.msg.messages.SetAnnotationsForSelectedImageMsg;
 import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedAnnotationsMsg;
 import org.mbari.mondrian.util.FXMLUtils;
+import org.mbari.mondrian.util.IPrefs;
 import org.mbari.mondrian.util.URLUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
@@ -215,7 +217,9 @@ public class DataSelectionPaneController {
 
         rx.ofType(SetImagesMsg.class)
                 .subscribe(event -> {
-                    imageListView.getItems().setAll(event.images());
+                    var items = FXCollections.observableList(event.images().stream().toList());
+                    imageListView.setItems(items);
+//                    imageListView.getItems().setAll(event.images());
                 });
 
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
@@ -245,11 +249,13 @@ public class DataSelectionPaneController {
         // Set image in magnified view
         var i = new javafx.scene.image.Image(image.getUrl().toExternalForm());
         imageView.setImage(i);
-        toolBox.servicesProperty()
-                .get()
-                .annotationService()
-                .findByImageUuid(image.getImageReferenceUuid())
-                .thenAccept(annotations -> toolBox.eventBus().publish(new SetAnnotationsForSelectedImageMsg(DataSelectionPaneController.this, annotations)));
+        if (image.getImageReferenceUuid() != null) {
+            toolBox.servicesProperty()
+                    .get()
+                    .annotationService()
+                    .findByImageUuid(image.getImageReferenceUuid())
+                    .thenAccept(annotations -> toolBox.eventBus().publish(new SetAnnotationsForSelectedImageMsg(DataSelectionPaneController.this, annotations)));
+        }
     }
 
 
@@ -274,6 +280,8 @@ public class DataSelectionPaneController {
     public VBox getRoot() {
         return root;
     }
+
+
 
     public static DataSelectionPaneController newInstance(ToolBox toolBox, Autoscale<ImageView> autoscale) {
         ResourceBundle i18n = toolBox.i18n();

@@ -84,6 +84,7 @@ public class Initializer {
                 var data = new Data();
                 var services = newServiceFactory().newServices();
                 var stylesheets = List.of(
+                        "imgfx.css",
                         Objects.requireNonNull(Initializer.class.getResource("/css/mondrian.css")).toExternalForm()
                 );
                 toolBox = new ToolBox(eventBus,

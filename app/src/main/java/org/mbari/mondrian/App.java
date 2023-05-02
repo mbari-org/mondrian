@@ -26,10 +26,10 @@ public class App extends Application {
         var appPaneController = new AppPaneController(toolbox);
 
         // TODO HAck for development
-        var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
-        var image = new org.mbari.vars.services.model.Image();
-        image.setUrl(imageUrl);
-        toolbox.eventBus().publish(new SetSelectedImageMsg(image));
+//        var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
+//        var image = new org.mbari.vars.services.model.Image();
+//        image.setUrl(imageUrl);
+//        toolbox.eventBus().publish(new SetSelectedImageMsg(image));
 
 
         toolbox.eventBus()

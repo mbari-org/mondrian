@@ -9,6 +9,7 @@
     -default-text: #B3A9A3;
     -emphasis-color: #5D3D3D;
     -hover-color: #454545;
+    -image-background-color: #222f35 ;
     -image-color: #1E88E5;
     -sample-color: #00600f;
     -search-color: #388e3c;
@@ -26,6 +27,10 @@
 
 .annotation-color-pane {
     -fx-padding: 5px;
+}
+
+.autoscale-pane {
+    -fx-background-color: -image-background-color;
 }
 
 .button {
