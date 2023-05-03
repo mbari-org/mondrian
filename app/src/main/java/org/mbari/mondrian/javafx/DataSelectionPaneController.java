@@ -15,6 +15,7 @@ import javafx.util.Callback;
 import org.mbari.imgfx.Autoscale;
 import org.mbari.imgfx.imageview.ImageViewAutoscale;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.msg.messages.SetAnnotationsForSelectedImageMsg;
 import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedAnnotationsMsg;
@@ -155,8 +156,8 @@ public class DataSelectionPaneController {
                 .selectedItemProperty()
                 .addListener((obs, oldv, newv) -> {
                     if (newv != null) {
-                        var event = new SetSelectedAnnotationsMsg(DataSelectionPaneController.this,
-                                List.of(newv));
+                        Selection<Collection<Annotation>> selection = new Selection<>(DataSelectionPaneController.this, List.of(newv));
+                        var event = new SetSelectedAnnotationsMsg(selection);
                         toolBox.eventBus().publish(event);
                     }
                 });
@@ -210,7 +211,7 @@ public class DataSelectionPaneController {
         var rx = toolBox.eventBus().toObserverable();
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .subscribe(event -> {
-                    if (event.source() != DataSelectionPaneController.this) {
+                    if (event.selection().source() != DataSelectionPaneController.this) {
                         setSelectedAnnotations(event.annotations());
                     }
                 });
@@ -254,7 +255,8 @@ public class DataSelectionPaneController {
                     .get()
                     .annotationService()
                     .findByImageUuid(image.getImageReferenceUuid())
-                    .thenAccept(annotations -> toolBox.eventBus().publish(new SetAnnotationsForSelectedImageMsg(DataSelectionPaneController.this, annotations)));
+                    .thenAccept(annotations -> toolBox.eventBus()
+                            .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(DataSelectionPaneController.this, annotations))));
         }
     }
 

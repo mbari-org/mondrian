@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.mbari.imgfx.etc.rx.events.Event;
 import org.mbari.mondrian.javafx.AppPaneController;
+import org.mbari.mondrian.msg.messages.PrepareForShutdownMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedImageMsg;
 import org.mbari.mondrian.util.JFXUtilities;
 
@@ -24,13 +25,6 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
         var appPaneController = new AppPaneController(toolbox);
-
-        // TODO HAck for development
-//        var imageUrl = getClass().getResource("/20220828T160015Z--2efffc23-efd3-4fe7-af45-ce2076bb33ca.png");
-//        var image = new org.mbari.vars.services.model.Image();
-//        image.setUrl(imageUrl);
-//        toolbox.eventBus().publish(new SetSelectedImageMsg(image));
-
 
         toolbox.eventBus()
                 .toObserverable()
@@ -49,6 +43,10 @@ public class App extends Application {
             System.exit(0);
         });
         stage.show();
+
+        Runtime.getRuntime()
+                .addShutdownHook(new Thread(() ->
+                        toolbox.eventBus().publish(new PrepareForShutdownMsg())));
 
     }
 

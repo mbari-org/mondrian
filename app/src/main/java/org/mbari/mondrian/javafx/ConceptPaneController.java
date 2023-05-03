@@ -14,6 +14,7 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedConceptMsg;
@@ -79,7 +80,8 @@ public class ConceptPaneController {
                     .findConcept(item)
                     .thenAccept(opt -> {
                         opt.ifPresent(concept -> {
-                            var msg = new SetSelectedConceptMsg(concept.primaryName());
+                            var selection = new Selection<>(ConceptPaneController.this, concept.primaryName());
+                            var msg = new SetSelectedConceptMsg(selection);
                             toolBox.eventBus().publish(msg);
                         });
                     });

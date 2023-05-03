@@ -4,17 +4,18 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.util.URLUtils;
 import org.mbari.vars.services.model.Image;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -38,13 +39,17 @@ import java.util.stream.Collectors;
  */
 public class ImageListViewController {
 
+    private final ResourceBundle i18n;
     private ListView<Image> listView;
     private ComboBox<String> imageTypeComboBox;
+    private Label label;
+    private HBox hBox;
     private VBox vbox;
     Consumer<Selection<Image>> onImageSelection = imageSelection -> {};
     ObservableList<Image> images = FXCollections.observableArrayList();
 
-    public ImageListViewController() {
+    public ImageListViewController(ResourceBundle i18n) {
+        this.i18n = i18n;
         init();
     }
 
@@ -60,14 +65,25 @@ public class ImageListViewController {
         applyImageType();
     }
 
+    public void setSelectedImage(Image image) {
+        listView.getSelectionModel().select(image);
+    }
+
     public VBox getPane() {
         return vbox;
     }
 
     private void init() {
-        listView = new ListView<>();
         imageTypeComboBox = new ComboBox<>();
-        vbox = new VBox(listView, imageTypeComboBox);
+        label = new Label(i18n.getString("vip.image.filter"));
+        hBox = new HBox(label, imageTypeComboBox);
+
+        listView = new ListView<>();
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        listView.setPrefHeight(2000);
+
+        vbox = new VBox(hBox, listView);
+        vbox.setAlignment(Pos.CENTER);
 
         listView.setCellFactory(new Callback<>() {
             @Override
@@ -113,7 +129,9 @@ public class ImageListViewController {
                     .map(i -> URLUtils.extension(i.getUrl()))
                     .distinct()
                     .collect(Collectors.toList());
-            Platform.runLater(() -> imageTypeComboBox.getItems().setAll(exts));
+            var allExts = new ArrayList<>(exts);
+            allExts.add("");
+            Platform.runLater(() -> imageTypeComboBox.getItems().setAll(allExts));
         });
 
         applyImageType();

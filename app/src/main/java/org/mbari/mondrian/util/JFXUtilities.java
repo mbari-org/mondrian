@@ -71,4 +71,5 @@ public class JFXUtilities {
         prefs.putDouble(WIDTH_KEY, stage.getWidth());
         prefs.putDouble(HEIGHT_KEY, stage.getHeight());
     }
+
 }

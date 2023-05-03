@@ -36,18 +36,48 @@ import java.util.function.Consumer;
 public class AnnotationListViewController {
 
     private ListView<Annotation> listView;
-    private Consumer<Selection<List<Annotation>>> onAnnotationSelection;
+    private Consumer<Selection<Collection<Annotation>>> onAnnotationSelection = selection -> {};
 
     public AnnotationListViewController() {
         init();
     }
 
-    public void setOnAnnotationSelection(Consumer<Selection<List<Annotation>>> onAnnotationSelection) {
+    public void setOnAnnotationSelection(Consumer<Selection<Collection<Annotation>>> onAnnotationSelection) {
+        if (onAnnotationSelection == null) {
+            onAnnotationSelection = selection -> {};
+        }
         this.onAnnotationSelection = onAnnotationSelection;
     }
 
     public void setAnnotations(Collection<Annotation> annotations) {
         Platform.runLater(() -> listView.getItems().setAll(annotations));
+    }
+
+    public void setSelectedAnnotations(Collection<Annotation> annotations) {
+        Platform.runLater(() -> {
+            if (annotations.isEmpty()) {
+                listView.getSelectionModel().clearSelection();
+            }
+            else if (annotations.size() == 1) {
+                listView.getSelectionModel().select(annotations.iterator().next());
+            }
+            else {
+                var allImages = new ArrayList<>(listView.getItems());
+                var annos = new ArrayList<>(annotations);
+                var selectionIndices = new ArrayList<Integer>();
+                for (int i = 0; i < annos.size(); i++) {
+                    var a = annos.get(i);
+                    var j = allImages.indexOf(a);
+                    if (j > -1) {
+                        selectionIndices.add(j);
+                    }
+                }
+                // to call selectIndices using var args we need head, tail args
+                var head = selectionIndices.get(0);
+                var tail = selectionIndices.subList(1, selectionIndices.size()).stream().mapToInt(Integer::intValue).toArray();
+                listView.getSelectionModel().selectIndices(head, tail);
+            }
+        });
     }
 
     public ListView<Annotation> getListView() {
@@ -85,7 +115,7 @@ public class AnnotationListViewController {
                 .addListener((obs, oldv, newv) -> {
                     if (newv != null) {
                         var items = new ArrayList<>(listView.getSelectionModel().getSelectedItems());
-                        var selection = new Selection<List<Annotation>>(AnnotationListViewController.this, items);
+                        Selection<Collection<Annotation>> selection = new Selection<>(AnnotationListViewController.this, items);
                         onAnnotationSelection.accept(selection);
                     }
                 });

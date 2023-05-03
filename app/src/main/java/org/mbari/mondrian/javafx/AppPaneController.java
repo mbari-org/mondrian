@@ -2,18 +2,21 @@ package org.mbari.mondrian.javafx;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.msg.messages.SetAnnotationsForSelectedImageMsg;
 import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedImageMsg;
 
+import java.util.Collection;
 import java.util.Comparator;
 
 public class AppPaneController {
@@ -22,7 +25,8 @@ public class AppPaneController {
     private final ToolBox toolBox;
     private ToolBar toolBar;
     private CameraDeploymentDialogController cameraDeploymentDialog;
-    private DataSelectionPaneController dataSelectionPaneController;
+//    private DataSelectionPaneController dataSelectionPaneController;
+    private DataPaneController dataPaneController;
     private final Logging log = new Logging(getClass());
 
     public AppPaneController(ToolBox toolBox) {
@@ -32,18 +36,29 @@ public class AppPaneController {
 
     private void init() {
 
-        toolBox.data()
-                .selectedImageProperty()
-                .addListener((obs, oldv, newv) -> {
-                    var image = newv == null ? null : new Image(newv.getUrl().toExternalForm());
+//        toolBox.data()
+//                .selectedImageProperty()
+//                .addListener((obs, oldv, newv) -> {
+//                    var image = newv == null ? null : new Image(newv.getUrl().toExternalForm());
+//                    getAnnotationPaneController().resetUsingImage(image);
+//                });
+
+        var rx = toolBox.eventBus().toObserverable();
+
+        rx.ofType(SetSelectedImageMsg.class)
+                .subscribe(msg -> {
+                    var image = msg.image() == null ? null : new Image(msg.image().getUrl().toExternalForm());
                     getAnnotationPaneController().resetUsingImage(image);
                 });
 
-        var rx = toolBox.eventBus().toObserverable();
 //        rx.ofType(SetSelectedImageMsg.class)
 //                .subscribe(event -> getDataSelectionPaneController())
 
         getRoot().getStylesheets().addAll(toolBox.stylesheets());
+    }
+
+    public void setImage(org.mbari.vars.services.model.Image image) {
+
     }
 
     public AnnotationPaneController getAnnotationPaneController() {
@@ -84,7 +99,8 @@ public class AppPaneController {
                                                     .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
                                                     .distinct()
                                                     .toList();
-                                    toolBox.eventBus().publish(new SetImagesMsg(images));
+                                    var selection = new Selection<Collection<org.mbari.vars.services.model.Image>>(AppPaneController.this, images);
+                                    toolBox.eventBus().publish(new SetImagesMsg(selection));
                                 }
                                 return null;
                             });
@@ -103,16 +119,14 @@ public class AppPaneController {
         return cameraDeploymentDialog;
     }
 
-    private DataSelectionPaneController getDataSelectionPaneController() {
-        if (dataSelectionPaneController == null) {
-            dataSelectionPaneController = DataSelectionPaneController.newInstance(toolBox,
-                    annotationPaneController.getAutoscalePaneController().getAutoscale());
+    public DataPaneController getDataPaneController() {
+        if (dataPaneController == null) {
+            dataPaneController = new DataPaneController(toolBox,getAnnotationPaneController().getAutoscalePaneController().getAutoscale());
         }
-        return dataSelectionPaneController;
+        return dataPaneController;
     }
 
-
     private Pane getRightPane() {
-        return getDataSelectionPaneController().getRoot();
+        return getDataPaneController().getPane();
     }
 }

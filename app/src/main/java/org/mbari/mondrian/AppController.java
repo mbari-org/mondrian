@@ -7,11 +7,15 @@ import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.CircleData;
+import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.DataSelectionPaneController;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.vars.services.model.Image;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AppController {
 
@@ -40,7 +44,7 @@ public class AppController {
                 .subscribe(msg -> setSelectedConcept(msg.concept()));
 
         rx.ofType(SetSelectedImageMsg.class)
-                .subscribe(msg -> Platform.runLater(() -> toolBox.data().setSelectedImage(msg.image())));
+                .subscribe(msg -> setSelectedImage(msg.image()));
 
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().getImages().setAll(msg.images())));
@@ -85,6 +89,20 @@ public class AppController {
                     }
                 });
 
+    }
+
+    private void setSelectedImage(Image selectedImage) {
+        toolBox.eventBus()
+                .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, List.of())));
+        Platform.runLater(() -> toolBox.data().setSelectedImage(selectedImage));
+        if (selectedImage.getImageReferenceUuid() != null) {
+            toolBox.servicesProperty()
+                    .get()
+                    .annotationService()
+                    .findByImageUuid(selectedImage.getImageReferenceUuid())
+                    .thenAccept(annotations -> toolBox.eventBus()
+                            .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, annotations))));
+        }
     }
 
     private void addLocalization(AddLocalizationEvent<? extends Data, ? extends Shape> event) {
