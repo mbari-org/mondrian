@@ -61,7 +61,7 @@ public class RazielSettingsPaneController implements SettingsPane {
     @FXML
     void initialize() {
 
-        name = resources.getString("raziel.name");
+        name = resources.getString("settings.raziel.name");
 
         // Enable/disable test button
         usernameTextfield.textProperty().addListener((obs, oldv, newv) -> checkEnable());
@@ -103,10 +103,10 @@ public class RazielSettingsPaneController implements SettingsPane {
 
     private void test() {
         endpointStatusPane.getChildren().clear();
-        msgLabel.setText(resources.getString("raziel.pane.msg.starting"));
+        msgLabel.setText(resources.getString("settings.raziel.pane.msg.starting"));
         var opt = parseRazielConnectionParams();
         if (opt.isEmpty()) {
-            var msg = resources.getString("raziel.pane.msg.invalidparams");
+            var msg = resources.getString("settings.raziel.pane.msg.invalidparams");
             log.atDebug().log("Invalid raziel connection params");
             Platform.runLater(() -> msgLabel.setText(msg));
             return;
@@ -116,7 +116,7 @@ public class RazielSettingsPaneController implements SettingsPane {
         service.checkStatus(rcp.url(), rcp.username(), rcp.password())
                 .handle((statuses, ex) -> {
                     if (ex != null) {
-                        var s = resources.getString("raziel.pane.msg.authfailed");
+                        var s = resources.getString("settings.raziel.pane.msg.authfailed");
                         Platform.runLater(() -> msgLabel.setText(s));
                         log.atDebug()
                                 .setCause(ex)

@@ -29,20 +29,24 @@ public class SettingsPaneController implements IPrefs {
         if (root == null) {
             root = new TabPane();
             root.setPrefSize(600, 600);
-            loadConfigurationServerSettingsPane();
+            loadPanes();
         }
         return root;
     }
 
-
-    private void loadConfigurationServerSettingsPane() {
-        var controller = RazielSettingsPaneController.newInstance();
-        var tab = new Tab(controller.getName());
-        tab.setClosable(false);
-        tab.setContent(controller.getPane());
-        root.getTabs().add(tab);
-        prefs.add(controller);
+    private void loadPanes() {
+        // This is the list of Settings panes to display
+        var settingsPanes = List.of(RazielSettingsPaneController.newInstance(),
+                GeneralSettingsPaneController.newInstance());
+        settingsPanes.forEach(controller -> {
+            var tab = new Tab(controller.getName());
+            tab.setClosable(false);
+            tab.setContent(controller.getPane());
+            root.getTabs().add(tab);
+            prefs.add(controller);
+        });
     }
+
 
 
     /**

@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import org.mbari.imgfx.Autoscale;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.settings.GeneralSettingsPaneController;
 import org.mbari.mondrian.services.ServiceFactory;
 import org.mbari.mondrian.services.vars.VarsServiceFactory;
 import org.mbari.vars.core.crypto.AES;
@@ -81,7 +82,12 @@ public class Initializer {
                 var eventBus = new EventBus();
                 var i18n = ResourceBundle.getBundle("i18n",
                         Locale.getDefault());
+
+                // Load settings from saved preferences
                 var data = new Data();
+                var generalSettings = GeneralSettingsPaneController.loadSettings();
+                data.setPageSize(generalSettings.pageSize());
+
                 var services = newServiceFactory().newServices();
                 var stylesheets = List.of(
                         "imgfx.css",

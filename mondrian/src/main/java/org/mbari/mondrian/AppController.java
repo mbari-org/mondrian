@@ -29,14 +29,14 @@ public class AppController {
     private void init() {
         var rx = toolBox.eventBus().toObserverable();
 
-        rx.ofType(OpenImagesByCameraDeployment.class)
+        rx.ofType(OpenImagesByCameraDeploymentMsg.class)
                 .subscribe(msg -> {
                     toolBox.data().setOpenUsingPaging(msg);
                     loadImagesByVideoSequenceName(msg.source(),
                             msg.cameraDeployment(), msg.size(), msg.page());
                 });
 
-        rx.ofType(OpenImagesByConcept.class)
+        rx.ofType(OpenImagesByConceptMsg.class)
                 .subscribe(msg -> {
                     toolBox.data().setOpenUsingPaging(msg);
                     loadImagesByConcept(msg.source(),
@@ -44,7 +44,7 @@ public class AppController {
                             msg.size(), msg.page());
                 });
 
-        rx.ofType(OpenNextPage.class)
+        rx.ofType(OpenNextPageMsg.class)
                 .subscribe(msg -> {
                     var paging = toolBox.data().getOpenUsingPaging();
                     if (paging != null) {
@@ -52,7 +52,7 @@ public class AppController {
                     }
                 });
 
-        rx.ofType(OpenPreviousPage.class)
+        rx.ofType(OpenPreviousPageMsg.class)
                 .subscribe(msg -> {
                     var paging = toolBox.data().getOpenUsingPaging();
                     if (paging != null) {
@@ -67,6 +67,17 @@ public class AppController {
                         throwable -> log.atError()
                                 .withCause(throwable)
                                 .log("An error occurred while handling a ReloadMsg"));
+
+        rx.ofType(SetPageSizeMsg.class)
+                .subscribe(msg -> {
+                    if (msg.pageSize() > 0) {
+                        toolBox.data().setPageSize(msg.pageSize());
+                        var paging = toolBox.data().getOpenUsingPaging();
+                        if (paging != null) {
+                            toolBox.eventBus().publish(paging.withPageSize(msg.pageSize()));
+                        }
+                    }
+                });
 
         // Sets the concept use for new annotations
         rx.ofType(SetSelectedConceptMsg.class)

@@ -34,12 +34,6 @@ public class AppPaneController {
 
     private void init() {
 
-//        toolBox.data()
-//                .selectedImageProperty()
-//                .addListener((obs, oldv, newv) -> {
-//                    var image = newv == null ? null : new Image(newv.getUrl().toExternalForm());
-//                    getAnnotationPaneController().resetUsingImage(image);
-//                });
 
         var rx = toolBox.eventBus().toObserverable();
 
@@ -48,9 +42,6 @@ public class AppPaneController {
                     var image = msg.image() == null ? null : new Image(msg.image().getUrl().toExternalForm());
                     getAnnotationPaneController().resetUsingImage(image);
                 });
-
-//        rx.ofType(SetSelectedImageMsg.class)
-//                .subscribe(event -> getDataSelectionPaneController())
 
         getRoot().getStylesheets().addAll(toolBox.stylesheets());
     }
@@ -102,8 +93,8 @@ public class AppPaneController {
             cameraDeploymentButton.setOnAction(evt -> {
                 var dialog = getCameraDeploymentDialog();
                 dialog.focus().ifPresent(s -> {
-                    // TODO Hack we've hardwired the page
-                    var msg = new OpenImagesByCameraDeployment(AppPaneController.this, s, 10000, 0);
+                    var pageSize = toolBox.data().getPageSize();
+                    var msg = new OpenImagesByCameraDeploymentMsg(AppPaneController.this, s, pageSize, 0);
                     toolBox.eventBus().publish(msg);
                 });
             });
@@ -114,8 +105,8 @@ public class AppPaneController {
             conceptButton.setOnAction(evt -> {
                 var dialog = getConceptDialogController();
                 dialog.focus().ifPresent(s -> {
-                    // TODO Hack we've hardwired the page
-                    var msg = new OpenImagesByConcept(AppPaneController.this, s.concept(), s.includeDescendants(), 10000, 0);
+                    var pageSize = toolBox.data().getPageSize();
+                    var msg = new OpenImagesByConceptMsg(AppPaneController.this, s.concept(), s.includeDescendants(), pageSize, 0);
                     toolBox.eventBus().publish(msg);
                 });
             });

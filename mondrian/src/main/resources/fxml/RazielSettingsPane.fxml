@@ -23,14 +23,14 @@
         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        <Label text="%raziel.pane.url" />
-        <TextField fx:id="urlTextfield" prefWidth="500.0" promptText="%raziel.prompt" GridPane.columnIndex="1" />
+        <Label text="%settings.raziel.pane.url" />
+        <TextField fx:id="urlTextfield" prefWidth="500.0" promptText="%settings.raziel.prompt" GridPane.columnIndex="1" />
         <TextField fx:id="usernameTextfield" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         <PasswordField fx:id="passwordTextfield" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-        <Label text="%raziel.pane.username" GridPane.rowIndex="1" />
-        <Label text="%raziel.pane.password" GridPane.rowIndex="2" />
+        <Label text="%settings.raziel.pane.username" GridPane.rowIndex="1" />
+        <Label text="%settings.raziel.pane.password" GridPane.rowIndex="2" />
         <VBox fx:id="endpointStatusPane" prefHeight="300.0" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-        <Button fx:id="testButton" text="%raziel.pane.button.label" GridPane.rowIndex="3" />
+        <Button fx:id="testButton" text="%settings.raziel.pane.button.label" GridPane.rowIndex="3" />
         <Label fx:id="msgLabel" text="" GridPane.columnSpan="2" GridPane.rowIndex="4" />
     </children>
 </GridPane>
