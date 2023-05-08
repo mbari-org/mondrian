@@ -2,9 +2,15 @@ package org.mbari.mondrian;
 
 import javafx.beans.property.ObjectProperty;
 import org.mbari.imgfx.etc.rx.EventBus;
+import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.AppPaneController;
+import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.vars.core.crypto.AES;
+import org.mbari.vars.services.model.Image;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 
 /**
@@ -27,6 +33,9 @@ public record ToolBox(EventBus eventBus,
                       ObjectProperty<Services> servicesProperty,
                       Collection<String> stylesheets,
                       AES aes) {
+
+    private static Logging log = new Logging(ToolBox.class);
+
 
 
 }

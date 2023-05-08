@@ -33,18 +33,19 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
+    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
     implementation("com.github.mizosoft.methanol:methanol:1.7.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:3.14.4")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.controlsfx:controlsfx:11.1.2")
     implementation("org.mbari.commons:jcommons:0.0.6")
     implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
     implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
-    implementation("org.mbari:imgfx:0.0.13")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
-    implementation("io.github.palexdev:materialfx:11.16.1")
-    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1")
+    implementation("org.mbari:imgfx:0.0.13")
+//    implementation("io.github.palexdev:materialfx:11.16.1")
     runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
     runtimeOnly("ch.qos.logback:logback-classic:1.4.7")
 }

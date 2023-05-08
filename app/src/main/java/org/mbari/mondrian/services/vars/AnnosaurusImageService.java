@@ -12,6 +12,7 @@ import org.mbari.mondrian.util.FetchRange;
 import org.mbari.vars.core.util.AsyncUtils;
 import org.mbari.vars.services.AnnotationService;
 import org.mbari.vars.services.MediaService;
+import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.EndpointConfig;
 import org.mbari.vars.services.model.Image;
 import org.mbari.vars.services.model.Media;
@@ -119,6 +120,33 @@ public class AnnosaurusImageService implements ImageService {
 
     @Override
     public CompletableFuture<Page<Image>> findByConceptName(String conceptName, int size, int page, boolean includeDescendants) {
-        return null;
+        var limit = (long) size;
+        var offset = (long) page * size;
+        annotationService.countObservationsByConcept(conceptName);
+        return annotationService.findByConcept(conceptName, limit, offset, includeDescendants)
+                .thenApply(annotations -> annotations.stream()
+                        .flatMap(a -> toImages(a).stream())
+                        .toList())
+                .thenApply(images -> new Page<>(images, size, page, -1L));
+    }
+
+    public static List<Image> toImages(Annotation a) {
+        return a.getImages()
+                .stream()
+                .map(ir -> {
+                    var i = new Image();
+                    i.setUrl(ir.getUrl());
+                    i.setDescription(ir.getDescription());
+                    i.setImagedMomentUuid(a.getImagedMomentUuid());
+                    i.setImageReferenceUuid(ir.getUuid());
+                    i.setElapsedTime(a.getElapsedTime());
+                    i.setTimecode(a.getTimecode());
+                    i.setRecordedTimestamp(a.getRecordedTimestamp());
+                    i.setFormat(ir.getFormat());
+                    i.setVideoReferenceUuid(a.getVideoReferenceUuid());
+                    return i;
+                })
+                .toList();
+
     }
 }

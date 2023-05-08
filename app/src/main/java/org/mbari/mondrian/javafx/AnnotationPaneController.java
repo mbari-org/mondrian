@@ -1,22 +1,22 @@
 package org.mbari.mondrian.javafx;
 
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import org.mbari.imgfx.AutoscalePaneController;
 import org.mbari.imgfx.etc.javafx.controls.CrossHairs;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
+import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.imageview.ImagePaneController;
-import org.mbari.mondrian.AnnotationColors;
+import org.mbari.imgfx.roi.CircleData;
 import org.mbari.mondrian.Localizations;
 import org.mbari.mondrian.ToolBox;
 
+import javax.imageio.ImageIO;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Collections;
@@ -59,7 +59,6 @@ public class AnnotationPaneController {
 
         var autoscalePane = autoscalePaneController.getPane();
         autoscalePane.getStyleClass().add("autoscale-pane");
-//        autoscalePane.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, null, null)));
         autoscalePane.getChildren().addAll(crossHairs.getNodes());
         pane = new BorderPane(autoscalePaneController.getPane());
         pane.setBottom(conceptPaneController.getPane());
@@ -83,13 +82,31 @@ public class AnnotationPaneController {
         // This is important or center pane doesn't shrink when stage is shrunk
         pane.setMinSize(0, 0);
 
-        eventBus.toObserverable()
-                .ofType(AddLocalizationEvent.class)
+        var rx = eventBus.toObserverable();
+
+        rx.ofType(AddLocalizationEvent.class)
                 .subscribe(event -> {
                     localizations.setSelectedLocalizations(Collections.emptyList());
                     var loc = event.localization();
                     loc.setVisible(true);
                     localizations.setSelectedLocalizations(List.of(loc));
+                });
+
+        // TODO This is a HACK to make marker scaled to image size. Need to add a user setting for this.
+        rx.ofType(AddMarkerEvent.class)
+                .subscribe(evt -> {
+                    var data = (CircleData) evt.localization().getDataView().getData();
+                    var image = toolBox.data().getSelectedImage();
+                    if (image != null) {
+                        if (image.getWidth() == null) {
+                            // TODO read image
+                            var img = ImageIO.read(image.getUrl());
+                            image.setWidth(img.getWidth());
+                            image.setHeight(img.getHeight());
+                        }
+                        var radius = image.getWidth() / 100D;
+                        Platform.runLater(() -> data.radiusProperty().set(radius));
+                    }
                 });
 
     }

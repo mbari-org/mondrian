@@ -1,20 +1,19 @@
 package org.mbari.mondrian.javafx;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import org.controlsfx.control.PopOver;
+import org.mbari.mondrian.AppController;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
-import org.mbari.mondrian.msg.messages.SetAnnotationsForSelectedImageMsg;
-import org.mbari.mondrian.msg.messages.SetImagesMsg;
-import org.mbari.mondrian.msg.messages.SetSelectedImageMsg;
+import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
+import org.mbari.mondrian.msg.messages.*;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,8 +24,10 @@ public class AppPaneController {
     private final ToolBox toolBox;
     private ToolBar toolBar;
     private CameraDeploymentDialogController cameraDeploymentDialog;
+    private ConceptDialogController conceptDialogController;
 //    private DataSelectionPaneController dataSelectionPaneController;
     private DataPaneController dataPaneController;
+    private PopOver openPopOver;
     private final Logging log = new Logging(getClass());
 
     public AppPaneController(ToolBox toolBox) {
@@ -80,36 +81,48 @@ public class AppPaneController {
             Text openIcon = Icons.VIDEO_LIBRARY.standardSize();
             Button openButton = new Button();
             openButton.setGraphic(openIcon);
-            openButton.setOnAction(evt -> {
-                var dialog = getCameraDeploymentDialog();
-                dialog.focus().ifPresent(s -> {
-                    // TODO Hack we've hardwired the page
-                    System.out.println("HERE I am");
-                    toolBox.servicesProperty()
-                            .get()
-                            .imageService()
-                            .findByVideoSequenceName(s, 10000, 0)
-                            .handle((page, ex) -> {
-                                if (ex != null) {
-                                    log.atWarn().withCause(ex).log("Failed to get images");
-                                }
-                                else {
-                                    var images = page.content()
-                                                    .stream()
-                                                    .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
-                                                    .distinct()
-                                                    .toList();
-                                    var selection = new Selection<Collection<org.mbari.vars.services.model.Image>>(AppPaneController.this, images);
-                                    toolBox.eventBus().publish(new SetImagesMsg(selection));
-                                }
-                                return null;
-                            });
-
-                });
-            });
+            openButton.setGraphic(openIcon);
+            openButton.setOnAction(e -> getOpenPopOver().show(openButton));
+            openButton.setTooltip(new Tooltip(toolBox.i18n().getString("apppane.toolbar.button.open")));
+            
             toolBar = new ToolBar(openButton);
         }
         return toolBar;
+    }
+
+    public PopOver getOpenPopOver() {
+        if (openPopOver == null) {
+            var i18n = toolBox.i18n();
+
+            Text cameraDeploymentIcon = Icons.VIDEO_LIBRARY.standardSize();
+            Button cameraDeploymentButton = new Button(null, cameraDeploymentIcon);
+            cameraDeploymentButton.setTooltip(new Tooltip(i18n.getString("apppane.button.open.deployment")));
+            cameraDeploymentButton.setOnAction(evt -> {
+                var dialog = getCameraDeploymentDialog();
+                dialog.focus().ifPresent(s -> {
+                    // TODO Hack we've hardwired the page
+                    var msg = new OpenImagesByCameraDeployment(AppPaneController.this, s, 10000, 0);
+                    toolBox.eventBus().publish(msg);
+                });
+            });
+
+            Text conceptIcon = Icons.BUG_REPORT.standardSize();
+            Button conceptButton = new Button(null, conceptIcon);
+            conceptButton.setTooltip(new Tooltip(i18n.getString("apppane.button.open.concept")));
+            conceptButton.setOnAction(evt -> {
+                var dialog = getConceptDialogController();
+                dialog.focus().ifPresent(s -> {
+                    // TODO Hack we've hardwired the page
+                    var msg = new OpenImagesByConcept(AppPaneController.this, s.concept(), s.includeDescendants(), 10000, 0);
+                    toolBox.eventBus().publish(msg);
+                });
+            });
+
+            // TODO add open by concept button
+            var vbox = new VBox(cameraDeploymentButton, conceptButton);
+            openPopOver = new PopOver(vbox);
+        }
+        return openPopOver;
     }
 
     private CameraDeploymentDialogController getCameraDeploymentDialog() {
@@ -117,6 +130,14 @@ public class AppPaneController {
             cameraDeploymentDialog = new CameraDeploymentDialogController(toolBox);
         }
         return cameraDeploymentDialog;
+    }
+
+    public ConceptDialogController getConceptDialogController() {
+        if (conceptDialogController == null) {
+            conceptDialogController = new ConceptDialogController(toolBox);
+        }
+        return conceptDialogController;
+
     }
 
     public DataPaneController getDataPaneController() {

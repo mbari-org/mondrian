@@ -9,12 +9,13 @@ import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.CircleData;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.javafx.DataSelectionPaneController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Image;
 
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class AppController {
@@ -30,6 +31,15 @@ public class AppController {
 
     private void init() {
         var rx = toolBox.eventBus().toObserverable();
+
+        rx.ofType(OpenImagesByCameraDeployment.class)
+                .subscribe(msg -> loadImagesByVideoSequenceName(msg.source(),
+                        msg.cameraDeployment(), msg.size(), msg.page()));
+
+        rx.ofType(OpenImagesByConcept.class)
+                .subscribe(msg -> loadImagesByConcept(msg.source(),
+                        msg.concept(), msg.includeDescendants(),
+                        msg.size(), msg.page()));
 
         // Reload/refresh data from services
         rx.ofType(ReloadMsg.class)
@@ -60,24 +70,6 @@ public class AppController {
         rx.ofType(UpdatedLocalizationsEvent.class)
                 .subscribe(this::updateLocalization);
 
-        // TODO This is a HACK to make marker scaled to image size. Need to add a user setting for this.
-        rx.ofType(AddMarkerEvent.class)
-                .subscribe(evt -> {
-                    var data = (CircleData) evt.localization().getDataView().getData();
-                    var image = toolBox.data().getSelectedImage();
-                    if (image != null) {
-                        if (image.getWidth() == null) {
-                            // TODO read image
-                            var img = ImageIO.read(image.getUrl());
-                            image.setWidth(img.getWidth());
-                            image.setHeight(img.getHeight());
-                        }
-                        var radius = image.getWidth() / 100D;
-                        Platform.runLater(() -> data.radiusProperty().set(radius));
-
-                    }
-                });
-
         // When the selected concept is changed. Use it to update the labels of
         toolBox.data()
                 .selectedConceptProperty()
@@ -88,7 +80,6 @@ public class AppController {
                         toolBox.eventBus().publish(new UpdatedLocalizationsEvent(selected));
                     }
                 });
-
     }
 
     private void setSelectedImage(Image selectedImage) {
@@ -139,6 +130,58 @@ public class AppController {
                     else {
                         Platform.runLater(() -> toolBox.data().setSelectedConcept(concept.get().primaryName()));
                     }
+                });
+    }
+
+    public void loadImagesByVideoSequenceName(Object source,
+                                              String videoSequenceName,
+                                              int size,
+                                              int pageNumber) {
+        toolBox.servicesProperty()
+                .get()
+                .imageService()
+                .findByVideoSequenceName(videoSequenceName, size, pageNumber)
+                .handle((page, ex) -> {
+                    if (ex != null) {
+                        log.atWarn().withCause(ex).log("Failed to get images");
+                    }
+                    else {
+                        log.atInfo().log(page + "");
+                        var images = page.content()
+                                .stream()
+                                .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
+                                .distinct()
+                                .toList();
+                        var selection = new Selection<Collection<Image>>(source, images);
+                        toolBox.eventBus().publish(new SetImagesMsg(selection));
+                    }
+                    return null;
+                });
+    }
+
+    public void loadImagesByConcept(Object source,
+                                    String concept,
+                                    Boolean includeDescendants,
+                                    int size,
+                                    int pageNumber) {
+        toolBox.servicesProperty()
+                .get()
+                .imageService()
+                .findByConceptName(concept, size, pageNumber, includeDescendants)
+                .handle((page, ex) -> {
+                    if (ex != null) {
+                        log.atWarn().withCause(ex).log("Failed to get images");
+                    }
+                    else {
+                        var images = page.content()
+                                .stream()
+                                .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
+                                .distinct()
+                                .toList();
+                        var selection = new Selection<Collection<Image>>(source, images);
+                        toolBox.eventBus().publish(new SetImagesMsg(selection));
+                    }
+                    return null;
                 });
     }
 

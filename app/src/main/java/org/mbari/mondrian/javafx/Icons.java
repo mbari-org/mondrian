@@ -24,6 +24,7 @@ public enum Icons {
     ARROW_BACK(Material2AL.ARROW_BACK),
     ARROW_FORWARD(Material2AL.ARROW_FORWARD),
     AV_TIMER(Material2AL.AV_TIMER),
+    BUG_REPORT(Material2AL.BUG_REPORT),
     CACHED(Material2AL.CACHED),
     CANCEL(Material2AL.CANCEL),
     CHECK(Material2AL.CHECK),
