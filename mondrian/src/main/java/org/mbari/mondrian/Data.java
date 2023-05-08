@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.mondrian.msg.messages.Paging;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
@@ -32,6 +33,7 @@ public class Data {
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
     private final ObservableList<String> concepts = FXCollections.observableArrayList();
     private final StringProperty selectedConcept = new SimpleStringProperty();
+    private final ObjectProperty<Paging<?>> openUsingPaging = new SimpleObjectProperty<>();
 
     public Image getSelectedImage() {
         return selectedImage.get();
@@ -71,6 +73,18 @@ public class Data {
 
     public void setSelectedConcept(String selectedConcept) {
         this.selectedConcept.set(selectedConcept);
+    }
+
+    public Paging<?> getOpenUsingPaging() {
+        return openUsingPaging.get();
+    }
+
+    public ObjectProperty<Paging<?>> openUsingPagingProperty() {
+        return openUsingPaging;
+    }
+
+    public void setOpenUsingPaging(Paging<?> openUsingPaging) {
+        this.openUsingPaging.set(openUsingPaging);
     }
 }
 

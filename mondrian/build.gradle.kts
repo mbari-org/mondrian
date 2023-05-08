@@ -10,7 +10,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
-    id("org.openjfx.javafxplugin") version "0.0.13"
+    id("org.openjfx.javafxplugin") version "0.0.14"
+    id("com.github.ben-manes.versions") version "0.46.0"
+    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 javafx {
@@ -33,7 +35,7 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
-    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1")
+    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
     implementation("com.github.mizosoft.methanol:methanol:1.7.0")
     implementation("com.google.code.gson:gson:2.10.1")

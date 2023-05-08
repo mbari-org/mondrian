@@ -7,16 +7,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.controlsfx.control.PopOver;
-import org.mbari.mondrian.AppController;
 import org.mbari.mondrian.ToolBox;
-import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
+import org.mbari.mondrian.javafx.settings.SettingsDialogController;
 import org.mbari.mondrian.msg.messages.*;
-
-import java.util.Collection;
-import java.util.Comparator;
 
 public class AppPaneController {
 
@@ -25,6 +21,7 @@ public class AppPaneController {
     private ToolBar toolBar;
     private CameraDeploymentDialogController cameraDeploymentDialog;
     private ConceptDialogController conceptDialogController;
+    private SettingsDialogController settingsDialogController;
 //    private DataSelectionPaneController dataSelectionPaneController;
     private DataPaneController dataPaneController;
     private PopOver openPopOver;
@@ -81,11 +78,16 @@ public class AppPaneController {
             Text openIcon = Icons.VIDEO_LIBRARY.standardSize();
             Button openButton = new Button();
             openButton.setGraphic(openIcon);
-            openButton.setGraphic(openIcon);
             openButton.setOnAction(e -> getOpenPopOver().show(openButton));
-            openButton.setTooltip(new Tooltip(toolBox.i18n().getString("apppane.toolbar.button.open")));
-            
-            toolBar = new ToolBar(openButton);
+            openButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.open")));
+
+            Text settingsIcon = Icons.SETTINGS.standardSize();
+            Button settingsButton = new Button();
+            settingsButton.setGraphic(settingsIcon);
+            settingsButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.settings")));
+            settingsButton.setOnAction(e -> getSettingsDialogController().show());
+
+            toolBar = new ToolBar(openButton, settingsButton);
         }
         return toolBar;
     }
@@ -96,7 +98,7 @@ public class AppPaneController {
 
             Text cameraDeploymentIcon = Icons.VIDEO_LIBRARY.standardSize();
             Button cameraDeploymentButton = new Button(null, cameraDeploymentIcon);
-            cameraDeploymentButton.setTooltip(new Tooltip(i18n.getString("apppane.button.open.deployment")));
+            cameraDeploymentButton.setTooltip(new Tooltip(i18n.getString("app.button.open.deployment")));
             cameraDeploymentButton.setOnAction(evt -> {
                 var dialog = getCameraDeploymentDialog();
                 dialog.focus().ifPresent(s -> {
@@ -108,7 +110,7 @@ public class AppPaneController {
 
             Text conceptIcon = Icons.BUG_REPORT.standardSize();
             Button conceptButton = new Button(null, conceptIcon);
-            conceptButton.setTooltip(new Tooltip(i18n.getString("apppane.button.open.concept")));
+            conceptButton.setTooltip(new Tooltip(i18n.getString("app.button.open.concept")));
             conceptButton.setOnAction(evt -> {
                 var dialog = getConceptDialogController();
                 dialog.focus().ifPresent(s -> {
@@ -145,6 +147,13 @@ public class AppPaneController {
             dataPaneController = new DataPaneController(toolBox,getAnnotationPaneController().getAutoscalePaneController().getAutoscale());
         }
         return dataPaneController;
+    }
+
+    public SettingsDialogController getSettingsDialogController() {
+        if (settingsDialogController == null) {
+            settingsDialogController = new SettingsDialogController(toolBox);
+        }
+        return settingsDialogController;
     }
 
     private Pane getRightPane() {

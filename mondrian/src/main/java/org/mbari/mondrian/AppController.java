@@ -4,15 +4,12 @@ import javafx.application.Platform;
 
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
-import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
-import org.mbari.imgfx.roi.CircleData;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Image;
 
-import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -33,13 +30,35 @@ public class AppController {
         var rx = toolBox.eventBus().toObserverable();
 
         rx.ofType(OpenImagesByCameraDeployment.class)
-                .subscribe(msg -> loadImagesByVideoSequenceName(msg.source(),
-                        msg.cameraDeployment(), msg.size(), msg.page()));
+                .subscribe(msg -> {
+                    toolBox.data().setOpenUsingPaging(msg);
+                    loadImagesByVideoSequenceName(msg.source(),
+                            msg.cameraDeployment(), msg.size(), msg.page());
+                });
 
         rx.ofType(OpenImagesByConcept.class)
-                .subscribe(msg -> loadImagesByConcept(msg.source(),
-                        msg.concept(), msg.includeDescendants(),
-                        msg.size(), msg.page()));
+                .subscribe(msg -> {
+                    toolBox.data().setOpenUsingPaging(msg);
+                    loadImagesByConcept(msg.source(),
+                            msg.concept(), msg.includeDescendants(),
+                            msg.size(), msg.page());
+                });
+
+        rx.ofType(OpenNextPage.class)
+                .subscribe(msg -> {
+                    var paging = toolBox.data().getOpenUsingPaging();
+                    if (paging != null) {
+                        toolBox.eventBus().publish(paging.nextPage());
+                    }
+                });
+
+        rx.ofType(OpenPreviousPage.class)
+                .subscribe(msg -> {
+                    var paging = toolBox.data().getOpenUsingPaging();
+                    if (paging != null) {
+                        toolBox.eventBus().publish(paging.previousPage());
+                    }
+                });
 
         // Reload/refresh data from services
         rx.ofType(ReloadMsg.class)

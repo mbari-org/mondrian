@@ -1,4 +1,4 @@
-package org.mbari.mondrian.javafx;
+package org.mbari.mondrian.javafx.settings;
 
 
 import javafx.application.Platform;
@@ -13,13 +13,9 @@ import javafx.scene.layout.VBox;
 import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.services.vars.Raziel;
-import org.mbari.mondrian.services.vars.VarsServiceFactory;
-import org.mbari.vars.services.impl.raziel.RazielConfigurationService;
-
-import org.mbari.mondrian.javafx.settings.SettingsPane;
-
-import org.mbari.mondrian.util.JFXUtilities;
 import org.mbari.mondrian.util.FXMLUtils;
+import org.mbari.mondrian.util.JFXUtilities;
+import org.mbari.vars.services.impl.raziel.RazielConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +129,7 @@ public class RazielSettingsPaneController implements SettingsPane {
                         var panes = EndpointStatusPaneController.from(sortedStatuses)
                                 .stream()
                                 .map(EndpointStatusPaneController::getRoot)
-                                .collect(Collectors.toList());
+                                .toList();
                         Platform.runLater(() -> {
                             msgLabel.setText(null);
                             endpointStatusPane.getChildren().addAll(panes);
@@ -148,7 +144,8 @@ public class RazielSettingsPaneController implements SettingsPane {
 
     @Override
     public void load() {
-        Raziel.ConnectionParams.load()
+        Raziel.ConnectionParams
+                .load()
                 .ifPresent(rcp -> {
                     urlTextfield.setText(rcp.url().toExternalForm());
                     usernameTextfield.setText(rcp.username());
@@ -160,17 +157,13 @@ public class RazielSettingsPaneController implements SettingsPane {
     @Override
     public void save() {
         parseRazielConnectionParams().ifPresent(rcp -> {
+            var toolbox = Initializer.getToolBox();
             var path = Raziel.ConnectionParams.path();
-            var aes = Initializer.getAes();
+            var aes = Initializer.getToolBox().aes();
             try {
                 rcp.write(path, aes);
-                var toolbox = Initializer.getToolBox();
-
-                // --- Update services and trigger reload of service dependant data.
-                log.debug("Updating services using configuration from " + rcp.url());
-                var serviceFactory = new VarsServiceFactory();
-                var services = serviceFactory.newServices();
-                toolbox.servicesProperty().set(services);
+                // The AppController will listen for the ReloadMsg and
+                // will read the raziel params and refresh the services.
                 toolbox.eventBus().publish(new ReloadMsg());
             } catch (IOException e) {
                 Platform.runLater(() -> msgLabel.setText("Failed to save connection params"));
@@ -201,3 +194,4 @@ public class RazielSettingsPaneController implements SettingsPane {
 
     }
 }
+

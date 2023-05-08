@@ -9,4 +9,4 @@
  */
 
 rootProject.name = "mondrian"
-include("app")
+include("mondrian")
