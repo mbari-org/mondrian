@@ -9,7 +9,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.javafx.controls.PagerPaneController;
 import org.mbari.mondrian.util.URLUtils;
 import org.mbari.vars.services.model.Image;
 
@@ -40,16 +42,19 @@ import java.util.stream.Collectors;
 public class ImageListViewController {
 
     private final ResourceBundle i18n;
+    private final EventBus eventBus;
     private ListView<Image> listView;
     private ComboBox<String> imageTypeComboBox;
     private Label label;
     private HBox hBox;
     private VBox vbox;
+    private PagerPaneController pagerPaneController;
     Consumer<Selection<Image>> onImageSelection = imageSelection -> {};
     ObservableList<Image> images = FXCollections.observableArrayList();
 
-    public ImageListViewController(ResourceBundle i18n) {
+    public ImageListViewController(ResourceBundle i18n, EventBus eventBus) {
         this.i18n = i18n;
+        this.eventBus = eventBus;
         init();
     }
 
@@ -66,7 +71,18 @@ public class ImageListViewController {
     }
 
     public void setSelectedImage(Image image) {
-        listView.getSelectionModel().select(image);
+        if (image != null && listView.getItems().contains(image)) {
+            listView.getSelectionModel().select(image);
+        }
+        else {
+            listView.getSelectionModel().clearSelection();
+        }
+//        if (image == null) {
+//            listView.getSelectionModel().clearSelection();
+//        }
+//        else {
+//            listView.getSelectionModel().select(image);
+//        }
     }
 
     public VBox getPane() {
@@ -82,7 +98,9 @@ public class ImageListViewController {
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listView.setPrefHeight(2000);
 
-        vbox = new VBox(hBox, listView);
+        pagerPaneController = new PagerPaneController(eventBus);
+
+        vbox = new VBox(hBox, listView, pagerPaneController.getPane());
         vbox.setAlignment(Pos.CENTER);
 
         listView.setCellFactory(new Callback<>() {

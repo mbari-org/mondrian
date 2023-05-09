@@ -122,6 +122,7 @@ public class AnnosaurusImageService implements ImageService {
     public CompletableFuture<Page<Image>> findByConceptName(String conceptName, int size, int page, boolean includeDescendants) {
         var limit = (long) size;
         var offset = (long) page * size;
+        // Need to use httpclient to call a /anno/v1/fast/
         annotationService.countObservationsByConcept(conceptName);
         return annotationService.findByConcept(conceptName, limit, offset, includeDescendants)
                 .thenApply(annotations -> annotations.stream()

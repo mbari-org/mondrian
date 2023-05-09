@@ -3,7 +3,7 @@ package org.mbari.mondrian.msg.messages;
 public record OpenImagesByCameraDeploymentMsg(Object source,
                                               String cameraDeployment,
                                               int size,
-                                              int page) implements Message, Paging<OpenImagesByCameraDeploymentMsg> {
+                                              int page) implements Message, Paging<OpenImagesByCameraDeploymentMsg>, ImageSet {
 
     @Override
     public OpenImagesByCameraDeploymentMsg nextPage() {
@@ -19,5 +19,10 @@ public record OpenImagesByCameraDeploymentMsg(Object source,
     @Override
     public OpenImagesByCameraDeploymentMsg withPageSize(int newSize) {
         return new OpenImagesByCameraDeploymentMsg(source, cameraDeployment, newSize, 0);
+    }
+
+    @Override
+    public String description() {
+        return cameraDeployment;
     }
 }

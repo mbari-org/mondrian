@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 import org.controlsfx.control.PopOver;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.controls.PageLabelController;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
@@ -78,7 +79,9 @@ public class AppPaneController {
             settingsButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.settings")));
             settingsButton.setOnAction(e -> getSettingsDialogController().show());
 
-            toolBar = new ToolBar(openButton, settingsButton);
+            var pageLabelController = new PageLabelController(toolBox.eventBus());
+
+            toolBar = new ToolBar(openButton, settingsButton, pageLabelController.getLabel());
         }
         return toolBar;
     }

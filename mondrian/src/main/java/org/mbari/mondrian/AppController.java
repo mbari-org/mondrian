@@ -5,13 +5,14 @@ import javafx.application.Platform;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
+import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.dialogs.AlertController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Image;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -87,10 +88,14 @@ public class AppController {
                 .subscribe(msg -> setSelectedImage(msg.image()));
 
         rx.ofType(SetImagesMsg.class)
-                .subscribe(msg -> Platform.runLater(() -> toolBox.data().getImages().setAll(msg.images())));
+                .subscribe(msg -> Platform.runLater(() -> {
+                    toolBox.data().setCurrentImagePage(msg.selection().selected());
+                    // Clear any previous selected image.
+                    toolBox.eventBus().publish(new SetSelectedImageMsg(new Selection<>(AppController.this, null)));
+                }));
 
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
-                    .subscribe(msg -> Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(msg.annotations())));
+                .subscribe(msg -> Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(msg.annotations())));
 
         // Handles when a new localizaion is added to the view. Typically after a user click
         // At this point the localization data has not been saved via the services
@@ -116,7 +121,7 @@ public class AppController {
         toolBox.eventBus()
                 .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, List.of())));
         Platform.runLater(() -> toolBox.data().setSelectedImage(selectedImage));
-        if (selectedImage.getImageReferenceUuid() != null) {
+        if (selectedImage != null && selectedImage.getImageReferenceUuid() != null) {
             toolBox.servicesProperty()
                     .get()
                     .annotationService()
@@ -125,6 +130,8 @@ public class AppController {
                             .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, annotations))));
         }
     }
+
+
 
     private void addLocalization(AddLocalizationEvent<? extends Data, ? extends Shape> event) {
         var loc = event.localization();
@@ -182,7 +189,8 @@ public class AppController {
                                 .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
                                 .distinct()
                                 .toList();
-                        var selection = new Selection<Collection<Image>>(source, images);
+                        var newPage = new Page<>(images, size, pageNumber, page.totalSize());
+                        var selection = new Selection<>(source, newPage);
                         toolBox.eventBus().publish(new SetImagesMsg(selection));
                     }
                     return null;
@@ -208,12 +216,14 @@ public class AppController {
                                 .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
                                 .distinct()
                                 .toList();
-                        var selection = new Selection<Collection<Image>>(source, images);
+                        var newPage = new Page<>(images, size, pageNumber, page.totalSize());
+                        var selection = new Selection<>(source, newPage);
                         toolBox.eventBus().publish(new SetImagesMsg(selection));
                     }
                     return null;
                 });
     }
+
 
 
 }

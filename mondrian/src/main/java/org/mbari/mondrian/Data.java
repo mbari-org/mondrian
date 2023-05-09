@@ -1,8 +1,11 @@
 package org.mbari.mondrian;
 
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.Paging;
 import org.mbari.vars.services.model.Annotation;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
  */
 public class Data {
 
+    private final ObjectProperty<Page<Image>> currentImagePage = new SimpleObjectProperty<>();
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
     private final ObservableList<Annotation> annotationsForSelectedImage = FXCollections.observableArrayList();
@@ -31,6 +35,32 @@ public class Data {
     private final StringProperty selectedConcept = new SimpleStringProperty();
     private final ObjectProperty<Paging<?>> openUsingPaging = new SimpleObjectProperty<>();
     private final IntegerProperty pageSize = new SimpleIntegerProperty();
+
+    public Data() {
+        currentImagePage.addListener(new ChangeListener<Page<Image>>() {
+            @Override
+            public void changed(ObservableValue<? extends Page<Image>> observable, Page<Image> oldValue, Page<Image> newValue) {
+                if (newValue == null) {
+                    images.clear();
+                }
+                else {
+                    images.setAll(newValue.content());
+                }
+            }
+        });
+    }
+
+    public Page<Image> getCurrentImagePage() {
+        return currentImagePage.get();
+    }
+
+    public ObjectProperty<Page<Image>> currentImagePageProperty() {
+        return currentImagePage;
+    }
+
+    public void setCurrentImagePage(Page<Image> currentImagePage) {
+        this.currentImagePage.set(currentImagePage);
+    }
 
     public Image getSelectedImage() {
         return selectedImage.get();
@@ -44,6 +74,11 @@ public class Data {
         this.selectedImage.set(selectedImage);
     }
 
+    /**
+     * DO NOT MODIFY THIS COLLECTION DIRECTLY!!. It's content is automatically
+     * synced with the images in the `currentImagePage`
+     * @return
+     */
     public ObservableList<Image> getImages() {
         return images;
     }

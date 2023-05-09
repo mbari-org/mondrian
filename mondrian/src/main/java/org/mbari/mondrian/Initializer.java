@@ -1,11 +1,14 @@
 package org.mbari.mondrian;
 
 import javafx.beans.property.SimpleObjectProperty;
-import org.mbari.imgfx.Autoscale;
+import javafx.scene.control.Alert;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.dialogs.AlertContent;
 import org.mbari.mondrian.javafx.settings.GeneralSettingsPaneController;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.services.ServiceFactory;
+import org.mbari.mondrian.services.noop.NoopServiceFactory;
 import org.mbari.mondrian.services.vars.VarsServiceFactory;
 import org.mbari.vars.core.crypto.AES;
 
@@ -22,6 +25,13 @@ import java.util.ResourceBundle;
 public class Initializer {
 
     private static final Logging log = new Logging(Initializer.class);
+    private static final EventBus eventBus = new EventBus();
+    private static final ResourceBundle i18n = ResourceBundle.getBundle("i18n",
+            Locale.getDefault());
+    private static final List<String> stylesheets = List.of(
+            "imgfx.css",
+            Objects.requireNonNull(Initializer.class.getResource("/css/mondrian.css")).toExternalForm()
+                );
     private static Path settingsDirectory;
     private static ToolBox toolBox;
     private static final Object lock = new Object(){};
@@ -30,6 +40,18 @@ public class Initializer {
         synchronized (lock) {
             toolBox = null;
         }
+    }
+
+    public static EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public static ResourceBundle getI18n() {
+        return i18n;
+    }
+
+    public static List<String> getStylesheets() {
+        return stylesheets;
     }
 
     public static AES getAes() {
@@ -79,20 +101,23 @@ public class Initializer {
     public static ToolBox getToolBox() {
         if (toolBox == null) {
             synchronized (lock) {
-                var eventBus = new EventBus();
-                var i18n = ResourceBundle.getBundle("i18n",
-                        Locale.getDefault());
 
                 // Load settings from saved preferences
                 var data = new Data();
                 var generalSettings = GeneralSettingsPaneController.loadSettings();
                 data.setPageSize(generalSettings.pageSize());
 
-                var services = newServiceFactory().newServices();
-                var stylesheets = List.of(
-                        "imgfx.css",
-                        Objects.requireNonNull(Initializer.class.getResource("/css/mondrian.css")).toExternalForm()
-                );
+                var services = new NoopServiceFactory().newServices();
+                try {
+                    services = newServiceFactory().newServices();
+                }
+                catch (Exception e) {
+                    log.atWarn().withCause(e).log("Failed to initialize services. Defaulting to NOOP services");
+                    var alertContent = new AlertContent(i18n, "alert.initializer.services.failed", e);
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING, alertContent, e);
+                    eventBus.publish(msg);
+                }
+
                 toolBox = new ToolBox(eventBus,
                         i18n,
                         data,
@@ -101,6 +126,7 @@ public class Initializer {
                         new SimpleObjectProperty<>(services),
                         stylesheets,
                         getAes());
+                log.atInfo().log("ToolBox has been initialized");
             }
         }
         return toolBox;

@@ -4,7 +4,7 @@ public record OpenImagesByConceptMsg(Object source,
                                      String concept,
                                      boolean includeDescendants,
                                      int size,
-                                     int page) implements Message, Paging<OpenImagesByConceptMsg> {
+                                     int page) implements Message, Paging<OpenImagesByConceptMsg>, ImageSet {
 
     @Override
     public OpenImagesByConceptMsg nextPage() {
@@ -20,5 +20,11 @@ public record OpenImagesByConceptMsg(Object source,
     @Override
     public OpenImagesByConceptMsg withPageSize(int pageSize) {
         return new OpenImagesByConceptMsg(source, concept, includeDescendants, pageSize, 0);
+    }
+
+    @Override
+    public String description() {
+        var ext = includeDescendants ? " and descendants" : "";
+        return concept + ext;
     }
 }

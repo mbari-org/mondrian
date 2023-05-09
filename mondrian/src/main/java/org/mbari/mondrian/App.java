@@ -7,28 +7,34 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.mbari.imgfx.etc.rx.events.Event;
 import org.mbari.mondrian.javafx.AppPaneController;
+import org.mbari.mondrian.javafx.dialogs.AlertController;
 import org.mbari.mondrian.msg.messages.PrepareForShutdownMsg;
-import org.mbari.mondrian.msg.messages.SetSelectedImageMsg;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.JFXUtilities;
 
 
 public class App extends Application {
 
     private static final System.Logger log = System.getLogger(App.class.getSimpleName());
-    private final ToolBox toolbox = Initializer.getToolBox();
-    private final AppController appController = new AppController(toolbox);
 
 
     @Override
     public void start(Stage stage) throws Exception {
 
-        var appPaneController = new AppPaneController(toolbox);
+        // This must be done BEFORE constructing toolbox in
+        // order to show users errors that might occur
+        // During toolbox construction
+        var rx = Initializer.getEventBus().toObserverable();
 
-        toolbox.eventBus()
-                .toObserverable()
-                .subscribe(event -> log.log(System.Logger.Level.INFO, event));
+        rx.subscribe(event -> log.log(System.Logger.Level.DEBUG, event));
+
+        rx.ofType(ShowAlertMsg.class)
+                .subscribe(this::showAlert);
+
+        final ToolBox toolbox = Initializer.getToolBox();
+        var appController = new AppController(toolbox);
+        var appPaneController = new AppPaneController(toolbox);
 
         var scene = new Scene(appPaneController.getRoot(), 640, 480);
         stage.setScene(scene);
@@ -48,6 +54,15 @@ public class App extends Application {
                 .addShutdownHook(new Thread(() ->
                         toolbox.eventBus().publish(new PrepareForShutdownMsg())));
 
+    }
+
+    private void showAlert(ShowAlertMsg msg) {
+        Platform.runLater(() -> {
+            var alertController = new AlertController(msg.alertType(),
+                    Initializer.getI18n(),
+                    Initializer.getStylesheets());
+            alertController.showAndWait(msg.title(), msg.header(), msg.content(), msg.exception());
+        });
     }
 
 

@@ -47,9 +47,9 @@ public class DataPaneController implements IPrefs {
         var rx = toolBox.eventBus().toObserverable();
 
         // List view of images
-        imageListViewController = new ImageListViewController(toolBox.i18n());
+        imageListViewController = new ImageListViewController(toolBox.i18n(), toolBox.eventBus());
         Consumer<Selection<Image>> onImageSelected = selection -> {
-            if (selection.source() != imageViewZoomController) {
+            if (selection.source() == imageListViewController) {
                 var msg = new SetSelectedImageMsg(selection);
                 toolBox.eventBus().publish(msg);
             }
