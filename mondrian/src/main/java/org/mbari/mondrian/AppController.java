@@ -89,9 +89,9 @@ public class AppController {
 
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> {
-                    toolBox.data().setCurrentImagePage(msg.selection().selected());
                     // Clear any previous selected image.
                     toolBox.eventBus().publish(new SetSelectedImageMsg(new Selection<>(AppController.this, null)));
+                    toolBox.data().setCurrentImagePage(msg.selection().selected());
                 }));
 
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)

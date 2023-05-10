@@ -6,7 +6,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.util.converter.IntegerStringConverter;
-import kotlin.collections.IntIterator;
 import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.msg.messages.SetPageSizeMsg;
 import org.mbari.mondrian.util.FXMLUtils;

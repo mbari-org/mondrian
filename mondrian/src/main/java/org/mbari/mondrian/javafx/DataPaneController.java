@@ -19,7 +19,6 @@ import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
@@ -56,7 +55,11 @@ public class DataPaneController implements IPrefs {
         };
         imageListViewController.setOnImageSelection(onImageSelected);
         rx.ofType(SetImagesMsg.class)
-                .subscribe(msg -> imageListViewController.setImages(msg.images()));
+                .subscribe(msg -> {
+                    imageListViewController.setSelectedImage(null);
+                    imageListViewController.setImages(msg.images());
+
+                });
         rx.ofType(SetSelectedImageMsg.class)
                 .filter(msg -> msg.selection().source() != imageListViewController)
                 .subscribe(msg ->  imageListViewController.setSelectedImage(msg.image()));

@@ -3,11 +3,10 @@ package org.mbari.mondrian.msg.commands;
 import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.ToolBox;
 
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ClearCommandManagerMsg;
 import org.mbari.mondrian.msg.messages.RedoMsg;
 import org.mbari.mondrian.msg.messages.UndoMsg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Deque;
 import java.util.concurrent.BlockingQueue;
@@ -31,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CommandManager {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logging log = new Logging(getClass());
     private final int maxUndos = 25;
     private final BlockingQueue<CommandEvent> pendingQueue = new LinkedBlockingQueue<>();
     private final Deque<CommandEvent> undos = new LinkedBlockingDeque<>(maxUndos);
@@ -50,7 +49,7 @@ public class CommandManager {
             if (commandEvent != null) {
                 Command command = commandEvent.getCommand();
                 try {
-                    log.debug("Executing Command: " + commandEvent.getState() + " - " +
+                    log.atDebug().log("Executing Command: " + commandEvent.getState() + " - " +
                             command.getDescription());
 
                     // Execute the command (can be DO or UNDO operation)

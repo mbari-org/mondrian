@@ -17,7 +17,7 @@ plugins {
 
 javafx {
     version = "20"
-    modules = listOf("javafx.controls", "javafx.fxml")
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")
 }
 
 repositories {
@@ -47,6 +47,7 @@ dependencies {
     implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("org.mbari:imgfx:0.0.13")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
     runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
     runtimeOnly("ch.qos.logback:logback-classic:1.4.7")
@@ -76,5 +77,6 @@ tasks.named<Test>("test") {
 
 application {
     // Define the main class for the application.
+//    mainModule.set("org.mbari.mondrian")
     mainClass.set("org.mbari.mondrian.App")
 }

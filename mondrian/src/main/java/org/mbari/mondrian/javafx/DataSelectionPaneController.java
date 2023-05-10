@@ -16,17 +16,15 @@ import org.mbari.imgfx.Autoscale;
 import org.mbari.imgfx.imageview.ImageViewAutoscale;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.SetAnnotationsForSelectedImageMsg;
 import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.mondrian.msg.messages.SetSelectedAnnotationsMsg;
 import org.mbari.mondrian.util.FXMLUtils;
-import org.mbari.mondrian.util.IPrefs;
 import org.mbari.mondrian.util.URLUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Collection;
@@ -81,7 +79,7 @@ public class DataSelectionPaneController {
     private Autoscale<ImageView> copyAutoscale;
     private Autoscale<ImageView> originalAutoscale;
 
-    private static final Logger log = LoggerFactory.getLogger(DataSelectionPaneController.class);
+    private static final Logging log = new Logging(DataSelectionPaneController.class);
 
     @FXML
     void initialize() {

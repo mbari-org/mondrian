@@ -11,13 +11,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.mbari.mondrian.Initializer;
+import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.services.vars.Raziel;
 import org.mbari.mondrian.util.FXMLUtils;
 import org.mbari.mondrian.util.JFXUtilities;
 import org.mbari.vars.services.impl.raziel.RazielConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -56,7 +55,7 @@ public class RazielSettingsPaneController implements SettingsPane {
     private Label msgLabel;
 
     private String name;
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logging log = new Logging(getClass());
 
     @FXML
     void initialize() {
@@ -90,7 +89,7 @@ public class RazielSettingsPaneController implements SettingsPane {
             }
         }
         catch (Exception e) {
-            log.atDebug().setCause(e).log(() -> "Failed to parse connection params from the UI fields");
+            log.atDebug().withCause(e).log(() -> "Failed to parse connection params from the UI fields");
             // Do nothing
         }
         return Optional.empty();
@@ -119,7 +118,7 @@ public class RazielSettingsPaneController implements SettingsPane {
                         var s = resources.getString("settings.raziel.pane.msg.authfailed");
                         Platform.runLater(() -> msgLabel.setText(s));
                         log.atDebug()
-                                .setCause(ex)
+                                .withCause(ex)
                                 .log("An exception occurred while running text against Raziel at" + rcp.url());
                     }
                     else {
@@ -168,7 +167,7 @@ public class RazielSettingsPaneController implements SettingsPane {
             } catch (IOException e) {
                 Platform.runLater(() -> msgLabel.setText("Failed to save connection params"));
                 log.atWarn()
-                        .setCause(e)
+                        .withCause(e)
                         .log("Failed to save raziel connection parameters");
             }
         });
