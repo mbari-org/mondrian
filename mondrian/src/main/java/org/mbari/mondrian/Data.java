@@ -10,6 +10,7 @@ import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.Paging;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
+import org.mbari.vars.services.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class Data {
 
+    private final ObjectProperty<User> user = new SimpleObjectProperty<>();
     private final ObjectProperty<Page<Image>> currentImagePage = new SimpleObjectProperty<>();
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
@@ -129,6 +131,18 @@ public class Data {
 
     public void setPageSize(int pageSize) {
         this.pageSize.set(pageSize);
+    }
+
+    public User getUser() {
+        return user.get();
+    }
+
+    public ObjectProperty<User> userProperty() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user.set(user);
     }
 }
 

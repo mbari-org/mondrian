@@ -25,6 +25,7 @@ public class VarsServiceFactory implements ServiceFactory {
                 vars.getMediaService());
         var associationService = new AnnosaurusAssociationService(vars.getAnnotationService());
         var mediaService = new VampireSquidService(vars.getMediaService());
+        var usersService = new VarsUserService(vars.getUserService());
 
         var annoEndpoint = data.endpoints().stream().filter(e -> e.getName().equals("annosaurus")).findFirst();
         if (annoEndpoint.isEmpty()) {
@@ -32,7 +33,7 @@ public class VarsServiceFactory implements ServiceFactory {
         }
         var imageService = new AnnosaurusImageService(vars.getAnnotationService(),
                 vars.getMediaService(), new ClientSupport(), annoEndpoint.get());
-        return new Services(nameService, annotationService, associationService, imageService, mediaService);
+        return new Services(nameService, annotationService, associationService, imageService, mediaService, usersService);
     }
 
     public static ServiceData loadServices() {

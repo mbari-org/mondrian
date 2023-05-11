@@ -59,7 +59,8 @@ public class RoiTranslators {
         }
     }
 
-    public Optional<Association> fromLocalization(Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization,
+//    public static Optional<Association> fromLocalization(Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization,
+public static Optional<Association> fromLocalization(Localization<?, ?> localization,
                                  UUID imageReferenceUuid,
                                  String comment) {
 

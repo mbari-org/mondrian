@@ -8,7 +8,6 @@ import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.javafx.dialogs.AlertController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Image;
 
@@ -93,6 +92,9 @@ public class AppController {
                     toolBox.eventBus().publish(new SetSelectedImageMsg(new Selection<>(AppController.this, null)));
                     toolBox.data().setCurrentImagePage(msg.selection().selected());
                 }));
+
+        rx.ofType(SetUserMsg.class)
+                .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(msg.annotations())));

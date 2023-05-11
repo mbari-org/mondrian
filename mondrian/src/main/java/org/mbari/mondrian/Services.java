@@ -8,7 +8,8 @@ public record Services(NamesService namesService,
                        AnnotationService annotationService,
                        AssociationService associationService,
                        ImageService imageService,
-                       MediaService mediaService
+                       MediaService mediaService,
+                       UsersService usersService
                        ) {
 
 

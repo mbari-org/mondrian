@@ -1,5 +1,7 @@
 package org.mbari.mondrian.javafx;
 
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -10,10 +12,15 @@ import org.controlsfx.control.PopOver;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.controls.PageLabelController;
+import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.vars.services.model.User;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class AppPaneController {
 
@@ -26,6 +33,7 @@ public class AppPaneController {
 //    private DataSelectionPaneController dataSelectionPaneController;
     private DataPaneController dataPaneController;
     private PopOver openPopOver;
+    private ComboBox<String> usersComboBox;
     private final Logging log = new Logging(getClass());
 
     public AppPaneController(ToolBox toolBox) {
@@ -79,9 +87,11 @@ public class AppPaneController {
             settingsButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.settings")));
             settingsButton.setOnAction(e -> getSettingsDialogController().show());
 
+
+
             var pageLabelController = new PageLabelController(toolBox.eventBus());
 
-            toolBar = new ToolBar(openButton, settingsButton, pageLabelController.getLabel());
+            toolBar = new ToolBar(openButton, settingsButton, getUsersComboBox(), pageLabelController.getLabel());
         }
         return toolBar;
     }
@@ -119,6 +129,84 @@ public class AppPaneController {
             openPopOver = new PopOver(vbox);
         }
         return openPopOver;
+    }
+
+    public ComboBox<String> getUsersComboBox() {
+        if (usersComboBox == null) {
+
+            usersComboBox = new ComboBox<>();
+            new FilteredComboBoxDecorator<>(usersComboBox, FilteredComboBoxDecorator.CONTAINS_CHARS_IN_ORDER);
+            var sorter = Comparator.comparing(String::toString, String.CASE_INSENSITIVE_ORDER);
+
+            // Listen to UserAddedEvent and add it to the combobox
+            var eventBus = toolBox.eventBus();
+//            eventBus.toObserverable()
+//                    .ofType(UserAddedEvent.class)
+//                    .subscribe(event -> {
+//                        Platform.runLater(() -> {
+//                            User user = event.get();
+//                            // M3-53 fix. Copy to editable arraylist first
+//                            List<String> newItems = new ArrayList<>(usersComboBox.getItems());
+//                            newItems.add(user.getUsername());
+//                            Collections.sort(newItems, sorter);
+//                            ObservableList<String> items = FXCollections.observableList(newItems);
+//                            usersComboBox.setItems(items);
+//                            usersComboBox.getSelectionModel().select(user.getUsername());
+//                        });
+//                    });
+
+            // When a username is selected send a change event
+            usersComboBox.getSelectionModel()
+                    .selectedItemProperty()
+                    .addListener((obs, oldv, newv) -> {
+                        if (newv != null) {
+                            toolBox.servicesProperty()
+                                    .get()
+                                    .usersService()
+                                    .findAllUsers()
+                                    .thenAccept(users -> {
+                                        var opt = users.stream()
+                                                .filter(u -> u.getUsername().equals(newv))
+                                                .findFirst();
+                                        opt.ifPresent(user -> eventBus.publish(new SetUserMsg(user)));
+                                    });
+                        }
+                    });
+
+            loadUsers();
+
+            // Listen for new services event and update users after service is changed.
+            eventBus.toObserverable()
+                    .ofType(ReloadMsg.class)
+                    .subscribe(evt -> loadUsers());
+
+        }
+        return usersComboBox;
+    }
+
+    /**
+     * Populate the user combobox and select the user from the OS
+     */
+    private void loadUsers() {
+        var sorter = Comparator.comparing(String::toString, String.CASE_INSENSITIVE_ORDER);
+        usersComboBox.setItems(FXCollections.observableList(new ArrayList<>()));
+        toolBox.servicesProperty()
+                .get()
+                .usersService()
+                .findAllUsers()
+                .thenAccept(users -> {
+                    var usernames = users.stream()
+                            .map(User::getUsername)
+                            .sorted(sorter)
+                            .toList();
+                    Platform.runLater(() -> {
+                        usersComboBox.setItems(FXCollections.observableList(usernames));
+                        String defaultUser = System.getProperty("user.name");
+                        if (usernames.contains(defaultUser)) {
+                            usersComboBox.getSelectionModel().select(defaultUser);
+                        }
+                    });
+                });
     }
 
     private CameraDeploymentDialogController getCameraDeploymentDialog() {
