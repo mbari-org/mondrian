@@ -148,9 +148,7 @@ public class AppController {
 
     private void reload() {
         // Reload services as they may have changed
-        var serviceFactory = Initializer.newServiceFactory();
-        var services = serviceFactory.newServices();
-        toolBox.servicesProperty().set(services);
+        Initializer.reset();
     }
 
 

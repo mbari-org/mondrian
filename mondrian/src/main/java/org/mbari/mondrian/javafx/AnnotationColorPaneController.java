@@ -112,9 +112,9 @@ public class AnnotationColorPaneController {
 
     private void load() {
         var prefs = Preferences.userNodeForPackage(getClass());
-        var edited = prefs.get(EDITED_KEY, "#D65109");
-        var selected = prefs.get(SELECTED_KEY, "#4BA3C3");
-        var regular = prefs.get(DEFAULT_KEY, "#2C4249");
+        var edited = prefs.get(EDITED_KEY, "0xD65109AA");
+        var selected = prefs.get(SELECTED_KEY, "0x4BA3C3AA");
+        var regular = prefs.get(DEFAULT_KEY, "0x2C4249AA");
 
         annotationColors.setEditedColor(Color.valueOf(edited));
         annotationColors.setSelectedColor(Color.valueOf(selected));

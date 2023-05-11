@@ -15,6 +15,11 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
 }
 
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_20
+//    targetCompatibility = JavaVersion.VERSION_20
+//}
+
 javafx {
     version = "20"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")

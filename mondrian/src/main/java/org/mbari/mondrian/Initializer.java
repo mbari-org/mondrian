@@ -38,7 +38,8 @@ public class Initializer {
 
     public static void reset() {
         synchronized (lock) {
-            toolBox = null;
+            var services = loadServices();
+            getToolBox().servicesProperty().set(services);
         }
     }
 
@@ -94,6 +95,20 @@ public class Initializer {
         return createdPath;
     }
 
+    private static Services loadServices() {
+        var services = new NoopServiceFactory().newServices();
+        try {
+            services = newServiceFactory().newServices();
+        }
+        catch (Exception e) {
+            log.atWarn().withCause(e).log("Failed to initialize services. Defaulting to NOOP services");
+            var alertContent = new AlertContent(i18n, "alert.initializer.services.failed", e);
+            var msg = new ShowAlertMsg(Alert.AlertType.WARNING, alertContent, e);
+            eventBus.publish(msg);
+        }
+        return services;
+    }
+
     public static ServiceFactory newServiceFactory() {
         return new VarsServiceFactory();
     }
@@ -107,16 +122,7 @@ public class Initializer {
                 var generalSettings = GeneralSettingsPaneController.loadSettings();
                 data.setPageSize(generalSettings.pageSize());
 
-                var services = new NoopServiceFactory().newServices();
-                try {
-                    services = newServiceFactory().newServices();
-                }
-                catch (Exception e) {
-                    log.atWarn().withCause(e).log("Failed to initialize services. Defaulting to NOOP services");
-                    var alertContent = new AlertContent(i18n, "alert.initializer.services.failed", e);
-                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING, alertContent, e);
-                    eventBus.publish(msg);
-                }
+                var services = loadServices();
 
                 toolBox = new ToolBox(eventBus,
                         i18n,
