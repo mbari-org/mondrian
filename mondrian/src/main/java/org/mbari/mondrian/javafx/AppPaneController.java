@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.controlsfx.control.PopOver;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.controls.PageLabelController;
 import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
@@ -17,9 +18,11 @@ import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 
 public class AppPaneController {
@@ -52,7 +55,19 @@ public class AppPaneController {
                     getAnnotationPaneController().resetUsingImage(image);
                 });
 
+        rx.ofType(SetAnnotationsForSelectedImageMsg.class)
+                        .subscribe(msg -> setAnnotationsForSelectedImage(msg.annotations()));
+
         getRoot().getStylesheets().addAll(toolBox.stylesheets());
+    }
+
+    public void setAnnotationsForSelectedImage(Collection<Annotation> annotations) {
+        var paneController = getAnnotationPaneController();
+        var varsLocalizations = VarsLocalization.from(annotations,
+                paneController.getAutoscalePaneController(),
+                paneController.getAnnotationColors().editedColorProperty());
+        toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
+        // TODO map localization to correct EventMessage. Set is new to false.send it
     }
 
     public void setImage(org.mbari.vars.services.model.Image image) {

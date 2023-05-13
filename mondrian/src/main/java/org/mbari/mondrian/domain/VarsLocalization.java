@@ -17,9 +17,12 @@ import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 //import org.mbari.vars.ui.javafx.imgfx.AnnotationLifecycleDecorator;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class VarsLocalization {
+
     private final Annotation annotation;
     private final Association association;
     private final Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization;
@@ -91,7 +94,7 @@ public class VarsLocalization {
         if (opt.isPresent()) {
             log.atDebug().log("Found ROI in " + association);
             final var roiTranslator = opt.get();
-            log.atDebug().log("Building ROI using " + association);
+            log.atDebug().log("Building ROI using " + association + " and " + roiTranslator);
             return roiTranslator.fromAssociation(annotation.getConcept(),
                             association,
                             autoscalePaneController,
@@ -109,6 +112,23 @@ public class VarsLocalization {
 //            }
         }
         return Optional.empty();
+    }
+
+    public static List<VarsLocalization> from(Annotation annotation,
+                                              AutoscalePaneController<ImageView> autoscalePaneController,
+                                              ObjectProperty<Color> editedColor) {
+        return annotation.getAssociations()
+                .stream()
+                .flatMap(a -> from(annotation, a, autoscalePaneController, editedColor).stream())
+                .toList();
+    }
+
+    public static List<VarsLocalization> from(Collection<Annotation> annotations,
+                                              AutoscalePaneController<ImageView> autoscalePaneController,
+                                              ObjectProperty<Color> editedColor) {
+        return annotations.stream()
+                .flatMap(a -> from(a, autoscalePaneController, editedColor).stream())
+                .toList();
     }
 
 

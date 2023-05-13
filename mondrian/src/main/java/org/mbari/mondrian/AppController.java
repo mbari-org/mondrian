@@ -7,11 +7,14 @@ import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -97,7 +100,7 @@ public class AppController {
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
-                .subscribe(msg -> Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(msg.annotations())));
+                .subscribe(msg -> setAnnotationsForSelectedImage(msg.annotations()));
 
         // Handles when a new localizaion is added to the view. Typically after a user click
         // At this point the localization data has not been saved via the services
@@ -133,15 +136,29 @@ public class AppController {
         }
     }
 
+    private void setAnnotationsForSelectedImage(Collection<Annotation> annotations) {
+        //TODO save an dirty localizations in VARS
+        toolBox.data()
+                .getVarsLocalizations()
+                .forEach(a -> a.getLocalization().setVisible(false));
+        Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(annotations));
+        // TODO build localizations. ONce build calling setVisible will ad them to the pane
+
+    }
 
 
     private void addLocalization(AddLocalizationEvent<? extends Data, ? extends Shape> event) {
         var loc = event.localization();
-        var selectedConcept = toolBox.data().getSelectedConcept();
-        if (selectedConcept != null) {
-            loc.setLabel(selectedConcept);
-            // TODO create a new annotation and association via the service
+        // Sheck events isNew. If false don't update the concept use the one
+        // already associated with it.
+        if (event.isNew()) {
+            var selectedConcept = toolBox.data().getSelectedConcept();
+            if (selectedConcept != null) {
+                loc.setLabel(selectedConcept);
+            }
+            // TODO if isNew create a new annotation and association via the service
         }
+
     }
 
     private void updateLocalization(UpdatedLocalizationsEvent event) {

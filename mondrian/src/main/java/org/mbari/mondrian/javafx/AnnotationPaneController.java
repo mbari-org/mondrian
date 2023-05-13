@@ -13,6 +13,7 @@ import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.imageview.ImagePaneController;
 import org.mbari.imgfx.roi.CircleData;
+import org.mbari.mondrian.AnnotationColors;
 import org.mbari.mondrian.Localizations;
 import org.mbari.mondrian.ToolBox;
 
@@ -109,6 +110,10 @@ public class AnnotationPaneController {
                     }
                 });
 
+    }
+
+    public AnnotationColors getAnnotationColors() {
+        return annotationColorPaneController.getAnnotationColors();
     }
 
     public AutoscalePaneController<ImageView> getAutoscalePaneController() {
