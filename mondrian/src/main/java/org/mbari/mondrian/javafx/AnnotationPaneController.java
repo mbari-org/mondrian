@@ -85,13 +85,13 @@ public class AnnotationPaneController {
 
         var rx = eventBus.toObserverable();
 
-        rx.ofType(AddLocalizationEvent.class)
-                .subscribe(event -> {
-                    localizations.setSelectedLocalizations(Collections.emptyList());
-                    var loc = event.localization();
-                    loc.setVisible(true);
-                    localizations.setSelectedLocalizations(List.of(loc));
-                });
+//        rx.ofType(AddLocalizationEvent.class)
+//                .subscribe(event -> {
+//                    localizations.setSelectedLocalizations(Collections.emptyList());
+//                    var loc = event.localization();
+//                    loc.setVisible(true);
+//                    localizations.setSelectedLocalizations(List.of(loc));
+//                });
 
         // TODO This is a HACK to make marker scaled to image size. Need to add a user setting for this.
         rx.ofType(AddMarkerEvent.class)
@@ -123,12 +123,14 @@ public class AnnotationPaneController {
     public void resetUsingImage(Image image) {
         log.log(Level.DEBUG, () -> String.format("resetUsingImage(%s)",
                 Optional.ofNullable(image).map(Image::getUrl).orElse("null")));
-        localizations.getLocalizations()
-                .forEach(loc -> loc.setVisible(false));
-        localizations.getSelectedLocalizations().clear();
-        localizations.setEditedLocalization(null);
-        localizations.getLocalizations().clear();
-        autoscalePaneController.getView().setImage(image);
+        Platform.runLater(() -> {
+            localizations.getLocalizations()
+                    .forEach(loc -> loc.setVisible(false));
+            localizations.getSelectedLocalizations().clear();
+            localizations.setEditedLocalization(null);
+            localizations.getLocalizations().clear();
+            autoscalePaneController.getView().setImage(image);
+        });
     }
 
     public BorderPane getPane() {

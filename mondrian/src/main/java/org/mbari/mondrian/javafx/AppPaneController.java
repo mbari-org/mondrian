@@ -17,6 +17,7 @@ import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
+import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
@@ -67,7 +68,11 @@ public class AppPaneController {
                 paneController.getAutoscalePaneController(),
                 paneController.getAnnotationColors().editedColorProperty());
         toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
-        // TODO map localization to correct EventMessage. Set is new to false.send it
+        // Map localization to correct EventMessage. Set is new to false.send it
+        varsLocalizations.forEach(vloc -> {
+            AddLocalizationEvents.from(vloc.getLocalization(), false)
+                    .ifPresent(evt -> toolBox.eventBus().publish(evt));
+        });
     }
 
     public void setImage(org.mbari.vars.services.model.Image image) {

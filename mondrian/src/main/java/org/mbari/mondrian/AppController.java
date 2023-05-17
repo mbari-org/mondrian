@@ -4,6 +4,7 @@ import javafx.application.Platform;
 
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
+import org.mbari.imgfx.etc.rx.events.ClearLocalizations;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
@@ -89,6 +90,9 @@ public class AppController {
         rx.ofType(SetSelectedImageMsg.class)
                 .subscribe(msg -> setSelectedImage(msg.image()));
 
+        rx.ofType(SetSelectedAnnotationsMsg.class)
+                        .subscribe(msg -> setSelectedAnnotations(msg.annotations()));
+
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> {
                     // Clear any previous selected image.
@@ -123,24 +127,24 @@ public class AppController {
     }
 
     private void setSelectedImage(Image selectedImage) {
-        toolBox.eventBus()
-                .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, List.of())));
+        var eventBus = toolBox.eventBus();
+        eventBus.publish(new ClearLocalizations());
+        eventBus.publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, List.of())));
         Platform.runLater(() -> toolBox.data().setSelectedImage(selectedImage));
         if (selectedImage != null && selectedImage.getImageReferenceUuid() != null) {
             toolBox.servicesProperty()
                     .get()
                     .annotationService()
                     .findByImageUuid(selectedImage.getImageReferenceUuid())
-                    .thenAccept(annotations -> toolBox.eventBus()
-                            .publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, annotations))));
+                    .thenAccept(annotations -> eventBus.publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, annotations))));
         }
     }
 
     private void setAnnotationsForSelectedImage(Collection<Annotation> annotations) {
         //TODO save an dirty localizations in VARS
-        toolBox.data()
-                .getVarsLocalizations()
-                .forEach(a -> a.getLocalization().setVisible(false));
+//        toolBox.data()
+//                .getVarsLocalizations()
+//                .forEach(a -> a.getLocalization().setVisible(false));
         Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(annotations));
         // TODO build localizations. ONce build calling setVisible will ad them to the pane
 
@@ -185,6 +189,12 @@ public class AppController {
                         Platform.runLater(() -> toolBox.data().setSelectedConcept(concept.get().primaryName()));
                     }
                 });
+    }
+
+    private void setSelectedAnnotations(Collection<Annotation> selectedAnnotations) {
+        // TODO find matching varsLocalizations and select them
+
+
     }
 
     public void loadImagesByVideoSequenceName(Object source,

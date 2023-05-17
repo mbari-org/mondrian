@@ -1,6 +1,7 @@
 package org.mbari.mondrian;
 
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -14,6 +15,7 @@ import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.util.ListUtils;
+import org.mbari.mondrian.etc.jdk.Logging;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class Localizations {
     private final ObservableList<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> selectedLocalizations = FXCollections.observableArrayList();
     private final ObjectProperty<Localization<? extends DataView<? extends Data, ? extends Node>, ? extends Node>> editedLocalization = new SimpleObjectProperty<>();
     private final ObservableMap<Object, Boolean> visibleDataViewTypes =  FXCollections.observableHashMap();
+    private final Logging log = new Logging(getClass());
 
     public Localizations(EventBus eventBus) {
         init(eventBus);
@@ -52,33 +55,47 @@ public class Localizations {
 
         rx.ofType(AddLocalizationEvent.class)
                 .subscribe(a -> {
-                    localizations.add(a.localization());
                     var visible = visibleDataViewTypes.getOrDefault(a.localization().getDataView().getClass(), true);
-                    a.localization().setVisible(visible);
+                    log.atDebug().log("setVisible(" + visible + ") for " + a.localization());
+                    Platform.runLater(() -> {
+                        localizations.add(a.localization());
+                        a.localization().setVisible(visible);
+                        if (a.isNew()) {
+                            selectedLocalizations.clear();
+                            selectedLocalizations.add(a.localization());
+                        }
+                    });
+
                 });
 
         rx.ofType(RemoveLocalizationEvent.class)
                 .subscribe(a -> {
-                    a.localization().setVisible(false);
-                    localizations.remove(a.localization());
-                    selectedLocalizations.remove(a.localization());
+                    Platform.runLater(() -> {
+                        a.localization().setVisible(false);
+                        localizations.remove(a.localization());
+                        selectedLocalizations.remove(a.localization());
 
-                    var edited = editedLocalization.get();
-                    if (edited != null && edited == a.localization()) {
-                        editedLocalization.set(null);
-                    }
+                        var edited = editedLocalization.get();
+                        if (edited != null && edited == a.localization()) {
+                            editedLocalization.set(null);
+                        }
+                    });
 
                 });
 
         rx.ofType(EditLocalizationEvent.class)
-                .subscribe(a -> editedLocalization.set(a.localization()));
+                .subscribe(a -> Platform.runLater(() -> editedLocalization.set(a.localization())));
 
         rx.ofType(ClearLocalizations.class)
                 .subscribe(a -> {
-                    localizations.forEach(loc -> loc.setVisible(false));
-                    editedLocalization.set(null);
-                    selectedLocalizations.clear();
-                    localizations.clear();
+                    Platform.runLater(() -> {
+                        localizations.forEach(loc -> loc.setVisible(false));
+                        selectedLocalizations.forEach(loc -> loc.setVisible(false));
+                        editedLocalization.set(null);
+                        selectedLocalizations.clear();
+                        localizations.clear();
+                    });
+
                 });
 
         rx.ofType(ShowDataViewType.class)
