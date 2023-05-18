@@ -25,8 +25,7 @@ import org.mbari.mondrian.util.IPrefs;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
@@ -93,16 +92,31 @@ public class DataPaneController implements IPrefs {
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
-                .subscribe(msg -> annotationListViewController.setSelectedAnnotations(msg.annotations()));
+                .subscribe(msg -> {
+                    if (msg.selection().source() != annotationListViewController) {
+                        annotationListViewController.setSelectedAnnotations(msg.annotations());
+                    }
+                });
 
         toolBox.localizations()
                 .getSelectedLocalizations()
                 .addListener((ListChangeListener<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>>) c -> {
                     var selected = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), toolBox.localizations().getSelectedLocalizations());
-                    var annos = selected.stream()
+                    var selectedAnnos0 = selected.stream()
                             .map(VarsLocalization::getAnnotation)
+                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
                             .toList();
-                    annotationListViewController.setSelectedAnnotations(annos);
+                    var selectedAnnos1 = annotationListViewController.getListView()
+                            .getSelectionModel()
+                            .getSelectedItems()
+                            .stream()
+                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
+                            .toList();
+
+                    if (!selectedAnnos0.equals(selectedAnnos1)) {
+                        annotationListViewController.setSelectedAnnotations(selectedAnnos0);
+                    }
+//
                 });
 
         // Zoom image window

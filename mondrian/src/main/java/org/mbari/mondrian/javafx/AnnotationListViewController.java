@@ -2,6 +2,7 @@ package org.mbari.mondrian.javafx;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -63,13 +64,11 @@ public class AnnotationListViewController {
 
     public void setSelectedAnnotations(Collection<Annotation> annotations) {
         Platform.runLater(() -> {
-            if (annotations.isEmpty()) {
-                listView.getSelectionModel().clearSelection();
-            }
-            else if (annotations.size() == 1) {
+            listView.getSelectionModel().clearSelection();
+            if (annotations.size() == 1) {
                 listView.getSelectionModel().select(annotations.iterator().next());
             }
-            else {
+            else if (annotations.size() > 1){
                 var allImages = new ArrayList<>(listView.getItems());
                 var annos = new ArrayList<>(annotations);
                 var selectionIndices = new ArrayList<Integer>();
@@ -118,14 +117,20 @@ public class AnnotationListViewController {
             }
         });
 
+
         listView.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, oldv, newv) -> {
-                    if (newv != null) {
-                        var items = new ArrayList<>(listView.getSelectionModel().getSelectedItems());
-                        Selection<Collection<Annotation>> selection = new Selection<>(AnnotationListViewController.this, items);
-                        onAnnotationSelection.accept(selection);
+                .getSelectedItems()
+                .addListener(new ListChangeListener<>() {
+                    @Override
+                    public void onChanged(Change<? extends Annotation> c) {
+//                        if (listView.isFocused() || listView.getParent().isFocused()) {
+                            var items = new ArrayList<>(listView.getSelectionModel().getSelectedItems());
+                            System.out.println("---- " + items);
+                            Selection<Collection<Annotation>> selection = new Selection<>(AnnotationListViewController.this, items);
+                            onAnnotationSelection.accept(selection);
+//                        }
                     }
                 });
+
     }
 }
