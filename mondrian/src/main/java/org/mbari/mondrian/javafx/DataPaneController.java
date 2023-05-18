@@ -1,8 +1,10 @@
 package org.mbari.mondrian.javafx;
 
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -10,15 +12,21 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Shape;
 import org.mbari.imgfx.Autoscale;
+import org.mbari.imgfx.roi.Data;
+import org.mbari.imgfx.roi.DataView;
+import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.util.IPrefs;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 
@@ -54,6 +62,13 @@ public class DataPaneController implements IPrefs {
             }
         };
         imageListViewController.setOnImageSelection(onImageSelected);
+
+        rx.ofType(AddVarsLocalizationMsg.class)
+                .subscribe(msg -> annotationListViewController.addAnnotation(msg.varsLocalization().getAnnotation()));
+
+        rx.ofType(RemoveVarsLocalizationMsg.class)
+                .subscribe(msg -> annotationListViewController.removeAnnotation(msg.varsLocalization().getAnnotation()));
+
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> {
                     imageListViewController.setSelectedImage(null);
@@ -67,20 +82,28 @@ public class DataPaneController implements IPrefs {
         // List view of annotations for the selected image
         annotationListViewController = new AnnotationListViewController();
         Consumer<Selection<Collection<Annotation>>> onAnnotationsSelected = selection -> {
-            if (selection.source() != annotationListViewController) {
-                var msg = new SetSelectedAnnotationsMsg(selection);
-                toolBox.eventBus().publish(msg);
-            }
+            var msg = new SetSelectedAnnotationsMsg(selection);
+            toolBox.eventBus().publish(msg);
         };
         annotationListViewController.setOnAnnotationSelection(onAnnotationsSelected);
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
-                .subscribe(msg -> annotationListViewController.setAnnotations(msg.annotations()));
+                .subscribe(msg -> annotationListViewController.setAnnotations(List.of()));
+//                .subscribe(msg -> annotationListViewController.setAnnotations(msg.annotations()));
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
                 .subscribe(msg -> annotationListViewController.setSelectedAnnotations(msg.annotations()));
 
+        toolBox.localizations()
+                .getSelectedLocalizations()
+                .addListener((ListChangeListener<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>>) c -> {
+                    var selected = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), toolBox.localizations().getSelectedLocalizations());
+                    var annos = selected.stream()
+                            .map(VarsLocalization::getAnnotation)
+                            .toList();
+                    annotationListViewController.setSelectedAnnotations(annos);
+                });
 
         // Zoom image window
         slider = new Slider(2.0, 20.0, 8.0);

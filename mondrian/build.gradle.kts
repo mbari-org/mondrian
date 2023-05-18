@@ -51,7 +51,7 @@ dependencies {
     implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
     implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
-    implementation("org.mbari:imgfx:0.0.14")
+    implementation("org.mbari:imgfx:0.0.15")
     runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
     runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.7")

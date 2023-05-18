@@ -1,14 +1,22 @@
 package org.mbari.mondrian.msg.commands;
 
+import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.Data;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.dialogs.AlertContent;
 import org.mbari.mondrian.javafx.roi.Datum;
 import org.mbari.mondrian.javafx.roi.Datums;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
+import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
+import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
@@ -16,18 +24,20 @@ import java.util.List;
 
 public class CreateAnnotationWithLocalizationCmd implements Command {
 
+    private static final Logging log = new Logging(CreateAnnotationWithLocalizationCmd.class);
     private final String observer;
     private final Image image;
     private final String concept;
-    private final Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization;
+    private final Localization<?, ImageView> localization;
     private final String comment;
     private final Datum<?> datum;
+    private VarsLocalization varsLocalization;
 
 
     public CreateAnnotationWithLocalizationCmd(String observer,
                                                Image image,
                                                String concept,
-                                               Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization,
+                                               Localization<?, ImageView> localization,
                                                String comment) {
         this.observer = observer;
         this.image = image;
@@ -43,40 +53,79 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
 
     @Override
     public void apply(ToolBox toolBox) {
+        // NOTE that  New localizations already have random UUID's assigned and these are used
+        // as the associations UUID.
         if (datum != null) {
             var opt = RoiTranslators.fromLocalization(localization,
                     image.getImageReferenceUuid(),
                     comment);
             if (opt.isPresent()) {
                 var association = opt.get();
-                // TODO need login
                 var annotation = new Annotation(concept, observer, image.getVideoIndex(), image.getVideoReferenceUuid());
                 annotation.setAssociations(List.of(association));
                 toolBox.servicesProperty()
                         .get()
                         .annotationService()
                         .create(annotation)
-                        .thenAccept(a -> {
-                            var assoc = a.getAssociations().get(0);
-                            localization.setUuid(assoc.getUuid());
-                            // l
+                        .handle((a, ex) -> {
+                            if (ex != null) {
+                                var alertContent = new AlertContent(toolBox.i18n(), "alert.command.create.annotation.apply", ex);
+                                log.atInfo().log(alertContent.content());
+                                toolBox.eventBus().publish(new ShowAlertMsg(Alert.AlertType.INFORMATION, alertContent));
+                                return null;
+                            }
+                            else {
+                                var optAss = a.getAssociations()
+                                        .stream()
+                                        .filter(ass -> ass.getUuid().equals(localization.getUuid()))
+                                        .findFirst();
+                                if (optAss.isPresent()) {
+                                    var assoc = optAss.get();
+                                    varsLocalization = new VarsLocalization(a, assoc, localization);
+                                    var msg = new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
+                                    toolBox.eventBus().publish(msg);
+                                }
+                                return null;
+                            }
                         });
             }
             else {
-
+                var alertContent = new AlertContent(toolBox.i18n(), "alert.command.create.annotation.apply");
+                log.atInfo().log(alertContent.content());
+                toolBox.eventBus().publish(new ShowAlertMsg(Alert.AlertType.INFORMATION, alertContent));
             }
         }
     }
 
     @Override
     public void unapply(ToolBox toolBox) {
-        if (datum != null) {
+        if (datum != null && varsLocalization != null) {
+            toolBox.servicesProperty()
+                    .get()
+                    .annotationService()
+                    .delete(varsLocalization.getAnnotation())
+                    .thenAccept(ok -> {
+                        if (ok) {
+                            var msg = new RemoveVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
+                            toolBox.eventBus().publish(msg);
+                        }
+                        else {
+                            var alertContent = new AlertContent(toolBox.i18n(), "alert.command.create.annotation.unapply");
+                            var alertContent2 = alertContent.copy(alertContent.content() + ": " + getDescription());
+                            log.atInfo().log(alertContent2.content());
+                            toolBox.eventBus().publish(new ShowAlertMsg(Alert.AlertType.INFORMATION, alertContent2));
+                        }
+                    });
 
+        }
+        else {
+            var content = toolBox.i18n().getString("alert.command.create.annotation.unapply.content2");
+            log.atInfo().log(content);
         }
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Create annotation of " + concept + " with " + localization;
     }
 }

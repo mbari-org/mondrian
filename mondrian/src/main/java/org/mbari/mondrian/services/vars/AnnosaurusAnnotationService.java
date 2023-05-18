@@ -26,7 +26,12 @@ public class AnnosaurusAnnotationService implements AnnotationService {
 
     @Override
     public CompletableFuture<Annotation> create(Annotation annotation) {
-        return annotationService.createAnnotation(annotation);
+        return annotationService.createAnnotations(List.of(annotation))
+                .thenApply(xs ->
+                     xs.stream()
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Expected to create 1 annotation but found " + xs.size()))
+                );
     }
 
     @Override

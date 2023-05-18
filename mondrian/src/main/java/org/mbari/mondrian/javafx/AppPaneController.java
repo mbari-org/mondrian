@@ -2,14 +2,22 @@ package org.mbari.mondrian.javafx;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import org.controlsfx.control.PopOver;
+import org.mbari.imgfx.roi.Data;
+import org.mbari.imgfx.roi.DataView;
+import org.mbari.imgfx.roi.Localization;
+import org.mbari.mondrian.AppController;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.controls.PageLabelController;
@@ -67,11 +75,14 @@ public class AppPaneController {
         var varsLocalizations = VarsLocalization.from(annotations,
                 paneController.getAutoscalePaneController(),
                 paneController.getAnnotationColors().editedColorProperty());
-        toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
+//        toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
         // Map localization to correct EventMessage. Set is new to false.send it
         varsLocalizations.forEach(vloc -> {
             AddLocalizationEvents.from(vloc.getLocalization(), false)
-                    .ifPresent(evt -> toolBox.eventBus().publish(evt));
+                    .ifPresent(evt -> {
+                        toolBox.eventBus().publish(evt);
+                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(AppPaneController.this, vloc)));
+                    });
         });
     }
 

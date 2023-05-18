@@ -49,6 +49,14 @@ public class AnnotationListViewController {
         this.onAnnotationSelection = onAnnotationSelection;
     }
 
+    public void addAnnotation(Annotation annotation) {
+        Platform.runLater(() -> listView.getItems().add(annotation));
+    }
+
+    public void removeAnnotation(Annotation annotation) {
+        Platform.runLater(() -> listView.getItems().remove(annotation));
+    }
+
     public void setAnnotations(Collection<Annotation> annotations) {
         Platform.runLater(() -> listView.getItems().setAll(annotations));
     }

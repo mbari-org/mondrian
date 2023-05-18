@@ -3,6 +3,7 @@ package org.mbari.mondrian.domain;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -11,6 +12,7 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.imgfx.roi.RectangleView;
+import org.mbari.mondrian.Localizations;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
 import org.mbari.vars.services.model.Annotation;
@@ -25,7 +27,7 @@ public class VarsLocalization {
 
     private final Annotation annotation;
     private final Association association;
-    private final Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization;
+    private final Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node> localization;
     private final BooleanProperty dirtyConcept = new SimpleBooleanProperty(false);
     private final BooleanProperty dirtyLocalization = new SimpleBooleanProperty(false);
     private static final Logging log = new Logging(VarsLocalization.class);
@@ -33,7 +35,7 @@ public class VarsLocalization {
 
     public VarsLocalization(Annotation annotation,
                             Association association,
-                            Localization<? extends DataView<? extends Data, ? extends Shape>, ImageView> localization) {
+                            Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node> localization) {
         this.annotation = annotation;
         this.association = association;
         this.localization = localization;
@@ -58,7 +60,7 @@ public class VarsLocalization {
         return association;
     }
 
-    public Localization getLocalization() {
+    public Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>  getLocalization() {
         return localization;
     }
 
@@ -128,6 +130,26 @@ public class VarsLocalization {
                                               ObjectProperty<Color> editedColor) {
         return annotations.stream()
                 .flatMap(a -> from(a, autoscalePaneController, editedColor).stream())
+                .toList();
+    }
+
+    public static Collection<VarsLocalization> intersection(Collection<VarsLocalization> locs,
+                                                            Collection<Annotation> annos) {
+        return annos.stream()
+                .flatMap(a -> a.getAssociations().stream())
+                .filter(a -> RoiTranslators.findByLinkName(a.getLinkName()).isPresent())
+                .flatMap(a -> locs.stream()
+                        .filter(l -> l.getLocalization().getUuid().equals(a.getUuid()))
+                        .findFirst()
+                        .stream())
+                .toList();
+    }
+
+    public static Collection<VarsLocalization> localizationIntersection(Collection<VarsLocalization> vlocs,
+                                                                        Collection<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>> locs) {
+        return vlocs.stream()
+                .filter(v -> locs.stream()
+                        .anyMatch(l -> l.getUuid().equals(v.localization.getUuid())))
                 .toList();
     }
 

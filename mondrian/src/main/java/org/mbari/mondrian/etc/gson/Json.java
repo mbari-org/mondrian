@@ -20,7 +20,6 @@ public class Json {
 
     private static Gson newGson() {
         GsonBuilder gsonBuilder = new GsonBuilder()
-                .setPrettyPrinting()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
                 .registerTypeAdapter(ImagedMoment.class, new AnnotationCreator())

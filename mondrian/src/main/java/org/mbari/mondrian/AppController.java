@@ -2,14 +2,19 @@ package org.mbari.mondrian;
 
 import javafx.application.Platform;
 
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.ClearLocalizations;
+import org.mbari.imgfx.etc.rx.events.RemoveLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
+import org.mbari.imgfx.roi.Data;
+import org.mbari.imgfx.roi.DataView;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.msg.commands.CreateAnnotationWithLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
@@ -32,6 +37,20 @@ public class AppController {
 
     private void init() {
         var rx = toolBox.eventBus().toObserverable();
+
+        rx.ofType(AddVarsLocalizationMsg.class)
+                        .subscribe(msg -> {
+                            // annotationsForSelectedImage is done in DataPaneController too
+                            toolBox.data().getVarsLocalizations().add(msg.varsLocalization());
+                        });
+
+        rx.ofType(RemoveVarsLocalizationMsg.class)
+                .subscribe(msg -> {
+                    toolBox.data().getAnnotationsForSelectedImage().remove(msg.varsLocalization().getAnnotation());
+                    toolBox.data().getVarsLocalizations().remove(msg.varsLocalization());
+                    var newMsg = new RemoveLocalizationEvent(msg.varsLocalization().getLocalization());
+                    toolBox.eventBus().publish(newMsg);
+                });
 
         rx.ofType(OpenImagesByCameraDeploymentMsg.class)
                 .subscribe(msg -> {
@@ -151,7 +170,9 @@ public class AppController {
     }
 
 
-    private void addLocalization(AddLocalizationEvent<? extends Data, ? extends Shape> event) {
+    private void addLocalization(AddLocalizationEvent<? extends DataView<? extends Data, ? extends Shape>, ImageView> event) {
+        // NOTE: The Localizations class is where Add/Remove Localization Events trigger add/remove
+        // to the scene graph
         var loc = event.localization();
         // Sheck events isNew. If false don't update the concept use the one
         // already associated with it.
@@ -161,6 +182,13 @@ public class AppController {
                 loc.setLabel(selectedConcept);
             }
             // TODO if isNew create a new annotation and association via the service
+            var data = toolBox.data();
+            var command = new CreateAnnotationWithLocalizationCmd(data.getUser().getUsername(),
+                    data.getSelectedImage(),
+                    data.getSelectedConcept(),
+                    loc,
+                    null);
+            toolBox.eventBus().publish(command);
         }
 
     }
@@ -193,7 +221,12 @@ public class AppController {
 
     private void setSelectedAnnotations(Collection<Annotation> selectedAnnotations) {
         // TODO find matching varsLocalizations and select them
-
+        var localizations = List.copyOf(toolBox.data().getVarsLocalizations());
+        var selectedLocalization = VarsLocalization.intersection(localizations, selectedAnnotations)
+                        .stream()
+                        .map(VarsLocalization::getLocalization)
+                        .toList();
+        toolBox.localizations().setSelectedLocalizations(selectedLocalization);
 
     }
 

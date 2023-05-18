@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.mbari.mondrian.javafx.AppPaneController;
 import org.mbari.mondrian.javafx.dialogs.AlertController;
+import org.mbari.mondrian.msg.commands.CommandManager;
 import org.mbari.mondrian.msg.messages.PrepareForShutdownMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.JFXUtilities;
@@ -17,7 +18,13 @@ import org.mbari.mondrian.util.JFXUtilities;
 public class App extends Application {
 
     private static final System.Logger log = System.getLogger(App.class.getSimpleName());
+    private CommandManager commandManager;
 
+    @Override
+    public void init() throws Exception {
+        super.init();
+        commandManager = new CommandManager();
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -64,9 +71,6 @@ public class App extends Application {
             alertController.showAndWait(msg.title(), msg.header(), msg.content(), msg.exception());
         });
     }
-
-
-
 
 
     public static void main(String[] args) {
