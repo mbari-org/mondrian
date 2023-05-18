@@ -21,7 +21,7 @@ plugins {
 //}
 
 javafx {
-    version = "20"
+    version = "20.0.1"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")
 }
 

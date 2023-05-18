@@ -85,13 +85,6 @@ public class AnnotationPaneController {
 
         var rx = eventBus.toObserverable();
 
-//        rx.ofType(AddLocalizationEvent.class)
-//                .subscribe(event -> {
-//                    localizations.setSelectedLocalizations(Collections.emptyList());
-//                    var loc = event.localization();
-//                    loc.setVisible(true);
-//                    localizations.setSelectedLocalizations(List.of(loc));
-//                });
 
         // TODO This is a HACK to make marker scaled to image size. Need to add a user setting for this.
         rx.ofType(AddMarkerEvent.class)

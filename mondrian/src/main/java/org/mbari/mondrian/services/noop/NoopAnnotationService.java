@@ -4,6 +4,7 @@ import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.services.AnnotationService;
 import org.mbari.vars.services.model.Annotation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NoopAnnotationService implements AnnotationService {
     @Override
-    public CompletableFuture<Annotation> create(Annotation annotation) {
+    public CompletableFuture<Collection<Annotation>> create(Collection<Annotation> annotations) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
     }
 
@@ -21,7 +22,7 @@ public class NoopAnnotationService implements AnnotationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> delete(Annotation annotation) {
+    public CompletableFuture<Boolean> delete(Collection<UUID> observationUuids) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
     }
 

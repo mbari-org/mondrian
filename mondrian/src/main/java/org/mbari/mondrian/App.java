@@ -23,7 +23,6 @@ public class App extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-        commandManager = new CommandManager();
     }
 
     @Override
@@ -40,11 +39,13 @@ public class App extends Application {
                 .subscribe(this::showAlert);
 
         final ToolBox toolbox = Initializer.getToolBox();
+        commandManager = new CommandManager(toolbox);
         var appController = new AppController(toolbox);
         var appPaneController = new AppPaneController(toolbox);
 
         var scene = new Scene(appPaneController.getRoot(), 640, 480);
         stage.setScene(scene);
+        new KeyMappings(toolbox, scene);
 
         // Save/load previous size
         final Class clazz = getClass();

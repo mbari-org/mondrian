@@ -16,4 +16,6 @@ public interface NamesService {
     CompletableFuture<List<String>> findNamesStartingWith(String prefix);
 
     CompletableFuture<Optional<Concept>> findConcept(String name);
+
+    CompletableFuture<String> findDefaultName();
 }

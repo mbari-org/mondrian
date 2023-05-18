@@ -90,14 +90,20 @@ public class ConceptPaneController {
 
     private void loadConcepts() {
         // TODO - This is a hack. Need to page for WoRMS
-        toolBox.servicesProperty()
-                .get()
-                .namesService()
-                .listNames(10000, 0)
+        var namesService = toolBox.servicesProperty().get().namesService();
+        namesService.listNames(10000, 0)
                 .thenAccept(page -> {
                     log.atInfo().log("Using " + page.content().size() + " concepts");
                     var observableList = FXCollections.observableList(page.content());
                     Platform.runLater(() -> conceptComboBox.setItems(observableList));
+                    namesService.findDefaultName().thenAccept(name -> {
+                        Platform.runLater(() -> {
+                            conceptComboBox.setValue(name);
+                            var selection = new Selection<>(ConceptPaneController.this, name);
+                            var msg = new SetSelectedConceptMsg(selection);
+                            toolBox.eventBus().publish(msg);
+                        });
+                    });
                 });
     }
 

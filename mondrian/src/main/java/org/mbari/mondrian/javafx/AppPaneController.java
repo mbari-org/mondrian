@@ -55,7 +55,6 @@ public class AppPaneController {
 
     private void init() {
 
-
         var rx = toolBox.eventBus().toObserverable();
 
         rx.ofType(SetSelectedImageMsg.class)
@@ -112,17 +111,27 @@ public class AppPaneController {
             openButton.setOnAction(e -> getOpenPopOver().show(openButton));
             openButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.open")));
 
+            Text undoIcon = Icons.UNDO.standardSize();
+            Button undoButton = new Button();
+            undoButton.setGraphic(undoIcon);
+            undoButton.setOnAction(e -> toolBox.eventBus().publish(new UndoMsg()));
+            undoButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.undo")));
+
+            Text redoIcon = Icons.REDO.standardSize();
+            Button redoButton = new Button();
+            redoButton.setGraphic(redoIcon);
+            redoButton.setOnAction(e -> toolBox.eventBus().publish(new RedoMsg()));
+            redoButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.redo")));
+
             Text settingsIcon = Icons.SETTINGS.standardSize();
             Button settingsButton = new Button();
             settingsButton.setGraphic(settingsIcon);
             settingsButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.settings")));
             settingsButton.setOnAction(e -> getSettingsDialogController().show());
 
-
-
             var pageLabelController = new PageLabelController(toolBox.eventBus());
 
-            toolBar = new ToolBar(openButton, settingsButton, getUsersComboBox(), pageLabelController.getLabel());
+            toolBar = new ToolBar(openButton, undoButton, redoButton, settingsButton, getUsersComboBox(), pageLabelController.getLabel());
         }
         return toolBar;
     }

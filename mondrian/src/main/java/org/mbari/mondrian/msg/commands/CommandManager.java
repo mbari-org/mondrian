@@ -36,7 +36,7 @@ public class CommandManager {
     private final Deque<CommandEvent> undos = new LinkedBlockingDeque<>(maxUndos);
     private final Deque<CommandEvent> redos = new LinkedBlockingDeque<>(maxUndos);
     private final Thread thread;
-    private final ToolBox toolBox = Initializer.getToolBox();
+    private final ToolBox toolBox;
 
     private final Runnable runnable = () -> {
         while (true) {
@@ -56,12 +56,12 @@ public class CommandManager {
                     Deque<CommandEvent> inverseCommandList = null;
                     switch (commandEvent.getState()) {
                         case DO: {
-                            command.apply(toolBox);
+                            command.apply(getToolBox());
                             inverseCommandList = undos;
                             break;
                         }
                         case UNDO: {
-                            command.unapply(toolBox);
+                            command.unapply(getToolBox());
                             inverseCommandList = redos;
                             break;
                         }
@@ -80,7 +80,8 @@ public class CommandManager {
         }
     };
 
-    public CommandManager() {
+    public CommandManager(ToolBox toolBox) {
+        this.toolBox = toolBox;
         thread = new Thread(runnable, getClass().getName());
         thread.setDaemon(true);
         thread.start();
@@ -124,6 +125,10 @@ public class CommandManager {
     private void clear() {
         undos.clear();
         redos.clear();
+    }
+
+    private ToolBox getToolBox() {
+        return toolBox;
     }
 
 }

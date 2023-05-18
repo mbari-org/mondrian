@@ -62,4 +62,9 @@ public class KbNamesService implements NamesService {
                         opt.map(c -> new Concept(c.getName(), c.getAlternativeNames(), c.getRank())));
 
     }
+
+    @Override
+    public CompletableFuture<String> findDefaultName() {
+        return conceptService.findRoot().thenApply(org.mbari.vars.services.model.Concept::getName);
+    }
 }

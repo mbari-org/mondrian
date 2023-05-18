@@ -28,4 +28,9 @@ public class NoopNamesService implements NamesService {
     public CompletableFuture<Optional<Concept>> findConcept(String name) {
         return CompletableFuture.completedFuture(Optional.empty());
     }
+
+    @Override
+    public CompletableFuture<String> findDefaultName() {
+        return CompletableFuture.completedFuture("object");
+    }
 }

@@ -3,6 +3,7 @@ package org.mbari.mondrian.services;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.vars.services.model.Annotation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,9 +11,9 @@ import java.util.concurrent.CompletableFuture;
 
 public interface AnnotationService {
 
-    CompletableFuture<Annotation> create(Annotation annotation);
+    CompletableFuture<Collection<Annotation>> create(Collection<Annotation> annotations);
     CompletableFuture<Annotation> update(Annotation annotation);
-    CompletableFuture<Boolean> delete(Annotation annotation);
+    CompletableFuture<Boolean> delete(Collection<UUID> observationUuids);
     CompletableFuture<Optional<Annotation>> findByUuid(UUID uuid);
     CompletableFuture<List<Annotation>> findByImageUuid(UUID imageUuid);
     CompletableFuture<Page<Annotation>> findByMediaUuid(UUID mediaUuid, int size, int page);

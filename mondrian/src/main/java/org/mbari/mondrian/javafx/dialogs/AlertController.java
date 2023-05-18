@@ -36,7 +36,7 @@ public class AlertController {
         showAndWait(title, headerText, content, null);
     }
 
-    public void showAndWait(String title, String headerText, String contentText, Exception ex) {
+    public void showAndWait(String title, String headerText, String contentText, Throwable ex) {
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
@@ -49,7 +49,7 @@ public class AlertController {
         alert.showAndWait();
     }
 
-    private GridPane getContent(Exception ex) {
+    private GridPane getContent(Throwable ex) {
         if (content == null) {
             // TODO i18n
             Label label = new Label(i18n.getString("alert.stacktrace.msg"));

@@ -55,6 +55,7 @@ public class AnnotationListViewController {
     }
 
     public void removeAnnotation(Annotation annotation) {
+        System.out.println("---- REMOVEING" + annotation);
         Platform.runLater(() -> listView.getItems().remove(annotation));
     }
 
@@ -125,7 +126,6 @@ public class AnnotationListViewController {
                     public void onChanged(Change<? extends Annotation> c) {
 //                        if (listView.isFocused() || listView.getParent().isFocused()) {
                             var items = new ArrayList<>(listView.getSelectionModel().getSelectedItems());
-                            System.out.println("---- " + items);
                             Selection<Collection<Annotation>> selection = new Selection<>(AnnotationListViewController.this, items);
                             onAnnotationSelection.accept(selection);
 //                        }

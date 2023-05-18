@@ -66,8 +66,8 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                 toolBox.servicesProperty()
                         .get()
                         .annotationService()
-                        .create(annotation)
-                        .handle((a, ex) -> {
+                        .create(List.of(annotation))
+                        .handle((xs, ex) -> {
                             if (ex != null) {
                                 var alertContent = new AlertContent(toolBox.i18n(), "alert.command.create.annotation.apply", ex);
                                 log.atInfo().log(alertContent.content());
@@ -75,15 +75,15 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                                 return null;
                             }
                             else {
-                                var optAss = a.getAssociations()
-                                        .stream()
-                                        .filter(ass -> ass.getUuid().equals(localization.getUuid()))
-                                        .findFirst();
-                                if (optAss.isPresent()) {
-                                    var assoc = optAss.get();
-                                    varsLocalization = new VarsLocalization(a, assoc, localization);
-                                    var msg = new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
-                                    toolBox.eventBus().publish(msg);
+                                for (var a: xs) {
+                                    for (var ass : a.getAssociations()) {
+                                        if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
+                                            varsLocalization = new VarsLocalization(a, ass, localization);
+                                            var msg = new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
+                                            toolBox.eventBus().publish(msg);
+                                            break;
+                                        }
+                                    }
                                 }
                                 return null;
                             }
@@ -103,7 +103,7 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
             toolBox.servicesProperty()
                     .get()
                     .annotationService()
-                    .delete(varsLocalization.getAnnotation())
+                    .delete(List.of(varsLocalization.getAnnotation().getObservationUuid()))
                     .thenAccept(ok -> {
                         if (ok) {
                             var msg = new RemoveVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
@@ -116,7 +116,6 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                             toolBox.eventBus().publish(new ShowAlertMsg(Alert.AlertType.INFORMATION, alertContent2));
                         }
                     });
-
         }
         else {
             var content = toolBox.i18n().getString("alert.command.create.annotation.unapply.content2");

@@ -2,6 +2,7 @@ package org.mbari.mondrian;
 
 import javafx.application.Platform;
 
+import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
@@ -10,11 +11,13 @@ import org.mbari.imgfx.etc.rx.events.RemoveLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.UpdatedLocalizationsEvent;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
+import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.commands.CreateAnnotationWithLocalizationCmd;
+import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AppController {
 
@@ -38,6 +42,21 @@ public class AppController {
     private void init() {
         var rx = toolBox.eventBus().toObserverable();
 
+        // Handles when a new localizaion is added to the view. Typically after a user click
+        // At this point the localization data has not been saved via the services
+        rx.ofType(AddLocalizationEvent.class)
+                .subscribe(this::addLocalization);
+
+        rx.ofType(RemoveLocalizationEvent.class)
+                .window(200, TimeUnit.MILLISECONDS)
+                .subscribe(obs -> obs.toList()
+                        .subscribe(events -> {
+                            var localizations = events.stream()
+                                    .map(RemoveLocalizationEvent::localization)
+                                    .toList();
+                            removeLocalizations(localizations);
+                        }));
+
         rx.ofType(AddVarsLocalizationMsg.class)
                         .subscribe(msg -> {
                             // annotationsForSelectedImage is done in DataPaneController too
@@ -46,10 +65,19 @@ public class AppController {
 
         rx.ofType(RemoveVarsLocalizationMsg.class)
                 .subscribe(msg -> {
-                    toolBox.data().getAnnotationsForSelectedImage().remove(msg.varsLocalization().getAnnotation());
-                    toolBox.data().getVarsLocalizations().remove(msg.varsLocalization());
-                    var newMsg = new RemoveLocalizationEvent(msg.varsLocalization().getLocalization());
-                    toolBox.eventBus().publish(newMsg);
+                    var varsLocalization = msg.varsLocalization();
+                    toolBox.data().getVarsLocalizations().remove(varsLocalization);
+                    var nextMsg = new RemoveLocalizationEvent(msg.varsLocalization().getLocalization());
+                    toolBox.eventBus().publish(nextMsg);
+
+//                    var localization = varsLocalization.getLocalization();
+//                    var locs = toolBox.localizations();
+//                    Platform.runLater(() -> {
+//                        localization.setVisible(false);
+//                        locs.getSelectedLocalizations().remove(localization);
+//                        locs.getLocalizations().remove(localization);
+//                        locs.setEditedLocalization(null);
+//                    });
                 });
 
         rx.ofType(OpenImagesByCameraDeploymentMsg.class)
@@ -122,13 +150,6 @@ public class AppController {
         rx.ofType(SetUserMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
-        rx.ofType(SetAnnotationsForSelectedImageMsg.class)
-                .subscribe(msg -> setAnnotationsForSelectedImage(msg.annotations()));
-
-        // Handles when a new localizaion is added to the view. Typically after a user click
-        // At this point the localization data has not been saved via the services
-        rx.ofType(AddLocalizationEvent.class)
-                .subscribe(this::addLocalization);
 
         rx.ofType(UpdatedLocalizationsEvent.class)
                 .subscribe(this::updateLocalization);
@@ -147,6 +168,7 @@ public class AppController {
 
     private void setSelectedImage(Image selectedImage) {
         var eventBus = toolBox.eventBus();
+        eventBus.publish(new ClearCommandManagerMsg());
         eventBus.publish(new ClearLocalizations());
         eventBus.publish(new SetAnnotationsForSelectedImageMsg(new Selection<>(AppController.this, List.of())));
         Platform.runLater(() -> toolBox.data().setSelectedImage(selectedImage));
@@ -159,22 +181,13 @@ public class AppController {
         }
     }
 
-    private void setAnnotationsForSelectedImage(Collection<Annotation> annotations) {
-        //TODO save an dirty localizations in VARS
-//        toolBox.data()
-//                .getVarsLocalizations()
-//                .forEach(a -> a.getLocalization().setVisible(false));
-        Platform.runLater(() -> toolBox.data().getAnnotationsForSelectedImage().setAll(annotations));
-        // TODO build localizations. ONce build calling setVisible will ad them to the pane
-
-    }
 
 
     private void addLocalization(AddLocalizationEvent<? extends DataView<? extends Data, ? extends Shape>, ImageView> event) {
         // NOTE: The Localizations class is where Add/Remove Localization Events trigger add/remove
         // to the scene graph
         var loc = event.localization();
-        // Sheck events isNew. If false don't update the concept use the one
+        // Check events isNew. If false don't update the concept use the one
         // already associated with it.
         if (event.isNew()) {
             var selectedConcept = toolBox.data().getSelectedConcept();
@@ -191,6 +204,14 @@ public class AppController {
             toolBox.eventBus().publish(command);
         }
 
+    }
+
+    public void removeLocalizations(Collection<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>> localizations) {
+        var vlocs = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), localizations);
+        if (!vlocs.isEmpty()) {
+            var msg = new DeleteVarsLocalizationsCmd(vlocs);
+            toolBox.eventBus().publish(msg);
+        }
     }
 
     private void updateLocalization(UpdatedLocalizationsEvent event) {

@@ -31,7 +31,6 @@ public class Data {
     private final ObjectProperty<Page<Image>> currentImagePage = new SimpleObjectProperty<>();
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
-    private final ObservableList<Annotation> annotationsForSelectedImage = FXCollections.observableArrayList();
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
     private final ObservableList<String> concepts = FXCollections.observableArrayList();
     private final StringProperty selectedConcept = new SimpleStringProperty();
@@ -85,9 +84,6 @@ public class Data {
         return images;
     }
 
-    public ObservableList<Annotation> getAnnotationsForSelectedImage() {
-        return annotationsForSelectedImage;
-    }
 
     public ObservableList<VarsLocalization> getVarsLocalizations() {
         return varsLocalizations;
