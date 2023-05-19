@@ -55,7 +55,6 @@ public class AnnotationListViewController {
     }
 
     public void removeAnnotation(Annotation annotation) {
-        System.out.println("---- REMOVEING" + annotation);
         Platform.runLater(() -> listView.getItems().remove(annotation));
     }
 
