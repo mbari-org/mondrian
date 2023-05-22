@@ -20,6 +20,7 @@ import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
+import org.mbari.mondrian.util.SupportUtil;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
@@ -82,11 +83,12 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                                     for (var ass : a.getAssociations()) {
                                         if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
                                             varsLocalization = new VarsLocalization(a, ass, localization);
-                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
-                                                    .ifPresent(evt -> {
-                                                        toolBox.eventBus().publish(evt);
-                                                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization)));
-                                                    });
+//                                            SupportUtil.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateAnnotationWithLocalizationCmd.this);
+//                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
+//                                                    .ifPresent(evt -> {
+//                                                        toolBox.eventBus().publish(evt);
+//                                                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization)));
+//                                                    });
                                             break;
                                         }
                                     }

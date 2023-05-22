@@ -15,9 +15,9 @@ import org.mbari.imgfx.roi.Localization;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
-import org.mbari.imgfx.util.ListUtils;
 import org.mbari.mondrian.etc.jdk.Logging;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -118,10 +118,27 @@ public class Localizations {
         return selectedLocalizations;
     }
 
-    public void setSelectedLocalizations(List<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>> selectedLocalizations) {
+    public void setSelectedLocalizations(List<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>> locs) {
         // Get intersection with current annotations.
-        var existingAnnotations = ListUtils.intersection(localizations, selectedLocalizations);
-        this.selectedLocalizations.setAll(existingAnnotations);
+//        var existingAnnotations = ListUtils.intersection(localizations, locs);
+//        log.atInfo().log("Found these existing annotations to select: " + existingAnnotations + " out of " + localizations);
+//        this.selectedLocalizations.setAll(existingAnnotations);
+        var selected = new ArrayList<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>>();
+        for (var x: locs) {
+            localizations.stream()
+                    .filter(a -> a.getUuid().equals(x.getUuid()))
+                    .findFirst()
+                    .ifPresent(selected::add);
+        }
+        selectedLocalizations.setAll(selected);
+//        this.selectedLocalizations.clear();
+//        if (locs != null) {
+//            for (var x : locs) {
+//                if (localizations.contains(x)) {
+//                    selectedLocalizations.add(x);
+//                }
+//            }
+//        }
     }
 
     public Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node> getEditedLocalization() {

@@ -8,6 +8,7 @@ import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
+import org.mbari.mondrian.util.SupportUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,11 +65,12 @@ public class DeleteVarsLocalizationsCmd implements Command {
                 .create(annotations)
                 .thenAccept(xs -> {
                     localizations.forEach(varsLocalization ->
-                        AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
-                                .ifPresent(evt -> {
-                                    toolBox.eventBus().publish(evt);
-                                    toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(DeleteVarsLocalizationsCmd.this, varsLocalization)));
-                                })
+                                    SupportUtil.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), DeleteVarsLocalizationsCmd.this)
+//                        AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
+//                                .ifPresent(evt -> {
+//                                    toolBox.eventBus().publish(evt);
+//                                    toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(DeleteVarsLocalizationsCmd.this, varsLocalization)));
+//                                })
                     );
                 });
     }

@@ -27,6 +27,7 @@ import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
 import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.mondrian.util.SupportUtil;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
 
@@ -77,11 +78,12 @@ public class AppPaneController {
 //        toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
         // Map localization to correct EventMessage. Set is new to false.send it
         varsLocalizations.forEach(vloc -> {
-            AddLocalizationEvents.from(vloc.getLocalization(), false)
-                    .ifPresent(evt -> {
-                        toolBox.eventBus().publish(evt);
-                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(AppPaneController.this, vloc)));
-                    });
+            SupportUtil.publishVarsLocalization(vloc, false, toolBox.eventBus(), AppPaneController.this);
+//            AddLocalizationEvents.from(vloc.getLocalization(), false)
+//                    .ifPresent(evt -> {
+//                        toolBox.eventBus().publish(evt);
+//                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(AppPaneController.this, vloc)));
+//                    });
         });
     }
 

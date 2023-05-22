@@ -140,6 +140,9 @@ public class AppController {
         rx.ofType(SetSelectedAnnotationsMsg.class)
                         .subscribe(msg -> setSelectedAnnotations(msg.annotations()));
 
+//        rx.ofType(SetSelectedLocalizationsMsg.class)
+//                        .subscribe(msg -> toolBox.localizations().setSelectedLocalizations(msg.localizations()));
+
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> {
                     // Clear any previous selected image.
@@ -243,11 +246,13 @@ public class AppController {
     private void setSelectedAnnotations(Collection<Annotation> selectedAnnotations) {
         // TODO find matching varsLocalizations and select them
         var localizations = List.copyOf(toolBox.data().getVarsLocalizations());
-        var selectedLocalization = VarsLocalization.intersection(localizations, selectedAnnotations)
+        var selectedLocalizations = VarsLocalization.intersection(localizations, selectedAnnotations)
                         .stream()
                         .map(VarsLocalization::getLocalization)
                         .toList();
-        toolBox.localizations().setSelectedLocalizations(selectedLocalization);
+//        var msg = new SetSelectedLocalizationsMsg(new Selection<>(AppController.this, selectedLocalizations));
+//        toolBox.eventBus().publish(msg);
+        toolBox.localizations().setSelectedLocalizations(selectedLocalizations);
 
     }
 

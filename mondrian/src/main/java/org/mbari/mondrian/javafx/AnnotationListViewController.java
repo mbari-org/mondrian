@@ -9,6 +9,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tooltip;
 import javafx.util.Callback;
 import org.mbari.mondrian.domain.Selection;
+import org.mbari.mondrian.util.CollectionUtil;
 import org.mbari.vars.services.model.Annotation;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class AnnotationListViewController {
 
     private ListView<Annotation> listView;
     private Consumer<Selection<Collection<Annotation>>> onAnnotationSelection = selection -> {};
+    private volatile boolean sendNotification = true;
 
     public AnnotationListViewController() {
         init();
@@ -63,7 +65,11 @@ public class AnnotationListViewController {
     }
 
     public void setSelectedAnnotations(Collection<Annotation> annotations) {
+        if (CollectionUtil.isSame(annotations, listView.getSelectionModel().getSelectedItems(), Annotation::getObservationUuid)) {
+            return;
+        }
         Platform.runLater(() -> {
+            sendNotification = false;
             listView.getSelectionModel().clearSelection();
             if (annotations.size() == 1) {
                 listView.getSelectionModel().select(annotations.iterator().next());
@@ -84,6 +90,7 @@ public class AnnotationListViewController {
                 var tail = selectionIndices.subList(1, selectionIndices.size()).stream().mapToInt(Integer::intValue).toArray();
                 listView.getSelectionModel().selectIndices(head, tail);
             }
+            sendNotification = true;
         });
     }
 
@@ -124,9 +131,11 @@ public class AnnotationListViewController {
                     @Override
                     public void onChanged(Change<? extends Annotation> c) {
 //                        if (listView.isFocused() || listView.getParent().isFocused()) {
+                        if (sendNotification) {
                             var items = new ArrayList<>(listView.getSelectionModel().getSelectedItems());
                             Selection<Collection<Annotation>> selection = new Selection<>(AnnotationListViewController.this, items);
                             onAnnotationSelection.accept(selection);
+                        }
 //                        }
                     }
                 });
