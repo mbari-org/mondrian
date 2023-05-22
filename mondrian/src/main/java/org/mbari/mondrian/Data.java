@@ -32,7 +32,7 @@ public class Data {
     private final ObservableList<Image> images = FXCollections.observableArrayList();
     private final ObjectProperty<Image> selectedImage = new SimpleObjectProperty<>();
     private final ObservableList<VarsLocalization> varsLocalizations = FXCollections.observableArrayList();
-    
+
     private final ObservableList<String> concepts = FXCollections.observableArrayList();
     private final StringProperty selectedConcept = new SimpleStringProperty();
     private final ObjectProperty<Paging<?>> openUsingPaging = new SimpleObjectProperty<>();

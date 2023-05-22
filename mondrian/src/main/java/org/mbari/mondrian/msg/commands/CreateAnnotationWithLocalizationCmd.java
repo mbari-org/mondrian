@@ -83,7 +83,7 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                                     for (var ass : a.getAssociations()) {
                                         if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
                                             varsLocalization = new VarsLocalization(a, ass, localization);
-//                                            SupportUtil.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateAnnotationWithLocalizationCmd.this);
+                                            SupportUtil.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateAnnotationWithLocalizationCmd.this);
 //                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
 //                                                    .ifPresent(evt -> {
 //                                                        toolBox.eventBus().publish(evt);

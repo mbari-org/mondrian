@@ -38,7 +38,6 @@ public class AnnotationPaneController {
     private static final Logger log = System.getLogger(AutoscalePaneController.class.getName());
 
 
-
     public AnnotationPaneController(ToolBox toolBox) {
         this.toolBox = toolBox;
         this.eventBus = toolBox.eventBus();
