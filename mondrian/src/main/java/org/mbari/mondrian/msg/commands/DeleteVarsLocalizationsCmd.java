@@ -4,11 +4,13 @@ import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 
 import java.util.Collection;
+import java.util.List;
 
 public class DeleteVarsLocalizationsCmd implements Command {
 
@@ -51,15 +53,23 @@ public class DeleteVarsLocalizationsCmd implements Command {
         var annotations = localizations.stream()
                         .map(VarsLocalization::getAnnotation)
                         .toList();
+        // NOTE: If we don't clear the image list annosaurus will try to create new
+        // images. This will fail as both the image's URL and UUID already exist in
+        // the database and duplicates are not allowed. We just clear the list here
+        // to avoid that.
+        annotations.forEach(a -> a.setImages(List.of()));
         toolBox.servicesProperty()
                 .get()
                 .annotationService()
                 .create(annotations)
                 .thenAccept(xs -> {
-                    localizations.forEach(loc -> {
-                        var msg = new AddVarsLocalizationMsg(new Selection<>(DeleteVarsLocalizationsCmd.this, loc));
-                        toolBox.eventBus().publish(msg);
-                    });
+                    localizations.forEach(varsLocalization ->
+                        AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
+                                .ifPresent(evt -> {
+                                    toolBox.eventBus().publish(evt);
+                                    toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(DeleteVarsLocalizationsCmd.this, varsLocalization)));
+                                })
+                    );
                 });
     }
 

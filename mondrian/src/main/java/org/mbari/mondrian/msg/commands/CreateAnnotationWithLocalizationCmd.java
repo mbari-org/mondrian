@@ -3,6 +3,7 @@ package org.mbari.mondrian.msg.commands;
 import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
+import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.Data;
@@ -10,10 +11,12 @@ import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.AppPaneController;
 import org.mbari.mondrian.javafx.dialogs.AlertContent;
 import org.mbari.mondrian.javafx.roi.Datum;
 import org.mbari.mondrian.javafx.roi.Datums;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
+import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
@@ -79,8 +82,11 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                                     for (var ass : a.getAssociations()) {
                                         if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
                                             varsLocalization = new VarsLocalization(a, ass, localization);
-                                            var msg = new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
-                                            toolBox.eventBus().publish(msg);
+                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
+                                                    .ifPresent(evt -> {
+                                                        toolBox.eventBus().publish(evt);
+                                                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization)));
+                                                    });
                                             break;
                                         }
                                     }
