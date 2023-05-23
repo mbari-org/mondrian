@@ -107,21 +107,42 @@ public class DataPaneController implements IPrefs {
                 .getSelectedLocalizations()
                 .addListener((ListChangeListener<Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>>) c -> {
                     var selected = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), toolBox.localizations().getSelectedLocalizations());
+                    var selectedInListView = annotationListViewController.getListView()
+                            .getSelectionModel()
+                            .getSelectedItems();
+
                     var selectedAnnos0 = selected.stream()
                             .map(VarsLocalization::getAnnotation)
                             .sorted(Comparator.comparing(Annotation::getObservationUuid))
                             .toList();
-                    var selectedAnnos1 = annotationListViewController.getListView()
-                            .getSelectionModel()
-                            .getSelectedItems()
-                            .stream()
-                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
-                            .toList();
-
-                    if (!selectedAnnos0.equals(selectedAnnos1)) {
+                    if (selected.size() != selectedInListView.size()) {
                         annotationListViewController.setSelectedAnnotations(selectedAnnos0);
                     }
+                    else {
+                        var selectedAnnos1 = annotationListViewController.getListView()
+                                .getSelectionModel()
+                                .getSelectedItems()
+                                .stream()
+                                .sorted(Comparator.comparing(Annotation::getObservationUuid))
+                                .toList();
+                        if (!selectedAnnos0.equals(selectedAnnos1)) {
+                            annotationListViewController.setSelectedAnnotations(selectedAnnos0);
+                        }
+                    }
+//                    var selectedAnnos0 = selected.stream()
+//                            .map(VarsLocalization::getAnnotation)
+//                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
+//                            .toList();
+//                    var selectedAnnos1 = annotationListViewController.getListView()
+//                            .getSelectionModel()
+//                            .getSelectedItems()
+//                            .stream()
+//                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
+//                            .toList();
 //
+//                    if (!selectedAnnos0.equals(selectedAnnos1)) {
+//                        annotationListViewController.setSelectedAnnotations(selectedAnnos0);
+//                    }
                 });
 
         // Zoom image window

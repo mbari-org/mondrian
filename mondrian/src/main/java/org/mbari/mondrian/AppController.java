@@ -19,7 +19,9 @@ import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.commands.CreateAnnotationWithLocalizationCmd;
 import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
 import org.mbari.mondrian.msg.commands.UpdateAnnotationsConceptCmd;
+import org.mbari.mondrian.msg.commands.UpdateLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.mondrian.util.SupportUtil;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
@@ -137,6 +139,8 @@ public class AppController {
         rx.ofType(SetUserMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
+        rx.ofType(UpdateVarsLocalizationMsg.class)
+                        .subscribe(msg -> SupportUtil.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
 
         rx.ofType(UpdatedLocalizationsEvent.class)
                 .subscribe(this::updateLocalization);
@@ -307,6 +311,19 @@ public class AppController {
 
     public void addVarsLocalization(VarsLocalization varsLocalization) {
         toolBox.data().getVarsLocalizations().add(varsLocalization);
+
+        // Listen for when a localization's location has been edited
+        varsLocalization.getLocalization()
+                .getDataView()
+                .editingProperty()
+                .addListener((obs, oldv, newv) -> {
+                    if (!newv && varsLocalization.isDirtyLocalization()) {
+                        varsLocalization.setDirtyLocalization(false);
+                        var msg = new UpdateLocalizationCmd(varsLocalization);
+                        toolBox.eventBus().publish(msg);
+//                        log.atInfo().log(varsLocalization + " should be updated in the database");
+                    }
+                });
 
     }
 

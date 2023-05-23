@@ -5,6 +5,11 @@ import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
+import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.services.model.Association;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SupportUtil {
     private SupportUtil() {
@@ -31,4 +36,35 @@ public class SupportUtil {
                     eventBus.publish(new AddVarsLocalizationMsg(new Selection<>(source, varsLocalization)));
                 });
     }
+
+    public static boolean replaceIn(VarsLocalization varsLocalization, List<VarsLocalization> xs) {
+        var isUpdated = false;
+        var associationUuid = varsLocalization.getAssociation().getUuid();
+        for (int i = 0; i < xs.size(); i++) {
+            var x = xs.get(i);
+            var uuid = x.getAssociation().getUuid();
+            if (uuid.equals(associationUuid)) {
+                xs.set(i, varsLocalization);
+                isUpdated = true;
+                break;
+            }
+        }
+        return isUpdated;
+    }
+
+    public static Annotation replaceIn(Association association, Annotation annotation) {
+        var newAnno = new Annotation(annotation);
+        var associations = new ArrayList<>(annotation.getAssociations());
+        for (int i = 0; i < associations.size(); i++) {
+            var ass = associations.get(i);
+            if (association.getUuid().equals(ass.getUuid())) {
+                associations.set(i, association);
+                break;
+            }
+        }
+        newAnno.setAssociations(associations);
+        return newAnno;
+    }
+
+
 }

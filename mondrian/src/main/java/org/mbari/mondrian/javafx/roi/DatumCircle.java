@@ -1,6 +1,9 @@
 package org.mbari.mondrian.javafx.roi;
 
 import org.mbari.imgfx.roi.CircleData;
+import org.mbari.vars.services.model.Association;
+
+import java.util.Optional;
 
 public record DatumCircle(double centerX, double centerY, double radius) implements Datum<CircleData>{
 

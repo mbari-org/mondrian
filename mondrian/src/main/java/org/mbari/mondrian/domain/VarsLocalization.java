@@ -12,8 +12,10 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.imgfx.roi.RectangleView;
+import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
+import org.mbari.mondrian.util.SupportUtil;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
@@ -58,7 +60,7 @@ public class VarsLocalization {
         return association;
     }
 
-    public Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node>  getLocalization() {
+    public Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node> getLocalization() {
         return localization;
     }
 
@@ -145,6 +147,20 @@ public class VarsLocalization {
                         .anyMatch(l -> l.getUuid().equals(v.localization.getUuid())))
                 .toList();
     }
+
+    public VarsLocalization updateUsingLocalizationData() {
+        var json = getAssociation().getLinkValue();
+        var auxInfo = Json.decode(json, AuxInfo.class);
+        return RoiTranslators.fromLocalization(localization,
+                        auxInfo.getImageReferenceUuuid(),
+                        auxInfo.getComment())
+                .map(newAssociation -> {
+                    var anno = SupportUtil.replaceIn(newAssociation, annotation);
+                    return new VarsLocalization(anno, newAssociation, localization);
+                })
+                .orElseThrow(); // HARD get here. In theory this should never fail
+    }
+
 
 
 }

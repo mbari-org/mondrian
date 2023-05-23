@@ -24,7 +24,7 @@ public class AnnosaurusAssociationService implements AssociationService  {
 
     @Override
     public CompletableFuture<Association> update(Association association) {
-        return null;
+        return annotationService.updateAssociation(association);
     }
 
     @Override
@@ -34,7 +34,16 @@ public class AnnosaurusAssociationService implements AssociationService  {
 
     @Override
     public CompletableFuture<Optional<Association>> findByUuid(UUID uuid) {
-        return null;
+        return annotationService.findAssociationByUuid(uuid)
+                .handle((ass, ex) -> {
+                    if (ex != null) {
+                        return Optional.empty();
+                    }
+                    else {
+                        return Optional.of(ass);
+                    }
+                });
+
     }
 
     @Override
