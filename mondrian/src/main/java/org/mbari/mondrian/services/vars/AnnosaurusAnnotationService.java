@@ -49,7 +49,12 @@ public class AnnosaurusAnnotationService implements AnnotationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> delete(Collection<UUID> observationUuids) {
+    public CompletableFuture<Collection<Annotation>> updateAll(Collection<Annotation> annotations) {
+        return annotationService.updateAnnotations(annotations);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> deleteAll(Collection<UUID> observationUuids) {
         return annotationService.deleteAnnotations(observationUuids)
                 .handle((Void, ex) -> ex == null);
     }

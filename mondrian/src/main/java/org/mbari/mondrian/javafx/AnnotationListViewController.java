@@ -64,6 +64,10 @@ public class AnnotationListViewController {
         Platform.runLater(() -> listView.getItems().setAll(annotations));
     }
 
+    public void refresh() {
+        Platform.runLater(() -> listView.getItems().setAll(listView.getItems()));
+    }
+
     public void setSelectedAnnotations(Collection<Annotation> annotations) {
         if (CollectionUtil.isSame(annotations, listView.getSelectionModel().getSelectedItems(), Annotation::getObservationUuid)) {
             return;

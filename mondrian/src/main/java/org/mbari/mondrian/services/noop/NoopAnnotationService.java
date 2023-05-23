@@ -22,7 +22,12 @@ public class NoopAnnotationService implements AnnotationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> delete(Collection<UUID> observationUuids) {
+    public CompletableFuture<Collection<Annotation>> updateAll(Collection<Annotation> annotations) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> deleteAll(Collection<UUID> observationUuids) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
     }
 

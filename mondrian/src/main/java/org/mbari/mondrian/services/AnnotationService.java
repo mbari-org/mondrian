@@ -13,7 +13,8 @@ public interface AnnotationService {
 
     CompletableFuture<Collection<Annotation>> create(Collection<Annotation> annotations);
     CompletableFuture<Annotation> update(Annotation annotation);
-    CompletableFuture<Boolean> delete(Collection<UUID> observationUuids);
+    CompletableFuture<Collection<Annotation>> updateAll(Collection<Annotation> annotations);
+    CompletableFuture<Boolean> deleteAll(Collection<UUID> observationUuids);
     CompletableFuture<Optional<Annotation>> findByUuid(UUID uuid);
     CompletableFuture<List<Annotation>> findByImageUuid(UUID imageUuid);
     CompletableFuture<Page<Annotation>> findByMediaUuid(UUID mediaUuid, int size, int page);

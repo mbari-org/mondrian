@@ -1,5 +1,6 @@
 package org.mbari.mondrian.javafx;
 
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -88,7 +89,11 @@ public class DataPaneController implements IPrefs {
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
                 .subscribe(msg -> annotationListViewController.setAnnotations(List.of()));
-//                .subscribe(msg -> annotationListViewController.setAnnotations(msg.annotations()));
+
+        rx.ofType(RerenderAnnotations.class)
+                .subscribe(msg -> {
+                    Platform.runLater(() -> annotationListViewController.getListView().refresh());
+                });
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)

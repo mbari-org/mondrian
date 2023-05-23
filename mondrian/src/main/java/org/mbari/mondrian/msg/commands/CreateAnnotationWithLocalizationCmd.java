@@ -2,22 +2,15 @@ package org.mbari.mondrian.msg.commands;
 
 import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Shape;
-import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
-import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
-import org.mbari.mondrian.Data;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.javafx.AppPaneController;
 import org.mbari.mondrian.javafx.dialogs.AlertContent;
 import org.mbari.mondrian.javafx.roi.Datum;
 import org.mbari.mondrian.javafx.roi.Datums;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
-import org.mbari.mondrian.msg.events.AddLocalizationEvents;
-import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.SupportUtil;
@@ -111,7 +104,7 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
             toolBox.servicesProperty()
                     .get()
                     .annotationService()
-                    .delete(List.of(varsLocalization.getAnnotation().getObservationUuid()))
+                    .deleteAll(List.of(varsLocalization.getAnnotation().getObservationUuid()))
                     .thenAccept(ok -> {
                         if (ok) {
                             var msg = new RemoveVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));

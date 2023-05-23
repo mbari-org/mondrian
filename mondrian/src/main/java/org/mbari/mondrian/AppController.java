@@ -18,6 +18,7 @@ import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.commands.CreateAnnotationWithLocalizationCmd;
 import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
+import org.mbari.mondrian.msg.commands.UpdateAnnotationsConceptCmd;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
@@ -58,27 +59,10 @@ public class AppController {
                         }));
 
         rx.ofType(AddVarsLocalizationMsg.class)
-                        .subscribe(msg -> {
-                            // annotationsForSelectedImage is done in DataPaneController too
-                            toolBox.data().getVarsLocalizations().add(msg.varsLocalization());
-                        });
+                        .subscribe(msg -> addVarsLocalization(msg.varsLocalization()));
 
         rx.ofType(RemoveVarsLocalizationMsg.class)
-                .subscribe(msg -> {
-                    var varsLocalization = msg.varsLocalization();
-                    toolBox.data().getVarsLocalizations().remove(varsLocalization);
-                    var nextMsg = new RemoveLocalizationEvent(msg.varsLocalization().getLocalization());
-                    toolBox.eventBus().publish(nextMsg);
-
-//                    var localization = varsLocalization.getLocalization();
-//                    var locs = toolBox.localizations();
-//                    Platform.runLater(() -> {
-//                        localization.setVisible(false);
-//                        locs.getSelectedLocalizations().remove(localization);
-//                        locs.getLocalizations().remove(localization);
-//                        locs.setEditedLocalization(null);
-//                    });
-                });
+                .subscribe(msg -> removeVarsLocalization(msg.varsLocalization()));
 
         rx.ofType(OpenImagesByCameraDeploymentMsg.class)
                 .subscribe(msg -> {
@@ -238,13 +222,23 @@ public class AppController {
                         Platform.runLater(() -> toolBox.data().setSelectedConcept(d));
                     }
                     else {
-                        Platform.runLater(() -> toolBox.data().setSelectedConcept(concept.get().primaryName()));
+                        var primaryName = concept.get().primaryName();
+                        Platform.runLater(() -> toolBox.data().setSelectedConcept(primaryName));
+                        // Update them in database
+                        if (toolBox.data().getUser() != null) {
+                            var selected = new ArrayList<>(toolBox.localizations().getSelectedLocalizations());
+                            if (!selected.isEmpty()) {
+                                var vlocs = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), selected);
+                                var cmd = new UpdateAnnotationsConceptCmd(vlocs, primaryName, true);
+                                toolBox.eventBus().publish(cmd);
+                            }
+                        }
                     }
                 });
     }
 
     private void setSelectedAnnotations(Collection<Annotation> selectedAnnotations) {
-        // TODO find matching varsLocalizations and select them
+        // Find matching varsLocalizations and select them
         var localizations = List.copyOf(toolBox.data().getVarsLocalizations());
         var selectedLocalizations = VarsLocalization.intersection(localizations, selectedAnnotations)
                         .stream()
@@ -253,6 +247,7 @@ public class AppController {
 //        var msg = new SetSelectedLocalizationsMsg(new Selection<>(AppController.this, selectedLocalizations));
 //        toolBox.eventBus().publish(msg);
         toolBox.localizations().setSelectedLocalizations(selectedLocalizations);
+        toolBox.localizations().setEditedLocalization(null);
 
     }
 
@@ -310,6 +305,16 @@ public class AppController {
                 });
     }
 
+    public void addVarsLocalization(VarsLocalization varsLocalization) {
+        toolBox.data().getVarsLocalizations().add(varsLocalization);
+
+    }
+
+    public void removeVarsLocalization(VarsLocalization varsLocalization) {
+        toolBox.data().getVarsLocalizations().remove(varsLocalization);
+        var nextMsg = new RemoveLocalizationEvent(varsLocalization.getLocalization());
+        toolBox.eventBus().publish(nextMsg);
+    }
 
 
 }

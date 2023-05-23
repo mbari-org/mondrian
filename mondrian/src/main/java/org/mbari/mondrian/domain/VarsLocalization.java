@@ -12,12 +12,10 @@ import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.imgfx.roi.RectangleView;
-import org.mbari.mondrian.Localizations;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
-//import org.mbari.vars.ui.javafx.imgfx.AnnotationLifecycleDecorator;
 
 import java.util.Collection;
 import java.util.List;
@@ -106,12 +104,7 @@ public class VarsLocalization {
                         localization.setUuid(association.getUuid());
                         return new VarsLocalization(annotation, association, localization);
                     });
-//            }
-//            else {
-//                log.warn("Annotation {} does not contain Association {}",
-//                        annotation.getObservationUuid(),
-//                        association.getUuid());
-//            }
+
         }
         return Optional.empty();
     }

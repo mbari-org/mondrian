@@ -4,8 +4,6 @@ import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
-import org.mbari.mondrian.msg.events.AddLocalizationEvents;
-import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.SupportUtil;
@@ -29,7 +27,7 @@ public class DeleteVarsLocalizationsCmd implements Command {
         toolBox.servicesProperty()
                 .get()
                 .annotationService()
-                .delete(observationUuids)
+                .deleteAll(observationUuids)
                 .handle((ok, ex) -> {
                     if (ex == null && ok) {
                         localizations.forEach(loc -> {
