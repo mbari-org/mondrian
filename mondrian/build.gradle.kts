@@ -16,6 +16,8 @@ plugins {
     id("org.beryx.jlink") version "2.26.0"
 }
 
+version = "1.0.0"
+
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_20
 //    targetCompatibility = JavaVersion.VERSION_20
@@ -160,5 +162,57 @@ jlink {
             ))
         }
         installerOptions.addAll(customInstallerOptions)
+    }
+}
+
+tasks.jpackageImage.get().doLast {
+    if (platform == "mac") {
+        val signer = System.getenv("MAC_CODE_SIGNER")
+        if (signer != null) {
+            val dirsToBeSigned = arrayListOf(
+                file("${projectDir}/build/jpackage/Mondrian.app/Contents/runtime/Contents/Home/bin"),
+                file("${projectDir}/build/jpackage/Mondrian.app/Contents/runtime/Contents/Home/lib"),
+                file("${projectDir}/build/jpackage/Mondrian.app/Contents/runtime/Contents/Home/lib/server"),
+                file("${projectDir}/build/jpackage/Mondrian.app/Contents/runtime/Contents/MacOS")
+            )
+
+            dirsToBeSigned.forEach { dir ->
+                println("Signing $dir")
+                val files = layout.files(dir.listFiles())
+                files
+                    .filter { it.isFile }
+                    .forEach { file ->
+                        exec {
+                            println("MACOSX: Signing ${file}")
+                            workingDir = file("build/jpackage")
+                            executable = "codesign"
+                            args = listOf(
+                                "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
+                                "--options", "runtime",
+                                "--timestamp",
+                                "-vvv",
+                                "-f",
+                                "--sign", signer,
+                                file.absolutePath
+                            )
+                        }
+                    }
+            }
+
+            exec {
+                println("MACOSX: Signing application")
+                workingDir = file("build/jpackage")
+                executable = "codesign"
+                args = listOf(
+                    "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
+                    "--options", "runtime",
+                    "--timestamp",
+                    "-vvv",
+                    "-f",
+                    "--sign", signer,
+                    "Mondrian.app")
+
+            }
+        }
     }
 }
