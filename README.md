@@ -2,6 +2,8 @@
 
 A VARS Image annotation application. This application is usable, but still in early development.
 
+Mondrian requires that the VARS microservice stack is running. See [mbari-org/m3-quickstart](https://github.com/mbari-org/m3-quickstart).
+
 ![Mondrian Screenshot](docs/assets/images/Mondrian_screenshot.png)
 
 ## Developers
