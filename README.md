@@ -1,6 +1,8 @@
 # Mondrian
 
-A VARS Image annotation application
+A VARS Image annotation application. This application is usable, but still in early development.
+
+![Mondrian Screenshot](docs/assets/images/Mondrian_screenshot.png)
 
 ## Developers
 
