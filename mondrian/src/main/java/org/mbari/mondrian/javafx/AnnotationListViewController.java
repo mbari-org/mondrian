@@ -9,12 +9,11 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tooltip;
 import javafx.util.Callback;
 import org.mbari.mondrian.domain.Selection;
-import org.mbari.mondrian.util.CollectionUtil;
+import org.mbari.mondrian.util.CollectionUtils;
 import org.mbari.vars.services.model.Annotation;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -69,7 +68,7 @@ public class AnnotationListViewController {
     }
 
     public void setSelectedAnnotations(Collection<Annotation> annotations) {
-        if (CollectionUtil.isSame(annotations, listView.getSelectionModel().getSelectedItems(), Annotation::getObservationUuid)) {
+        if (CollectionUtils.isSame(annotations, listView.getSelectionModel().getSelectedItems(), Annotation::getObservationUuid)) {
             return;
         }
         Platform.runLater(() -> {

@@ -15,7 +15,7 @@ import org.mbari.imgfx.roi.RectangleView;
 import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
-import org.mbari.mondrian.util.SupportUtil;
+import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
@@ -155,7 +155,7 @@ public class VarsLocalization {
                         auxInfo.getImageReferenceUuuid(),
                         auxInfo.getComment())
                 .map(newAssociation -> {
-                    var anno = SupportUtil.replaceIn(newAssociation, annotation);
+                    var anno = SupportUtils.replaceIn(newAssociation, annotation);
                     return new VarsLocalization(anno, newAssociation, localization);
                 })
                 .orElseThrow(); // HARD get here. In theory this should never fail

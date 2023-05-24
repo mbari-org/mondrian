@@ -11,7 +11,7 @@ import java.util.prefs.Preferences;
  * @author Brian Schlining
  * @since 2018-03-23T13:26:00
  */
-public class JFXUtilities {
+public class JFXUtils {
 
     private static final String CSS_ATTENTION_BUTTON = "attention-button";
     private static final String CSS_ATTENTION_ICON = "attention-icon";

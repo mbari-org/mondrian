@@ -12,7 +12,7 @@ import org.mbari.mondrian.javafx.dialogs.AlertController;
 import org.mbari.mondrian.msg.commands.CommandManager;
 import org.mbari.mondrian.msg.messages.PrepareForShutdownMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
-import org.mbari.mondrian.util.JFXUtilities;
+import org.mbari.mondrian.util.JFXUtils;
 
 
 public class App extends Application {
@@ -49,10 +49,10 @@ public class App extends Application {
 
         // Save/load previous size
         final Class clazz = getClass();
-        JFXUtilities.loadStageSize(stage, clazz);
+        JFXUtils.loadStageSize(stage, clazz);
         stage.setOnCloseRequest(e -> {
             // Save size on exit
-            JFXUtilities.saveStageSize(stage, clazz);
+            JFXUtils.saveStageSize(stage, clazz);
             Platform.exit();
             System.exit(0);
         });

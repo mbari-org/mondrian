@@ -16,12 +16,12 @@ import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.msg.commands.CreateAnnotationWithLocalizationCmd;
+import org.mbari.mondrian.msg.commands.CreateVarsLocalizationCmd;
 import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
 import org.mbari.mondrian.msg.commands.UpdateAnnotationsConceptCmd;
 import org.mbari.mondrian.msg.commands.UpdateLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
-import org.mbari.mondrian.util.SupportUtil;
+import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
@@ -140,7 +140,7 @@ public class AppController {
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
         rx.ofType(UpdateVarsLocalizationMsg.class)
-                        .subscribe(msg -> SupportUtil.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
+                        .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
 
         rx.ofType(UpdatedLocalizationsEvent.class)
                 .subscribe(this::updateLocalization);
@@ -187,7 +187,7 @@ public class AppController {
             }
             // TODO if isNew create a new annotation and association via the service
             var data = toolBox.data();
-            var command = new CreateAnnotationWithLocalizationCmd(data.getUser().getUsername(),
+            var command = new CreateVarsLocalizationCmd(data.getUser().getUsername(),
                     data.getSelectedImage(),
                     data.getSelectedConcept(),
                     loc,

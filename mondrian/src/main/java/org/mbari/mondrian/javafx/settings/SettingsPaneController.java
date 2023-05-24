@@ -37,7 +37,7 @@ public class SettingsPaneController implements IPrefs {
     private void loadPanes() {
         // This is the list of Settings panes to display
         var settingsPanes = List.of(RazielSettingsPaneController.newInstance(),
-                GeneralSettingsPaneController.newInstance());
+                GeneralSettingsPaneController.newInstance(), MLSettingsPaneController.newInstance());
         settingsPanes.forEach(controller -> {
             var tab = new Tab(controller.getName());
             tab.setClosable(false);

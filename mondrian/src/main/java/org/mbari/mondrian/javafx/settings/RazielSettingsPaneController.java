@@ -15,7 +15,7 @@ import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.services.vars.Raziel;
 import org.mbari.mondrian.util.FXMLUtils;
-import org.mbari.mondrian.util.JFXUtilities;
+import org.mbari.mondrian.util.JFXUtils;
 import org.mbari.vars.services.impl.raziel.RazielConfigurationService;
 
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class RazielSettingsPaneController implements SettingsPane {
 
         testButton.setOnAction(event -> test());
 
-        JFXUtilities.attractAttention(testButton);
+        JFXUtils.attractAttention(testButton);
     }
 
     private Optional<Raziel.ConnectionParams> parseRazielConnectionParams() {

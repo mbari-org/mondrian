@@ -38,6 +38,9 @@ public class Data {
     private final ObjectProperty<Paging<?>> openUsingPaging = new SimpleObjectProperty<>();
     private final IntegerProperty pageSize = new SimpleIntegerProperty();
 
+    private final StringProperty activity = new SimpleStringProperty();
+    private final StringProperty group = new SimpleStringProperty();
+
     public Data() {
         currentImagePage.addListener(new ChangeListener<Page<Image>>() {
             @Override
@@ -140,6 +143,30 @@ public class Data {
 
     public void setUser(User user) {
         this.user.set(user);
+    }
+
+    public String getActivity() {
+        return activity.get();
+    }
+
+    public StringProperty activityProperty() {
+        return activity;
+    }
+
+    public void setActivity(String activity) {
+        this.activity.set(activity);
+    }
+
+    public String getGroup() {
+        return group.get();
+    }
+
+    public StringProperty groupProperty() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group.set(group);
     }
 }
 

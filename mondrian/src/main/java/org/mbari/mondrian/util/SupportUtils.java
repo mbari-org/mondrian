@@ -11,8 +11,8 @@ import org.mbari.vars.services.model.Association;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SupportUtil {
-    private SupportUtil() {
+public class SupportUtils {
+    private SupportUtils() {
         // No instantiation allowed
     }
 

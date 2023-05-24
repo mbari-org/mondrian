@@ -1,9 +1,12 @@
 package org.mbari.mondrian;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.image.ImageView;
+import org.mbari.imgfx.AutoscalePaneController;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.AnnotationPaneController;
 import org.mbari.mondrian.javafx.AppPaneController;
 import org.mbari.mondrian.msg.messages.SetImagesMsg;
 import org.mbari.vars.core.crypto.AES;
@@ -32,7 +35,8 @@ public record ToolBox(EventBus eventBus,
                       AnnotationColors annotationColors,
                       ObjectProperty<Services> servicesProperty,
                       Collection<String> stylesheets,
-                      AES aes) {
+                      AES aes,
+                      ObjectProperty<AnnotationPaneController> annotationPaneControllerProperty) {
 
     private static Logging log = new Logging(ToolBox.class);
 

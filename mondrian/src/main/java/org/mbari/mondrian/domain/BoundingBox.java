@@ -11,6 +11,9 @@ public class BoundingBox {
     private Integer height;
     private UUID imageReferenceUuid;
     private String comment;
+    private Double confidence;
+    private String generator;
+    public static String LINK_NAME = "bounding box";
 
     public BoundingBox() {
     }
@@ -20,12 +23,17 @@ public class BoundingBox {
     }
 
     public BoundingBox(Integer x, Integer y, Integer width, Integer height, UUID imageReferenceUuid, String comment) {
+        this(x, y, width, height, imageReferenceUuid, comment, null);
+    }
+
+    public BoundingBox(Integer x, Integer y, Integer width, Integer height, UUID imageReferenceUuid, String comment, Double confidence) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.imageReferenceUuid = imageReferenceUuid;
         this.comment = comment;
+        this.confidence = confidence;
     }
 
     public Integer getX() {
@@ -74,6 +82,22 @@ public class BoundingBox {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public Double getConfidence() {
+        return confidence;
+    }
+
+    public void setConfidence(Double confidence) {
+        this.confidence = confidence;
+    }
+
+    public String getGenerator() {
+        return generator;
+    }
+
+    public void setGenerator(String generator) {
+        this.generator = generator;
     }
 
     public RectangleData toData() {

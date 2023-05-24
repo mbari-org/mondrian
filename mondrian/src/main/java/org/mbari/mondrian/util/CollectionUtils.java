@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Function;
 
-public class CollectionUtil {
-    private CollectionUtil() {
+public class CollectionUtils {
+    private CollectionUtils() {
         // no instantiation
     }
 

@@ -13,15 +13,15 @@ import org.mbari.mondrian.javafx.roi.Datums;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
-import org.mbari.mondrian.util.SupportUtil;
+import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
 
 import java.util.List;
 
-public class CreateAnnotationWithLocalizationCmd implements Command {
+public class CreateVarsLocalizationCmd implements Command {
 
-    private static final Logging log = new Logging(CreateAnnotationWithLocalizationCmd.class);
+    private static final Logging log = new Logging(CreateVarsLocalizationCmd.class);
     private final String observer;
     private final Image image;
     private final String concept;
@@ -31,11 +31,11 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
     private VarsLocalization varsLocalization;
 
 
-    public CreateAnnotationWithLocalizationCmd(String observer,
-                                               Image image,
-                                               String concept,
-                                               Localization<?, ImageView> localization,
-                                               String comment) {
+    public CreateVarsLocalizationCmd(String observer,
+                                     Image image,
+                                     String concept,
+                                     Localization<?, ImageView> localization,
+                                     String comment) {
         this.observer = observer;
         this.image = image;
         this.concept = concept;
@@ -76,7 +76,7 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                                     for (var ass : a.getAssociations()) {
                                         if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
                                             varsLocalization = new VarsLocalization(a, ass, localization);
-                                            SupportUtil.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateAnnotationWithLocalizationCmd.this);
+                                            SupportUtils.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateVarsLocalizationCmd.this);
 //                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
 //                                                    .ifPresent(evt -> {
 //                                                        toolBox.eventBus().publish(evt);
@@ -107,7 +107,7 @@ public class CreateAnnotationWithLocalizationCmd implements Command {
                     .deleteAll(List.of(varsLocalization.getAnnotation().getObservationUuid()))
                     .thenAccept(ok -> {
                         if (ok) {
-                            var msg = new RemoveVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization));
+                            var msg = new RemoveVarsLocalizationMsg(new Selection<>(CreateVarsLocalizationCmd.this, varsLocalization));
                             toolBox.eventBus().publish(msg);
                         }
                         else {

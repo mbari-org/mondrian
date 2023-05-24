@@ -2,22 +2,14 @@ package org.mbari.mondrian.javafx;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import org.controlsfx.control.PopOver;
-import org.mbari.imgfx.roi.Data;
-import org.mbari.imgfx.roi.DataView;
-import org.mbari.imgfx.roi.Localization;
-import org.mbari.mondrian.AppController;
 import org.mbari.mondrian.ToolBox;
-import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.controls.PageLabelController;
@@ -25,9 +17,9 @@ import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
 import org.mbari.mondrian.javafx.dialogs.CameraDeploymentDialogController;
 import org.mbari.mondrian.javafx.dialogs.ConceptDialogController;
 import org.mbari.mondrian.javafx.settings.SettingsDialogController;
-import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.*;
-import org.mbari.mondrian.util.SupportUtil;
+import org.mbari.mondrian.services.pythia.MLUtils;
+import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
 
@@ -75,15 +67,9 @@ public class AppPaneController {
         var varsLocalizations = VarsLocalization.from(annotations,
                 paneController.getAutoscalePaneController(),
                 paneController.getAnnotationColors().editedColorProperty());
-//        toolBox.data().getVarsLocalizations().setAll(varsLocalizations);
         // Map localization to correct EventMessage. Set is new to false.send it
         varsLocalizations.forEach(vloc -> {
-            SupportUtil.publishVarsLocalization(vloc, false, toolBox.eventBus(), AppPaneController.this);
-//            AddLocalizationEvents.from(vloc.getLocalization(), false)
-//                    .ifPresent(evt -> {
-//                        toolBox.eventBus().publish(evt);
-//                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(AppPaneController.this, vloc)));
-//                    });
+            SupportUtils.publishVarsLocalization(vloc, false, toolBox.eventBus(), AppPaneController.this);
         });
     }
 
@@ -94,6 +80,8 @@ public class AppPaneController {
     public AnnotationPaneController getAnnotationPaneController() {
         if (annotationPaneController == null) {
             annotationPaneController = new AnnotationPaneController(toolBox);
+            log.atInfo().log("Adding AnnotationPaneController to toolbox");
+            toolBox.annotationPaneControllerProperty().set(annotationPaneController);
         }
         return annotationPaneController;
     }
@@ -131,11 +119,25 @@ public class AppPaneController {
             settingsButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.settings")));
             settingsButton.setOnAction(e -> getSettingsDialogController().show());
 
+            Text mlIcon = Icons.IMAGE_SEARCH.standardSize();
+            Button mlButton = new Button();
+            mlButton.setGraphic(mlIcon);
+            mlButton.setTooltip(new Tooltip(toolBox.i18n().getString("app.toolbar.button.ml")));
+            mlButton.setOnAction(e -> runMachineLearningPrediction());
+
             var pageLabelController = new PageLabelController(toolBox.eventBus());
 
-            toolBar = new ToolBar(openButton, undoButton, redoButton, settingsButton, getUsersComboBox(), pageLabelController.getLabel());
+            toolBar = new ToolBar(openButton, undoButton, redoButton, settingsButton, mlButton, getUsersComboBox(), pageLabelController.getLabel());
         }
         return toolBar;
+    }
+
+    private void runMachineLearningPrediction() {
+        // TODO get current image
+        var selectedImage = toolBox.data().getSelectedImage();
+        if (selectedImage != null) {
+            MLUtils.analyze(toolBox, selectedImage);
+        }
     }
 
     public PopOver getOpenPopOver() {

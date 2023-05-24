@@ -50,7 +50,6 @@ public class UpdateLocalizationCmd implements Command {
                 .associationService();
         service.update(originalAssociation)
                 .thenAccept(ass0 -> {
-                    System.out.println("------ " + ass0);
                     var dataView = varsLocalization.getLocalization().getDataView();
 
                     Platform.runLater(() -> {

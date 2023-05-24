@@ -8,7 +8,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import org.mbari.imgfx.Autoscale;
-import org.mbari.mondrian.util.JFXUtilities;
 
 /**
  * <pre>

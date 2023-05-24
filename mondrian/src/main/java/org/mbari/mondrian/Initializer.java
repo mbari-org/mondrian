@@ -131,7 +131,8 @@ public class Initializer {
                         new AnnotationColors(),
                         new SimpleObjectProperty<>(services),
                         stylesheets,
-                        getAes());
+                        getAes(),
+                        new SimpleObjectProperty<>());
                 log.atInfo().log("ToolBox has been initialized");
             }
         }
