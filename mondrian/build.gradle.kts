@@ -13,6 +13,8 @@ plugins {
     id("org.openjfx.javafxplugin") version "0.0.14"
     id("com.github.ben-manes.versions") version "0.46.0"
     id("com.adarshr.test-logger") version "3.2.0"
+    id("org.beryx.jlink") version "2.26.0"
+    kotlin("jvm") version "1.8.21"
 }
 
 //java {
@@ -22,7 +24,7 @@ plugins {
 
 javafx {
     version = "20.0.1"
-    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")
+    modules("javafx.controls", "javafx.fxml", "javafx.media")
 }
 
 repositories {
@@ -38,7 +40,24 @@ repositories {
     }
 }
 
+//Resolve the used operating system
+var currentOS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()
+var platform = ""
+if (currentOS.isMacOsX) {
+    platform = "mac"
+} else if (currentOS.isLinux) {
+    platform = "linux"
+} else if (currentOS.isWindows) {
+    platform = "win"
+}
+
 dependencies {
+//    implementation("org.openjfx:javafx-base:${javafx.version}:${platform}")
+//    implementation("org.openjfx:javafx-controls:${javafx.version}:${platform}")
+//    implementation("org.openjfx:javafx-fxml:${javafx.version}:${platform}")
+//    implementation("org.openjfx:javafx-graphics:${javafx.version}:${platform}")
+//    implementation("org.openjfx:javafx-media:${javafx.version}:${platform}")
+
     // This dependency is used by the application.
     implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
@@ -80,8 +99,47 @@ tasks.named<Test>("test") {
     }
 }
 
+
 application {
     // Define the main class for the application.
-//    mainModule.set("org.mbari.mondrian")
+    mainModule.set("org.mbari.mondrian")
     mainClass.set("org.mbari.mondrian.App")
+    if(platform.equals("mac")) {
+        applicationDefaultJvmArgs = listOf("-Dsun.java2d.metal=true")
+    }
+}
+
+jlink {
+    options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+
+//    launcher {
+//        noConsole = true
+//    }
+    jpackage {
+        val customInstallerOptions = arrayListOf("--app-version", project.version.toString(),
+            "--copyright", "Monterey Bay Aquarium Research Institute 2020",
+            "--name", "Mondrian",
+            "--vendor", "org.mbari")
+
+        if (platform == "mac") {
+            installerType = "dmg"
+            customInstallerOptions.addAll(listOf(
+                "--mac-package-name", "Mondrian",
+                "--mac-package-identifier", project.name.toString()
+            ))
+            imageOptions = listOf("--icon", "src/jpackage/macos/Mondrian.icns")
+        }
+        else if (platform == "linux") {
+            installerType = "deb"
+        }
+        else if (platform == "win") {
+            installerType = "msi"
+            customInstallerOptions.addAll(listOf(
+                "--win-upgrade-uuid", "049e10bd-47c3-42b4-b39d-f37c3c94c689",
+                "--win-menu-group", "VARS",
+                "--win-menu"
+            ))
+        }
+        installerOptions.addAll(customInstallerOptions)
+    }
 }
