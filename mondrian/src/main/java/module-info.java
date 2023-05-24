@@ -7,6 +7,7 @@ module org.mbari.mondrian {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.media;
+    requires java.naming; // Need to use logback
     requires org.controlsfx.controls;
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
@@ -14,8 +15,10 @@ module org.mbari.mondrian {
     requires org.mbari.imgfx;
     requires org.mbari.jcommons;
     requires org.mbari.vars.core;
-    requires org.mbari.vars.services;
+    requires transitive org.mbari.vars.services;
     requires vcr4j.core;
+    requires org.slf4j.jdk.platform.logging; // A provider for logging
+    requires ch.qos.logback.classic;
 
     opens org.mbari.mondrian to javafx.graphics;
     opens org.mbari.mondrian.domain to com.google.gson;

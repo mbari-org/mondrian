@@ -14,7 +14,6 @@ plugins {
     id("com.github.ben-manes.versions") version "0.46.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.beryx.jlink") version "2.26.0"
-    kotlin("jvm") version "1.8.21"
 }
 
 //java {
@@ -52,11 +51,6 @@ if (currentOS.isMacOsX) {
 }
 
 dependencies {
-//    implementation("org.openjfx:javafx-base:${javafx.version}:${platform}")
-//    implementation("org.openjfx:javafx-controls:${javafx.version}:${platform}")
-//    implementation("org.openjfx:javafx-fxml:${javafx.version}:${platform}")
-//    implementation("org.openjfx:javafx-graphics:${javafx.version}:${platform}")
-//    implementation("org.openjfx:javafx-media:${javafx.version}:${platform}")
 
     // This dependency is used by the application.
     implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2")
@@ -64,7 +58,11 @@ dependencies {
     implementation("com.github.mizosoft.methanol:methanol:1.7.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:3.14.4")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    // This has to match the okhttp version used in org.mbari.vars.services or
+    // we get java.lang.NoClassDefFoundError: kotlin/jvm/internal/Intrinsics
+    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+
     implementation("org.controlsfx:controlsfx:11.1.2")
     implementation("org.mbari.commons:jcommons:0.0.6")
     implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
@@ -73,8 +71,8 @@ dependencies {
     implementation("org.mbari:imgfx:0.0.15")
     runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
-    runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.7")
+    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
+    implementation("ch.qos.logback:logback-classic:1.4.7")
 }
 
 
@@ -99,6 +97,17 @@ tasks.named<Test>("test") {
     }
 }
 
+val runtimeJvmArgs = arrayListOf(
+    "-XX:+TieredCompilation",
+    "-XX:TieredStopAtLevel=1",
+    "-Xms1g",
+    "--add-opens", "java.base/java.lang.invoke=retrofit2",
+    "--add-opens", "java.base/java.lang.invoke=mondrian.merged.module",
+    "--add-opens", "org.mbari.vars.services/org.mbari.vars.services.model=com.google.gson",
+    "--add-reads", "mondrian.merged.module=org.slf4j",
+    "--add-reads", "mondrian.merged.module=com.google.gson"
+)
+
 
 application {
     // Define the main class for the application.
@@ -107,10 +116,20 @@ application {
     if(platform.equals("mac")) {
         applicationDefaultJvmArgs = listOf("-Dsun.java2d.metal=true")
     }
+    applicationDefaultJvmArgs = runtimeJvmArgs
 }
 
 jlink {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+
+    launcher {
+        name = "Mondrian"
+        jvmArgs = runtimeJvmArgs
+    }
+
+    mergedModule {
+        additive = true
+    }
 
 //    launcher {
 //        noConsole = true
