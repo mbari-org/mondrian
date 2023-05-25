@@ -28,7 +28,7 @@ jobs:
       #     registry: maven.pkg.github.com
       #     username: ${{ github.actor }}
       #     password: ${{ secrets.GITHUB_TOKEN }}
-      - run: ./gradlew jpackage
+      - run: ./gradlew jpackage --info
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GRP_TOKEN }}
@@ -38,4 +38,3 @@ jobs:
         with:
           name: Mondrian-${{matrix.os}}
           path: staging
-          
