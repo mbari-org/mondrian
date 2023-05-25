@@ -2,8 +2,10 @@ name: Build installar for supported os
 
 on:
   push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - main
+    # tags:
+    #   - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build-app:
