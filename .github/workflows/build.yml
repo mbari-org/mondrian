@@ -28,7 +28,7 @@ jobs:
       #     registry: maven.pkg.github.com
       #     username: ${{ github.actor }}
       #     password: ${{ secrets.GITHUB_TOKEN }}
-      - run: ./gradlew package
+      - run: ./gradlew jpackage
         env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GRP_TOKEN }}
