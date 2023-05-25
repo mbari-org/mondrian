@@ -1,0 +1,34 @@
+name: Build installar for supported os
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-app:
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-20.04, windows-latest ]
+    name: Build the application
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 20
+      - name: Login to GitHub Packages
+        uses: docker/login-action@v1
+        with:
+          registry: maven.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: ./gradlew package
+      - run: mkdir staging && cp app/build/installer/* staging
+      - name: upload build result
+        uses: actions/upload-artifact@v2
+        with:
+          name: Mondrian-${{matrix.os}}
+          path: staging

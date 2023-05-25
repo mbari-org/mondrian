@@ -23,6 +23,17 @@ version = "1.0.1"
 //    targetCompatibility = JavaVersion.VERSION_20
 //}
 
+repositories {
+    maven {
+        name = "MBARI"
+        url = uri("https://maven.pkg.github.com/mbari-org/maven")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
 javafx {
     version = "20.0.1"
     modules("javafx.controls", "javafx.fxml", "javafx.media")
@@ -137,10 +148,12 @@ jlink {
 //        noConsole = true
 //    }
     jpackage {
-        val customInstallerOptions = arrayListOf("--app-version", project.version.toString(),
-            "--copyright", "Monterey Bay Aquarium Research Institute 2020",
+        val customInstallerOptions = arrayListOf(
+            "--app-version", project.version.toString(),
+            "--copyright", "Monterey Bay Aquarium Research Institute 2023",
             "--name", "Mondrian",
-            "--vendor", "org.mbari")
+            "--vendor", "org.mbari"
+        )
 
         if (platform == "mac") {
             installerType = "dmg"
@@ -152,6 +165,11 @@ jlink {
         }
         else if (platform == "linux") {
             installerType = "deb"
+            customInstallerOptions.addAll(listOf(
+                "--linux-shortcut", "true",
+                "--linux-menu-group", "VARS"
+            ))
+            imageOptions = listOf("--icon", "src/jpackage/linux/icon_256x256.png")
         }
         else if (platform == "win") {
             installerType = "msi"
@@ -160,6 +178,7 @@ jlink {
                 "--win-menu-group", "VARS",
                 "--win-menu"
             ))
+            imageOptions = listOf("--icon", "src/jpackage/win/icon_256x256.ico")
         }
         installerOptions.addAll(customInstallerOptions)
     }
