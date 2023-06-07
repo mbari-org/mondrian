@@ -2,7 +2,7 @@ package org.mbari.mondrian.msg.commands;
 
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.VarsLocalization;
-import org.mbari.mondrian.msg.messages.RerenderAnnotations;
+import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
 
@@ -53,7 +53,7 @@ public class UpdateAnnotationsConceptCmd implements Command {
                 .annotationService()
                 .updateAll(annotations)
                 .thenAccept(annos -> {
-                    var msg = new RerenderAnnotations();
+                    var msg = new RerenderAnnotationsMsg();
                     toolBox.eventBus().publish(msg);
                 });
     }
@@ -74,7 +74,7 @@ public class UpdateAnnotationsConceptCmd implements Command {
                         anno.setObservationTimestamp(copy.getObservationTimestamp());
                         vloc.getLocalization().setLabel(copy.getConcept());
                     }
-                    var msg = new RerenderAnnotations();
+                    var msg = new RerenderAnnotationsMsg();
                     toolBox.eventBus().publish(msg);
                 });
     }

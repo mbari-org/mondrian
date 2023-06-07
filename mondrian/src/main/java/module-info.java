@@ -1,6 +1,7 @@
 module org.mbari.mondrian {
     requires ch.qos.logback.classic;
     requires com.google.gson;
+    requires gson.javatime.serialisers;
     requires io.reactivex.rxjava3;
     requires java.desktop;
     requires java.naming; // Need to use logback
@@ -24,6 +25,8 @@ module org.mbari.mondrian {
 
     opens org.mbari.mondrian to javafx.graphics;
     opens org.mbari.mondrian.domain to com.google.gson;
+    opens org.mbari.mondrian.javafx.roweditor to javafx.fxml;
     opens org.mbari.mondrian.javafx.settings to javafx.fxml;
+
 
 }

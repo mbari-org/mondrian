@@ -3,6 +3,7 @@ package org.mbari.mondrian.services.noop;
 import org.mbari.mondrian.services.AssociationService;
 import org.mbari.vars.services.model.Association;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NoopAssociationService implements AssociationService {
     @Override
-    public CompletableFuture<Association> create(Association association) {
+    public CompletableFuture<Association> create(UUID observationUuid, Association association) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
     }
 
@@ -20,7 +21,12 @@ public class NoopAssociationService implements AssociationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> delete(Association association) {
+    public CompletableFuture<Boolean> delete(UUID associationUuid) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> deleteAll(Collection<UUID> associationUuids) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException("Not implemented"));
     }
 

@@ -2,8 +2,10 @@ package org.mbari.mondrian.services.vars;
 
 import org.mbari.mondrian.services.AssociationService;
 import org.mbari.vars.services.AnnotationService;
+import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,8 +20,8 @@ public class AnnosaurusAssociationService implements AssociationService  {
     }
 
     @Override
-    public CompletableFuture<Association> create(Association association) {
-        return null;
+    public CompletableFuture<Association> create(UUID observationUuid, Association association) {
+        return annotationService.createAssociation(observationUuid, association);
     }
 
     @Override
@@ -28,8 +30,13 @@ public class AnnosaurusAssociationService implements AssociationService  {
     }
 
     @Override
-    public CompletableFuture<Boolean> delete(Association association) {
-        return null;
+    public CompletableFuture<Boolean> delete(UUID associationUuid) {
+        return annotationService.deleteAssociation(associationUuid);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> deleteAll(Collection<UUID> associationUuids) {
+        return annotationService.deleteAssociations(associationUuids).thenApply(Void -> true);
     }
 
     @Override
@@ -48,6 +55,7 @@ public class AnnosaurusAssociationService implements AssociationService  {
 
     @Override
     public CompletableFuture<List<Association>> findByObservationUuid(UUID observationUuid) {
-        return null;
+        return annotationService.findByUuid(observationUuid)
+                .thenApply(Annotation::getAssociations);
     }
 }

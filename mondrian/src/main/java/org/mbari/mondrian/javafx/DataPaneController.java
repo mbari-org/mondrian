@@ -6,12 +6,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.Autoscale;
@@ -21,6 +18,8 @@ import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.roweditor.RowEditorController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.util.IPrefs;
 import org.mbari.vars.services.model.Annotation;
@@ -35,9 +34,11 @@ public class DataPaneController implements IPrefs {
     private ImageListViewController imageListViewController;
     private ImageViewZoomController imageViewZoomController;
     private AnnotationListViewController annotationListViewController;
+    private RowEditorController rowEditorController;
     private final ToolBox toolBox;
     private final Autoscale<ImageView> originalAutoscale;
     private static final String KEY_ZOOM = "zoom";
+    private Logging log = new Logging(getClass());
 
     private VBox vBox;
     private SplitPane splitPane;
@@ -52,6 +53,10 @@ public class DataPaneController implements IPrefs {
     private void init() {
 
         var rx = toolBox.eventBus().toObserverable();
+
+        // Editor for a row
+        rowEditorController = new RowEditorController();
+        rowEditorController.getRoot().setMinHeight(200);
 
         // List view of images
         imageListViewController = new ImageListViewController(toolBox.i18n(), toolBox.eventBus());
@@ -90,16 +95,34 @@ public class DataPaneController implements IPrefs {
                 .filter(msg -> msg.selection().source() != annotationListViewController)
                 .subscribe(msg -> annotationListViewController.setAnnotations(List.of()));
 
-        rx.ofType(RerenderAnnotations.class)
+        rx.ofType(RerenderAnnotationsMsg.class)
                 .subscribe(msg -> {
-                    Platform.runLater(() -> annotationListViewController.getListView().refresh());
+                    var selected = VarsLocalization.localizationIntersection(toolBox.data().getVarsLocalizations(), toolBox.localizations().getSelectedLocalizations());
+                    if (selected.size() != 1) {
+                        Platform.runLater(() -> annotationListViewController.getListView().refresh());
+                    }
+                    else {
+                        var head = selected.stream().findFirst().map(VarsLocalization::getAnnotation).orElse(null);
+                        Platform.runLater(() -> {
+                            annotationListViewController.getListView().refresh();
+                            rowEditorController.setAnnotation(head);
+                        });
+                    }
+
                 });
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
                 .subscribe(msg -> {
-                    if (msg.selection().source() != annotationListViewController) {
-                        annotationListViewController.setSelectedAnnotations(msg.annotations());
+                    var selection = msg.selection();
+                    if (selection.source() != annotationListViewController) {
+                        Platform.runLater(() -> annotationListViewController.setSelectedAnnotations(msg.annotations()));
+                    }
+                    log.atWarn().log("Selected " + selection.selected().size() + " annotations");
+                    if (selection.selected().size() == 1) {
+                        var anno = selection.selected().stream().findFirst().orElse(null);
+                        log.atDebug().log("Setting annotation in rowEditor to " + anno);
+                        Platform.runLater(() -> rowEditorController.setAnnotation(anno));
                     }
                 });
 
@@ -167,7 +190,7 @@ public class DataPaneController implements IPrefs {
                 .addAll(imageListViewController.getPane(), annotationListViewController.getListView());
         splitPane.setPrefHeight(2000);
 
-        vBox = new VBox(imageViewZoomController.getImageView(), slider, splitPane);
+        vBox = new VBox(imageViewZoomController.getImageView(), slider, splitPane, rowEditorController.getRoot());
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(15));
 

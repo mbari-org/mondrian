@@ -3,6 +3,7 @@ package org.mbari.mondrian.services.noop;
 import org.mbari.mondrian.domain.Concept;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.services.NamesService;
+import org.mbari.vars.services.model.ConceptAssociationTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,5 +33,15 @@ public class NoopNamesService implements NamesService {
     @Override
     public CompletableFuture<String> findDefaultName() {
         return CompletableFuture.completedFuture("object");
+    }
+
+    @Override
+    public CompletableFuture<List<String>> findDescendants(String name) {
+        return CompletableFuture.completedFuture(List.of());
+    }
+
+    @Override
+    public CompletableFuture<List<ConceptAssociationTemplate>> findTemplates(String name) {
+        return CompletableFuture.completedFuture(List.of());
     }
 }

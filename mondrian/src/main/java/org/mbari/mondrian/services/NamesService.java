@@ -2,6 +2,7 @@ package org.mbari.mondrian.services;
 
 import org.mbari.mondrian.domain.Concept;
 import org.mbari.mondrian.domain.Page;
+import org.mbari.vars.services.model.ConceptAssociationTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,8 @@ public interface NamesService {
     CompletableFuture<Optional<Concept>> findConcept(String name);
 
     CompletableFuture<String> findDefaultName();
+
+    CompletableFuture<List<String>> findDescendants(String name);
+
+    CompletableFuture<List<ConceptAssociationTemplate>> findTemplates(String name);
 }
