@@ -20,8 +20,6 @@ import org.mbari.imgfx.etc.rx.events.RemoveLocalizationEvent;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.imgfx.roi.*;
 import org.mbari.imgfx.roi.Data;
-import org.mbari.mondrian.AnnotationColors;
-import org.mbari.mondrian.Localizations;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

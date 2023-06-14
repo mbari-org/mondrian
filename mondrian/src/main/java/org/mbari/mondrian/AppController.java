@@ -21,6 +21,7 @@ import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
 import org.mbari.mondrian.msg.commands.UpdateAnnotationsConceptCmd;
 import org.mbari.mondrian.msg.commands.UpdateLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
+import org.mbari.mondrian.util.CollectionUtils;
 import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Image;
@@ -139,8 +140,12 @@ public class AppController {
         rx.ofType(SetUserMsg.class)
                 .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
 
+        // TODO - implement me
+        rx.ofType(UpdateAnnotationInViewMsg.class)
+                .subscribe(msg -> {} );
+
         rx.ofType(UpdateVarsLocalizationMsg.class)
-                        .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
+                .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
 
         rx.ofType(UpdatedLocalizationsEvent.class)
                 .subscribe(this::updateLocalization);
@@ -209,6 +214,15 @@ public class AppController {
         // TODO update the existing annotation/association via the service
     }
 
+    private void updateAnnotation(UpdateAnnotationInViewMsg msg) {
+        var loc = VarsLocalization.intersection(toolBox.data().getVarsLocalizations(), List.of(msg.annotation()));
+        if (!loc.isEmpty()) {
+            var head = CollectionUtils.head(loc);
+            var newMsg = new UpdateVarsLocalizationMsg(head);
+            toolBox.eventBus().publish(newMsg);
+        }
+    }
+
     private void reload() {
         // Reload services as they may have changed
         Initializer.reset();
@@ -252,6 +266,7 @@ public class AppController {
 //        toolBox.eventBus().publish(msg);
         toolBox.localizations().setSelectedLocalizations(selectedLocalizations);
         toolBox.localizations().setEditedLocalization(null);
+
 
     }
 

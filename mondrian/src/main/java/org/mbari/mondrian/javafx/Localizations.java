@@ -1,4 +1,4 @@
-package org.mbari.mondrian;
+package org.mbari.mondrian.javafx;
 
 
 import javafx.application.Platform;

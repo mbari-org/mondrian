@@ -11,8 +11,6 @@ import javafx.scene.paint.Color;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
-import org.mbari.mondrian.AnnotationColors;
-import org.mbari.mondrian.Localizations;
 
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;

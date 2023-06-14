@@ -9,19 +9,14 @@ import javafx.scene.layout.*;
 import org.mbari.imgfx.AutoscalePaneController;
 import org.mbari.imgfx.etc.javafx.controls.CrossHairs;
 import org.mbari.imgfx.etc.rx.EventBus;
-import org.mbari.imgfx.etc.rx.events.AddLocalizationEvent;
 import org.mbari.imgfx.etc.rx.events.AddMarkerEvent;
 import org.mbari.imgfx.imageview.ImagePaneController;
 import org.mbari.imgfx.roi.CircleData;
-import org.mbari.mondrian.AnnotationColors;
-import org.mbari.mondrian.Localizations;
 import org.mbari.mondrian.ToolBox;
 
 import javax.imageio.ImageIO;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public class AnnotationPaneController {

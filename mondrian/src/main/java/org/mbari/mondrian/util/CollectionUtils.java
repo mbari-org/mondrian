@@ -3,6 +3,7 @@ package org.mbari.mondrian.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class CollectionUtils {
@@ -33,5 +34,9 @@ public class CollectionUtils {
                     .ifPresent(bi -> xs.add(ai));
         }
         return xs;
+    }
+
+    public static <A> A head(Collection<A> items) {
+        return items.stream().findFirst().orElse(null);
     }
 }

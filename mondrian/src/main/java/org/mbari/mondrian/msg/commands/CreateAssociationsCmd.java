@@ -1,6 +1,7 @@
 package org.mbari.mondrian.msg.commands;
 
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
 import org.mbari.vars.services.AnnotationService;
 import org.mbari.vars.services.model.Annotation;
@@ -60,6 +61,7 @@ public class CreateAssociationsCmd implements Command {
 //                    Set<UUID> uuids0 = originalAnnotations.stream()
 //                            .map(Annotation::getObservationUuid)
 //                            .collect(Collectors.toSet());
+//                    var loc = VarsLocalization.intersection(toolBox.data().getVarsLocalizations(), )
                     toolBox.eventBus().publish(new RerenderAnnotationsMsg());
                 });
 

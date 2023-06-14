@@ -107,23 +107,18 @@ public class DataPaneController implements IPrefs {
                             annotationListViewController.getListView().refresh();
                             rowEditorController.setAnnotation(head);
                         });
+
                     }
 
                 });
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
-                .filter(msg -> msg.selection().source() != annotationListViewController)
                 .subscribe(msg -> {
                     var selection = msg.selection();
                     if (selection.source() != annotationListViewController) {
                         Platform.runLater(() -> annotationListViewController.setSelectedAnnotations(msg.annotations()));
                     }
-                    log.atWarn().log("Selected " + selection.selected().size() + " annotations");
-                    if (selection.selected().size() == 1) {
-                        var anno = selection.selected().stream().findFirst().orElse(null);
-                        log.atDebug().log("Setting annotation in rowEditor to " + anno);
-                        Platform.runLater(() -> rowEditorController.setAnnotation(anno));
-                    }
+                    setSelectedAnnotations(selection.selected());
                 });
 
         toolBox.localizations()
@@ -140,6 +135,7 @@ public class DataPaneController implements IPrefs {
                             .toList();
                     if (selected.size() != selectedInListView.size()) {
                         annotationListViewController.setSelectedAnnotations(selectedAnnos0);
+                        setSelectedAnnotations(selectedAnnos0);
                     }
                     else {
                         var selectedAnnos1 = annotationListViewController.getListView()
@@ -150,22 +146,10 @@ public class DataPaneController implements IPrefs {
                                 .toList();
                         if (!selectedAnnos0.equals(selectedAnnos1)) {
                             annotationListViewController.setSelectedAnnotations(selectedAnnos0);
+                            setSelectedAnnotations(selectedAnnos1);
                         }
                     }
-//                    var selectedAnnos0 = selected.stream()
-//                            .map(VarsLocalization::getAnnotation)
-//                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
-//                            .toList();
-//                    var selectedAnnos1 = annotationListViewController.getListView()
-//                            .getSelectionModel()
-//                            .getSelectedItems()
-//                            .stream()
-//                            .sorted(Comparator.comparing(Annotation::getObservationUuid))
-//                            .toList();
-//
-//                    if (!selectedAnnos0.equals(selectedAnnos1)) {
-//                        annotationListViewController.setSelectedAnnotations(selectedAnnos0);
-//                    }
+
                 });
 
         // Zoom image window
@@ -220,4 +204,21 @@ public class DataPaneController implements IPrefs {
         var node = prefs.node(getClass().getName());
         node.putDouble(KEY_ZOOM, slider.getValue());
     }
+
+    private void setSelectedAnnotations(Collection<Annotation> selectedAnnotations) {
+        Platform.runLater(() -> {
+            if (selectedAnnotations.size() != 1) {
+                rowEditorController.setAnnotation(null);
+            }
+            else {
+                selectedAnnotations.stream()
+                        .findFirst()
+                        .ifPresent(rowEditorController::setAnnotation);
+            }
+        });
+    }
+
+//    private void reloadSelectedAnnotation() {
+//        var anno = rowEditorController.
+//    }
 }

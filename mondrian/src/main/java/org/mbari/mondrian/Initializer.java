@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Alert;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.etc.jdk.Logging;
+import org.mbari.mondrian.javafx.AnnotationColors;
+import org.mbari.mondrian.javafx.Localizations;
 import org.mbari.mondrian.javafx.dialogs.AlertContent;
 import org.mbari.mondrian.javafx.settings.GeneralSettingsPaneController;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;

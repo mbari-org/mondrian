@@ -12,12 +12,10 @@ import java.util.UUID;
  */
 public class UpdateAssociationCmd implements Command {
 
-    private final UUID observationUuid;
     private final Association oldAssociation;
     private final Association newAssociation;
 
-    public UpdateAssociationCmd(UUID observationUuid, Association oldAssociation, Association newAssociation) {
-        this.observationUuid = observationUuid;
+    public UpdateAssociationCmd(Association oldAssociation, Association newAssociation) {
         this.oldAssociation = oldAssociation;
         this.newAssociation = newAssociation;
     }

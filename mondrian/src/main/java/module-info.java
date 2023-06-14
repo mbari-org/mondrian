@@ -27,6 +27,7 @@ module org.mbari.mondrian {
     opens org.mbari.mondrian.domain to com.google.gson;
     opens org.mbari.mondrian.javafx.roweditor to javafx.fxml;
     opens org.mbari.mondrian.javafx.settings to javafx.fxml;
+    opens org.mbari.mondrian.javafx to javafx.graphics;
 
 
 }

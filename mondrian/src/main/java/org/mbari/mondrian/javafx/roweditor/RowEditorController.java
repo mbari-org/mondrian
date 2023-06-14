@@ -139,7 +139,7 @@ public class RowEditorController {
             else {
                 // Update existing association
                 Association a = new Association(selectedAssociation.getUuid(), customAssociation);
-                cmd = new UpdateAssociationCmd(annotation.getObservationUuid(), selectedAssociation, a);
+                cmd = new UpdateAssociationCmd(selectedAssociation, a);
             }
             toolBox.eventBus().publish(cmd);
             this.root.getChildren().remove(associationPane);

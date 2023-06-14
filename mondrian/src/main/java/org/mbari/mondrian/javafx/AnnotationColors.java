@@ -1,4 +1,4 @@
-package org.mbari.mondrian;
+package org.mbari.mondrian.javafx;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -6,9 +6,9 @@ import javafx.scene.paint.Color;
 
 
 public class AnnotationColors {
-    private final ObjectProperty<Color> editedColor = new SimpleObjectProperty(Color.valueOf("#D65109"));
-    private final ObjectProperty<Color> defaultColor = new SimpleObjectProperty(Color.valueOf("#4BA3C3"));
-    private final ObjectProperty<Color> selectedColor = new SimpleObjectProperty(Color.valueOf("#2C4249"));
+    private final ObjectProperty<Color> editedColor = new SimpleObjectProperty<>(Color.valueOf("#D65109"));
+    private final ObjectProperty<Color> defaultColor = new SimpleObjectProperty<>(Color.valueOf("#4BA3C3"));
+    private final ObjectProperty<Color> selectedColor = new SimpleObjectProperty<>(Color.valueOf("#2C4249"));
 
     public Color getEditedColor() {
         return editedColor.get();
