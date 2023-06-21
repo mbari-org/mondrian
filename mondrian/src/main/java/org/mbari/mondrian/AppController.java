@@ -142,7 +142,7 @@ public class AppController {
 
         // TODO - implement me
         rx.ofType(UpdateAnnotationInViewMsg.class)
-                .subscribe(msg -> {} );
+                .subscribe(this::updateAnnotation);
 
         rx.ofType(UpdateVarsLocalizationMsg.class)
                 .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));

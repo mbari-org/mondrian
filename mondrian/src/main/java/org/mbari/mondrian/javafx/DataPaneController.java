@@ -74,6 +74,15 @@ public class DataPaneController implements IPrefs {
         rx.ofType(RemoveVarsLocalizationMsg.class)
                 .subscribe(msg -> annotationListViewController.removeAnnotation(msg.varsLocalization().getAnnotation()));
 
+        rx.ofType(UpdateAnnotationInViewMsg.class)
+                .subscribe(msg -> {
+                    var items = annotationListViewController.getListView().getItems();
+                    var idx = items.indexOf(msg.annotation());
+                    if (idx > -1) {
+                        items.set(idx, msg.annotation());
+                    }
+                });
+
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> {
                     imageListViewController.setSelectedImage(null);

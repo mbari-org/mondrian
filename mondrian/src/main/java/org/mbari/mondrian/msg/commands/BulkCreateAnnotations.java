@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * imagedMoments or associations. This will also handle cases where the annotation,
  * or associations have predefined UUIDs
  *
- * If that is not your use case, use `CreateAssociationsCmd` instead.
+ * If that is not your use case, use `CreateAssociationCmd` instead.
  */
 public class BulkCreateAnnotations implements Command {
 

@@ -11,7 +11,7 @@ import javafx.scene.layout.Pane;
 import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.msg.commands.Command;
-import org.mbari.mondrian.msg.commands.CreateAssociationsCmd;
+import org.mbari.mondrian.msg.commands.CreateAssociationCmd;
 import org.mbari.mondrian.msg.commands.DeleteAssociationsCmd;
 import org.mbari.mondrian.msg.commands.UpdateAssociationCmd;
 import org.mbari.vars.services.model.Annotation;
@@ -134,7 +134,7 @@ public class RowEditorController {
             Command cmd;
             if (selectedAssociation == null) {
                 // Create new association
-                cmd = new CreateAssociationsCmd(customAssociation, Arrays.asList(annotation));
+                cmd = new CreateAssociationCmd(customAssociation, annotation);
             }
             else {
                 // Update existing association
