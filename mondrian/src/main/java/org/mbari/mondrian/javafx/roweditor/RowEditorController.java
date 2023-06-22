@@ -98,11 +98,9 @@ public class RowEditorController {
         });
 
         rowController.getRemoveButton().setOnAction(v -> {
-            ObservableList<Association> selectedAssociations = rowController.getSelectedAssociations();
-            Map<Association, UUID> map = new HashMap<>();
-            selectedAssociations.forEach(a -> map.put(a, annotation.getObservationUuid()));
+            List<Association> selectedAssociations = new ArrayList<>(rowController.getSelectedAssociations());
             if (selectedAssociations.size() > 0) {
-                var cmd = new DeleteAssociationsCmd(map);
+                var cmd = new DeleteAssociationsCmd(annotation.getObservationUuid(), selectedAssociations);
                 toolBox.eventBus()
                         .publish(cmd);
             }
@@ -139,7 +137,7 @@ public class RowEditorController {
             else {
                 // Update existing association
                 Association a = new Association(selectedAssociation.getUuid(), customAssociation);
-                cmd = new UpdateAssociationCmd(selectedAssociation, a);
+                cmd = new UpdateAssociationCmd(annotation.getObservationUuid(), selectedAssociation, a);
             }
             toolBox.eventBus().publish(cmd);
             this.root.getChildren().remove(associationPane);

@@ -1,7 +1,6 @@
 package org.mbari.mondrian.msg.commands;
 
 import org.mbari.mondrian.ToolBox;
-import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
 import org.mbari.vars.services.model.Association;
 
 import java.util.UUID;
@@ -10,12 +9,14 @@ import java.util.UUID;
  * @author Brian Schlining
  * @since 2017-05-10T10:06:00
  */
-public class UpdateAssociationCmd implements Command {
+public class UpdateAssociationCmd implements AnnotationCommand {
 
+    private final UUID observationUuid;
     private final Association oldAssociation;
     private final Association newAssociation;
 
-    public UpdateAssociationCmd(Association oldAssociation, Association newAssociation) {
+    public UpdateAssociationCmd(UUID observationUuid, Association oldAssociation, Association newAssociation) {
+        this.observationUuid = observationUuid;
         this.oldAssociation = oldAssociation;
         this.newAssociation = newAssociation;
     }
@@ -42,9 +43,12 @@ public class UpdateAssociationCmd implements Command {
 
     private void doUpdate(ToolBox toolBox, Association association) {
         var associationService = toolBox.servicesProperty().get().associationService();
+        var annotationService = toolBox.servicesProperty().get().annotationService();
         associationService.update(association)
-                .thenAccept(a -> {
-                    toolBox.eventBus().publish(new RerenderAnnotationsMsg());
+                .thenCompose(a -> annotationService.findByUuid(observationUuid))
+                .thenAccept(opt -> {
+                    var anno = opt.orElse(null);
+                    handleUpdatedAnnotation(toolBox, anno, "Failed to update the association: " + association);
                 });
     }
 

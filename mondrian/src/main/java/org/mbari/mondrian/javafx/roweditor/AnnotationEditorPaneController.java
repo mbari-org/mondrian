@@ -6,22 +6,19 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import org.mbari.imgfx.etc.rx.EventBus;
 import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.javafx.Icons;
-import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
 import org.mbari.mondrian.msg.commands.DeleteAssociationsCmd;
-import org.mbari.mondrian.msg.commands.UpdateAnnotationCmd;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
@@ -96,9 +93,7 @@ public class AnnotationEditorPaneController {
     void onRemove(ActionEvent event) {
         final List<Association> items = new ArrayList<>(associationListView.getSelectionModel().getSelectedItems());
         if (!items.isEmpty() && annotation.get() != null) {
-            Map<Association, UUID> map = new HashMap<>();
-            map.put(items.get(0), annotation.get().getObservationUuid());
-            eventBus.publish(new DeleteAssociationsCmd(map));
+            eventBus.publish(new DeleteAssociationsCmd(annotation.get().getObservationUuid(), items));
         }
     }
 
@@ -270,6 +265,8 @@ public class AnnotationEditorPaneController {
         public AssociationCell() {
             setTooltip(tooltip);
             setGraphic(label);
+            // HACK; listview is not picking up the color from mondrian.css
+            label.setTextFill(Color.valueOf("#FFFFFF"));
         }
 
         @Override

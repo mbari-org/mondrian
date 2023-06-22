@@ -76,7 +76,7 @@ public class DataPaneController implements IPrefs {
 
         rx.ofType(UpdateAnnotationInViewMsg.class)
                 .subscribe(msg -> {
-                    var items = annotationListViewController.getListView().getItems();
+                    var items = annotationListViewController.getItems();
                     var idx = items.indexOf(msg.annotation());
                     if (idx > -1) {
                         items.set(idx, msg.annotation());

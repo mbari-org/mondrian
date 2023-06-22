@@ -3,6 +3,8 @@ package org.mbari.mondrian.javafx;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -14,6 +16,7 @@ import org.mbari.vars.services.model.Annotation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.function.Consumer;
 
 /**
@@ -36,9 +39,11 @@ import java.util.function.Consumer;
  */
 public class AnnotationListViewController {
 
+    private ObservableList<Annotation> annotationList = FXCollections.observableArrayList();
     private ListView<Annotation> listView;
     private Consumer<Selection<Collection<Annotation>>> onAnnotationSelection = selection -> {};
     private volatile boolean sendNotification = true;
+    private final Comparator<Annotation> conceptComparator = Comparator.comparing(a -> a.getConcept().toLowerCase());
 
     public AnnotationListViewController() {
         init();
@@ -52,20 +57,21 @@ public class AnnotationListViewController {
     }
 
     public void addAnnotation(Annotation annotation) {
-        Platform.runLater(() -> listView.getItems().add(annotation));
+        Platform.runLater(() -> annotationList.add(annotation));
     }
 
     public void removeAnnotation(Annotation annotation) {
-        Platform.runLater(() -> listView.getItems().remove(annotation));
+        Platform.runLater(() -> annotationList.remove(annotation));
     }
 
     public void setAnnotations(Collection<Annotation> annotations) {
-        Platform.runLater(() -> listView.getItems().setAll(annotations));
+        Platform.runLater(() -> annotationList.setAll(annotations));
     }
 
-    public void refresh() {
-        Platform.runLater(() -> listView.getItems().setAll(listView.getItems()));
+    public ObservableList<Annotation> getItems() {
+        return annotationList;
     }
+
 
     public void setSelectedAnnotations(Collection<Annotation> annotations) {
         if (CollectionUtils.isSame(annotations, listView.getSelectionModel().getSelectedItems(), Annotation::getObservationUuid)) {
@@ -102,7 +108,8 @@ public class AnnotationListViewController {
     }
 
     private void init() {
-        listView = new ListView<>(FXCollections.observableArrayList());
+        var observableList = new SortedList<>(annotationList, conceptComparator);
+        listView = new ListView<>(observableList);
         listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         listView.setCellFactory(new Callback<>() {
             @Override

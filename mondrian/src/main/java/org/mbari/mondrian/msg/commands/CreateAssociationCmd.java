@@ -1,9 +1,6 @@
 package org.mbari.mondrian.msg.commands;
 
-import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
-import org.mbari.mondrian.msg.messages.ShowAlertMsg;
-import org.mbari.mondrian.msg.messages.UpdateAnnotationInViewMsg;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
@@ -14,7 +11,7 @@ import java.util.*;
  * @author Brian Schlining
  * @since 2017-07-20T17:35:00
  */
-public class CreateAssociationCmd implements Command {
+public class CreateAssociationCmd implements AnnotationCommand {
 
     private final Association associationTemplate;
     private final Annotation originalAnnotations;
@@ -24,10 +21,6 @@ public class CreateAssociationCmd implements Command {
         this.associationTemplate = associationTemplate;
         this.originalAnnotations = originalAnnotations;
 
-    }
-
-    public Association getAssociationTemplate() {
-        return associationTemplate;
     }
 
     @Override
@@ -40,18 +33,8 @@ public class CreateAssociationCmd implements Command {
                     return annotationService.findByUuid(originalAnnotations.getObservationUuid());
                 })
                 .thenAccept(opt -> {
-                    if (opt.isEmpty()) {
-                        var msg = new ShowAlertMsg(Alert.AlertType.WARNING, "Mondrian",
-                                "Oops",
-                                "Failed to find annotation after updating it");
-                        toolBox.eventBus().publish(msg);
-
-                    }
-                    else {
-                        var annotation = opt.get();
-                        var msg = new UpdateAnnotationInViewMsg(annotation);
-                        toolBox.eventBus().publish(msg);
-                    }
+                    var anno = opt.orElse(null);
+                    handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation after updating it");
                 });
 
     }
@@ -67,18 +50,8 @@ public class CreateAssociationCmd implements Command {
                     return annotationService.findByUuid(originalAnnotations.getObservationUuid());
                 })
                 .thenAccept(opt -> {
-                    if (opt.isEmpty()) {
-                        var msg = new ShowAlertMsg(Alert.AlertType.WARNING, "Mondrian",
-                                "Oops",
-                                "Failed to find annotation after removing an association from it");
-                        toolBox.eventBus().publish(msg);
-
-                    }
-                    else {
-                        var annotation = opt.get();
-                        var msg = new UpdateAnnotationInViewMsg(annotation);
-                        toolBox.eventBus().publish(msg);
-                    }
+                    var anno = opt.orElse(null);
+                    handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation after removing an association from it");
                 });
 
     }

@@ -130,10 +130,23 @@
     -fx-alignment: center;
 }
 
-
 .glyph-icon {
     -fx-text-fill: -default-text;
     -fx-fill: -default-text;
+}
+
+.list-cell {
+    -fx-background-color: -default-color;
+    -fx-text-fill: -default-text;
+}
+
+.list-cell:odd {
+    -fx-background-color: -image-background-color;
+}
+
+.list-cell:selected:odd {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: -selected-text;
 }
 
 
