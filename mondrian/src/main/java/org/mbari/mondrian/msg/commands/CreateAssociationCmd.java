@@ -1,6 +1,8 @@
 package org.mbari.mondrian.msg.commands;
 
+import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
@@ -35,6 +37,15 @@ public class CreateAssociationCmd implements AnnotationCommand {
                 .thenAccept(opt -> {
                     var anno = opt.orElse(null);
                     handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation after updating it");
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to create an association",
+                            "Something bad happened when creating " + associationTemplate,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
 
     }
@@ -52,6 +63,15 @@ public class CreateAssociationCmd implements AnnotationCommand {
                 .thenAccept(opt -> {
                     var anno = opt.orElse(null);
                     handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation after removing an association from it");
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to create an association",
+                            "Something bad happened when undoing creating " + associationTemplate,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
 
     }

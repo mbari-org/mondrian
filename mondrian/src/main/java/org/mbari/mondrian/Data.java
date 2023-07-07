@@ -42,15 +42,11 @@ public class Data {
     private final StringProperty group = new SimpleStringProperty();
 
     public Data() {
-        currentImagePage.addListener(new ChangeListener<Page<Image>>() {
-            @Override
-            public void changed(ObservableValue<? extends Page<Image>> observable, Page<Image> oldValue, Page<Image> newValue) {
-                if (newValue == null) {
-                    images.clear();
-                }
-                else {
-                    images.setAll(newValue.content());
-                }
+        currentImagePage.addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                images.clear();
+            } else {
+                images.setAll(newValue.content());
             }
         });
     }

@@ -1,14 +1,17 @@
 package org.mbari.mondrian.msg.commands;
 
+import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vcr4j.util.Preconditions;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,8 +42,7 @@ public class BulkCreateAnnotations implements Command {
     public void apply(ToolBox toolBox) {
         var annotationService = toolBox.servicesProperty().get().annotationService();
         annotationService.create(annotations)
-                .thenAccept(annos -> {
-
+                .thenAccept(annos-> {
                     // There may not be always be a one to one mapping of annos and
                     // varslocaliations. Hang on to the creat
                     var annotationPaneController = toolBox.annotationPaneControllerProperty().get();
@@ -51,7 +53,15 @@ public class BulkCreateAnnotations implements Command {
                     addedLocalizations.forEach(vloc -> {
                         SupportUtils.publishVarsLocalization(vloc, false, toolBox.eventBus(), BulkCreateAnnotations.this);
                     });
-
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to create annotations",
+                            "Something bad happened",
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
@@ -72,6 +82,15 @@ public class BulkCreateAnnotations implements Command {
                             });
                             addedLocalizations = null;
                         }
+                    })
+                    .exceptionally(ex -> {
+                        var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                                "Mondrian",
+                                "Failed to undo create annotations",
+                                "Something bad happened",
+                                ex);
+                        toolBox.eventBus().publish(msg);
+                        return null;
                     });
         }
     }

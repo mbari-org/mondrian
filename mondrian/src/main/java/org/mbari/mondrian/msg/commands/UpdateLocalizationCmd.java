@@ -1,10 +1,12 @@
 package org.mbari.mondrian.msg.commands;
 
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.javafx.roi.Datum;
 import org.mbari.mondrian.javafx.roi.Datums;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.msg.messages.UpdateVarsLocalizationMsg;
 import org.mbari.vars.services.model.Association;
 
@@ -40,6 +42,15 @@ public class UpdateLocalizationCmd implements Command {
                 .thenAccept(ass -> {
                     var msg = new UpdateVarsLocalizationMsg(varsLocalization);
                     toolBox.eventBus().publish(msg);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to update an association in a localization",
+                            "Something bad happened when updating " + originalAssociation,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
@@ -60,6 +71,15 @@ public class UpdateLocalizationCmd implements Command {
                     var newVLoc = varsLocalization.updateUsingLocalizationData();
                     var msg = new UpdateVarsLocalizationMsg(newVLoc);
                     toolBox.eventBus().publish(msg);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to undo the update of an association in a localization",
+                            "Something bad happened when undoing the update of " + originalAssociation,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 

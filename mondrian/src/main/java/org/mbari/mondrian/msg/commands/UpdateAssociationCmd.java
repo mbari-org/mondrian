@@ -1,9 +1,12 @@
 package org.mbari.mondrian.msg.commands;
 
+import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.vars.services.model.Association;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Brian Schlining
@@ -26,25 +29,43 @@ public class UpdateAssociationCmd implements AnnotationCommand {
         var conceptService = toolBox.servicesProperty().get().namesService();
         // Make sure we're using a primary name in the toConcept
         conceptService.findConcept(newAssociation.getToConcept())
-                .thenAccept(opt -> {
+                .thenCompose(opt -> {
                     Association a = opt.map(c -> new Association(newAssociation.getLinkName(),
                             opt.get().primaryName(),
                             newAssociation.getLinkValue(),
                             newAssociation.getMimeType(),
                             newAssociation.getUuid())).orElse(newAssociation);
-                    doUpdate(toolBox, a);
+                    return doUpdate(toolBox, a);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to update an association",
+                            "Something bad happened when updating " + oldAssociation + " to " + newAssociation,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
     @Override
     public void unapply(ToolBox toolBox) {
-        doUpdate(toolBox, oldAssociation);
+        doUpdate(toolBox, oldAssociation)
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to undo the update of an association",
+                            "Something bad happened when updating " + newAssociation + " to " + oldAssociation,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
+                });
     }
 
-    private void doUpdate(ToolBox toolBox, Association association) {
+    private CompletableFuture<Void> doUpdate(ToolBox toolBox, Association association) {
         var associationService = toolBox.servicesProperty().get().associationService();
         var annotationService = toolBox.servicesProperty().get().annotationService();
-        associationService.update(association)
+        return associationService.update(association)
                 .thenCompose(a -> annotationService.findByUuid(observationUuid))
                 .thenAccept(opt -> {
                     var anno = opt.orElse(null);

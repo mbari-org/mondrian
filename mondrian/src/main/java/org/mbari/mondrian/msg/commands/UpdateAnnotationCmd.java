@@ -2,6 +2,7 @@ package org.mbari.mondrian.msg.commands;
 
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
+import org.mbari.mondrian.msg.messages.UpdateAnnotationInViewMsg;
 import org.mbari.vars.services.model.Annotation;
 
 import java.time.Instant;
@@ -49,8 +50,9 @@ public class UpdateAnnotationCmd implements Command {
                                 .annotationService()
                                 .update(annotation)
                                 .thenAccept(a -> {
-                                    toolBox.eventBus()
-                                            .publish(new RerenderAnnotationsMsg());
+//                                    toolBox.eventBus()
+//                                            .publish(new RerenderAnnotationsMsg());
+                                    toolBox.eventBus().publish(new UpdateAnnotationInViewMsg(a));
                                 });
                     }
                 });

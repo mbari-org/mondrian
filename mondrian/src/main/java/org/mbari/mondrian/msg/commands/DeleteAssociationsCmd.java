@@ -52,6 +52,15 @@ public class DeleteAssociationsCmd implements AnnotationCommand {
                 .thenAccept(opt -> {
                     var anno = opt.orElse(null);
                     handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation with uuid = " + observationUuid);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to delete an association",
+                            "Something bad happened when deleting associations with UUIDs of  " + uuids,
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
@@ -73,6 +82,15 @@ public class DeleteAssociationsCmd implements AnnotationCommand {
                 .thenAccept(opt -> {
                     var anno = opt.orElse(null);
                     handleUpdatedAnnotation(toolBox, anno, "Failed to find annotation with uuid = " + observationUuid);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to undo deleting a associations",
+                            "Something bad happened when  undoing the deleting associations",
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
 
     }

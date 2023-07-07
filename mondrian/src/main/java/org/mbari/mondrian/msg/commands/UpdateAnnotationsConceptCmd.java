@@ -1,8 +1,10 @@
 package org.mbari.mondrian.msg.commands;
 
+import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
+import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.User;
 
@@ -55,6 +57,15 @@ public class UpdateAnnotationsConceptCmd implements Command {
                 .thenAccept(annos -> {
                     var msg = new RerenderAnnotationsMsg();
                     toolBox.eventBus().publish(msg);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to update annotations",
+                            "Something bad happened when updating annotations",
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
@@ -76,6 +87,15 @@ public class UpdateAnnotationsConceptCmd implements Command {
                     }
                     var msg = new RerenderAnnotationsMsg();
                     toolBox.eventBus().publish(msg);
+                })
+                .exceptionally(ex -> {
+                    var msg = new ShowAlertMsg(Alert.AlertType.WARNING,
+                            "Mondrian",
+                            "Failed to undo the update of annotations",
+                            "Something bad happened when undoing the update of annotations",
+                            ex);
+                    toolBox.eventBus().publish(msg);
+                    return null;
                 });
     }
 
