@@ -16,12 +16,14 @@ import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
 import org.mbari.mondrian.util.SupportUtils;
+import org.mbari.vars.core.util.Preconditions;
 import org.mbari.vars.services.model.Annotation;
 import org.mbari.vars.services.model.Association;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class VarsLocalization {
 
@@ -36,6 +38,9 @@ public class VarsLocalization {
     public VarsLocalization(Annotation annotation,
                             Association association,
                             Localization<? extends DataView<? extends Data, ? extends Shape>, ? extends Node> localization) {
+        Preconditions.checkNotNull(annotation, "Annotation constructor arg can not be null");
+        Preconditions.checkNotNull(association, "Association constructor arg can not be null");
+        Preconditions.checkNotNull(localization, "Localization constructor arg can not be null");
         this.annotation = annotation;
         this.association = association;
         this.localization = localization;
@@ -50,6 +55,10 @@ public class VarsLocalization {
             view.getData().widthProperty().addListener((obs, oldv, newv) -> dirtyLocalization.set(true));
             view.getData().heightProperty().addListener((obs, oldv, newv) -> dirtyLocalization.set(true));
         }
+    }
+
+    public UUID getUuid() {
+        return association.getUuid();
     }
 
     public Annotation getAnnotation() {

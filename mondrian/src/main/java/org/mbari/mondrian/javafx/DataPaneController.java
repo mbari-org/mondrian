@@ -69,10 +69,10 @@ public class DataPaneController implements IPrefs {
         imageListViewController.setOnImageSelection(onImageSelected);
 
         rx.ofType(AddVarsLocalizationMsg.class)
-                .subscribe(msg -> annotationListViewController.addAnnotation(msg.varsLocalization().getAnnotation()));
+                .subscribe(msg -> annotationListViewController.addAnnotation(msg.varsLocalization().getAnnotation()), this::logError);
 
         rx.ofType(RemoveVarsLocalizationMsg.class)
-                .subscribe(msg -> annotationListViewController.removeAnnotation(msg.varsLocalization().getAnnotation()));
+                .subscribe(msg -> annotationListViewController.removeAnnotation(msg.varsLocalization().getAnnotation()), this::logError);
 
         rx.ofType(UpdateAnnotationInViewMsg.class)
                 .subscribe(msg -> {
@@ -81,17 +81,17 @@ public class DataPaneController implements IPrefs {
                     if (idx > -1) {
                         items.set(idx, msg.annotation());
                     }
-                });
+                }, this::logError);
 
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> {
                     imageListViewController.setSelectedImage(null);
                     imageListViewController.setImages(msg.images());
 
-                });
+                }, this::logError);
         rx.ofType(SetSelectedImageMsg.class)
                 .filter(msg -> msg.selection().source() != imageListViewController)
-                .subscribe(msg ->  imageListViewController.setSelectedImage(msg.image()));
+                .subscribe(msg ->  imageListViewController.setSelectedImage(msg.image()), this::logError);
 
         // List view of annotations for the selected image
         annotationListViewController = new AnnotationListViewController();
@@ -102,7 +102,7 @@ public class DataPaneController implements IPrefs {
         annotationListViewController.setOnAnnotationSelection(onAnnotationsSelected);
         rx.ofType(SetAnnotationsForSelectedImageMsg.class)
                 .filter(msg -> msg.selection().source() != annotationListViewController)
-                .subscribe(msg -> annotationListViewController.setAnnotations(List.of()));
+                .subscribe(msg -> annotationListViewController.setAnnotations(List.of()), this::logError);
 
         rx.ofType(RerenderAnnotationsMsg.class)
                 .subscribe(msg -> {
@@ -119,7 +119,7 @@ public class DataPaneController implements IPrefs {
 
                     }
 
-                });
+                }, this::logError);
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
                 .subscribe(msg -> {
@@ -128,7 +128,7 @@ public class DataPaneController implements IPrefs {
                         Platform.runLater(() -> annotationListViewController.setSelectedAnnotations(msg.annotations()));
                     }
                     setSelectedAnnotations(selection.selected());
-                });
+                }, this::logError);
 
         toolBox.localizations()
                 .getSelectedLocalizations()
@@ -193,6 +193,10 @@ public class DataPaneController implements IPrefs {
 
         load();
 
+    }
+
+    private void logError(Throwable ex) {
+        log.atWarn().withCause(ex).log("An error occurred in an RX subscriber");
     }
 
     public VBox getPane() {

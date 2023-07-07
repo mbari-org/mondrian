@@ -49,7 +49,7 @@ public class AppController {
         // Handles when a new localizaion is added to the view. Typically after a user click
         // At this point the localization data has not been saved via the services
         rx.ofType(AddLocalizationEvent.class)
-                .subscribe(this::addLocalization);
+                .subscribe(this::addLocalization, this::logError);
 
         rx.ofType(RemoveLocalizationEvent.class)
                 .window(200, TimeUnit.MILLISECONDS)
@@ -59,20 +59,20 @@ public class AppController {
                                     .map(RemoveLocalizationEvent::localization)
                                     .toList();
                             removeLocalizations(localizations);
-                        }));
+                        }), this::logError);
 
         rx.ofType(AddVarsLocalizationMsg.class)
-                        .subscribe(msg -> addVarsLocalization(msg.varsLocalization()));
+                        .subscribe(msg -> addVarsLocalization(msg.varsLocalization()), this::logError);
 
         rx.ofType(RemoveVarsLocalizationMsg.class)
-                .subscribe(msg -> removeVarsLocalization(msg.varsLocalization()));
+                .subscribe(msg -> removeVarsLocalization(msg.varsLocalization()), this::logError);
 
         rx.ofType(OpenImagesByCameraDeploymentMsg.class)
                 .subscribe(msg -> {
                     toolBox.data().setOpenUsingPaging(msg);
                     loadImagesByVideoSequenceName(msg.source(),
                             msg.cameraDeployment(), msg.size(), msg.page());
-                });
+                }, this::logError);
 
         rx.ofType(OpenImagesByConceptMsg.class)
                 .subscribe(msg -> {
@@ -80,7 +80,7 @@ public class AppController {
                     loadImagesByConcept(msg.source(),
                             msg.concept(), msg.includeDescendants(),
                             msg.size(), msg.page());
-                });
+                }, this::logError);
 
         rx.ofType(OpenNextPageMsg.class)
                 .subscribe(msg -> {
@@ -88,7 +88,7 @@ public class AppController {
                     if (paging != null) {
                         toolBox.eventBus().publish(paging.nextPage());
                     }
-                });
+                }, this::logError);
 
         rx.ofType(OpenPreviousPageMsg.class)
                 .subscribe(msg -> {
@@ -96,15 +96,13 @@ public class AppController {
                     if (paging != null) {
                         toolBox.eventBus().publish(paging.previousPage());
                     }
-                });
+                }, this::logError);
 
         // Reload/refresh data from services
         rx.ofType(ReloadMsg.class)
                 .subscribe(
                         msg -> reload(),
-                        throwable -> log.atError()
-                                .withCause(throwable)
-                                .log("An error occurred while handling a ReloadMsg"));
+                        this::logError);
 
         rx.ofType(SetPageSizeMsg.class)
                 .subscribe(msg -> {
@@ -115,17 +113,17 @@ public class AppController {
                             toolBox.eventBus().publish(paging.withPageSize(msg.pageSize()));
                         }
                     }
-                });
+                }, this::logError);
 
         // Sets the concept use for new annotations
         rx.ofType(SetSelectedConceptMsg.class)
-                .subscribe(msg -> setSelectedConcept(msg.concept()));
+                .subscribe(msg -> setSelectedConcept(msg.concept()), this::logError);
 
         rx.ofType(SetSelectedImageMsg.class)
-                .subscribe(msg -> setSelectedImage(msg.image()));
+                .subscribe(msg -> setSelectedImage(msg.image()), this::logError);
 
         rx.ofType(SetSelectedAnnotationsMsg.class)
-                        .subscribe(msg -> setSelectedAnnotations(msg.annotations()));
+                        .subscribe(msg -> setSelectedAnnotations(msg.annotations()), this::logError);
 
 //        rx.ofType(SetSelectedLocalizationsMsg.class)
 //                        .subscribe(msg -> toolBox.localizations().setSelectedLocalizations(msg.localizations()));
@@ -135,20 +133,20 @@ public class AppController {
                     // Clear any previous selected image.
                     toolBox.eventBus().publish(new SetSelectedImageMsg(new Selection<>(AppController.this, null)));
                     toolBox.data().setCurrentImagePage(msg.selection().selected());
-                }));
+                }), this::logError);
 
         rx.ofType(SetUserMsg.class)
-                .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())));
+                .subscribe(msg -> Platform.runLater(() -> toolBox.data().setUser(msg.user())), this::logError);
 
         // TODO - implement me
         rx.ofType(UpdateAnnotationInViewMsg.class)
-                .subscribe(this::updateAnnotation);
+                .subscribe(this::updateAnnotation,  this::logError);
 
         rx.ofType(UpdateVarsLocalizationMsg.class)
-                .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()));
+                .subscribe(msg -> SupportUtils.replaceIn(msg.varsLocalization(), toolBox.data().getVarsLocalizations()),  this::logError);
 
         rx.ofType(UpdatedLocalizationsEvent.class)
-                .subscribe(this::updateLocalization);
+                .subscribe(this::updateLocalization, this::logError);
 
         // When the selected concept is changed. Use it to update the labels of
         toolBox.data()
@@ -160,6 +158,10 @@ public class AppController {
                         toolBox.eventBus().publish(new UpdatedLocalizationsEvent(selected));
                     }
                 });
+    }
+
+    private void logError(Throwable ex) {
+        log.atWarn().withCause(ex).log("An error occurred in an RX subscriber");
     }
 
     private void setSelectedImage(Image selectedImage) {

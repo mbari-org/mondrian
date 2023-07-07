@@ -51,15 +51,15 @@ public class ConceptPaneController {
 
         pane.getChildren().add(conceptComboBox);
 
-        toolBox.localizations()
-                .getSelectedLocalizations()
-                .addListener((ListChangeListener<? super Localization<? extends DataView<? extends Data,? extends Node>,? extends Node>>) c -> {
-                    Platform.runLater(() -> {
-                        conceptComboBox.requestFocus();
-                        conceptComboBox.getEditor().selectAll();
-                        conceptComboBox.getEditor().requestFocus();
-                    });
-                });
+//        toolBox.localizations()
+//                .getSelectedLocalizations()
+//                .addListener((ListChangeListener<? super Localization<? extends DataView<? extends Data,? extends Node>,? extends Node>>) c -> {
+//                    Platform.runLater(() -> {
+//                        conceptComboBox.requestFocus();
+//                        conceptComboBox.getEditor().selectAll();
+//                        conceptComboBox.getEditor().requestFocus();
+//                    });
+//                });
 
         var rx = toolBox.eventBus().toObserverable();
 
