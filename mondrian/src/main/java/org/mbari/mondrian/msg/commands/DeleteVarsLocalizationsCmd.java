@@ -64,11 +64,6 @@ public class DeleteVarsLocalizationsCmd implements Command {
                 .thenAccept(xs -> {
                     localizations.forEach(varsLocalization ->
                                     SupportUtils.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), DeleteVarsLocalizationsCmd.this)
-//                        AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
-//                                .ifPresent(evt -> {
-//                                    toolBox.eventBus().publish(evt);
-//                                    toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(DeleteVarsLocalizationsCmd.this, varsLocalization)));
-//                                })
                     );
                 });
     }

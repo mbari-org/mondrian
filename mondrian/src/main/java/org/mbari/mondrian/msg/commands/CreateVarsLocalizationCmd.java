@@ -77,11 +77,6 @@ public class CreateVarsLocalizationCmd implements Command {
                                         if (ass.getUuid().toString().equals(localization.getUuid().toString())) {
                                             varsLocalization = new VarsLocalization(a, ass, localization);
                                             SupportUtils.publishVarsLocalization(varsLocalization, false, toolBox.eventBus(), CreateVarsLocalizationCmd.this);
-//                                            AddLocalizationEvents.from(varsLocalization.getLocalization(), false)
-//                                                    .ifPresent(evt -> {
-//                                                        toolBox.eventBus().publish(evt);
-//                                                        toolBox.eventBus().publish(new AddVarsLocalizationMsg(new Selection<>(CreateAnnotationWithLocalizationCmd.this, varsLocalization)));
-//                                                    });
                                             break;
                                         }
                                     }

@@ -99,7 +99,7 @@ public class RowEditorController {
 
         rowController.getRemoveButton().setOnAction(v -> {
             List<Association> selectedAssociations = new ArrayList<>(rowController.getSelectedAssociations());
-            if (selectedAssociations.size() > 0) {
+            if (!selectedAssociations.isEmpty()) {
                 var cmd = new DeleteAssociationsCmd(annotation.getObservationUuid(), selectedAssociations);
                 toolBox.eventBus()
                         .publish(cmd);

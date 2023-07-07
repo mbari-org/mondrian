@@ -31,7 +31,7 @@ public class DeleteAssociationsCmd implements AnnotationCommand {
                 "Missing an observationUuid.");
         Preconditions.checkArgument(associations != null,
                 "associations is null");
-        Preconditions.checkArgument(associations.isEmpty(),
+        Preconditions.checkArgument(!associations.isEmpty(),
                 "associations is empty");
         this.observationUuid = observationUuid;
         Function<Association, UUID> fn = a -> observationUuid;
