@@ -11,7 +11,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
     id("org.openjfx.javafxplugin") version "0.0.14"
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id("com.github.ben-manes.versions") version "0.47.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.beryx.jlink") version "2.26.0"
 }
@@ -79,14 +79,14 @@ dependencies {
 
     implementation("org.controlsfx:controlsfx:11.1.2")
     implementation("org.mbari.commons:jcommons:0.0.6")
-    implementation("org.mbari.vars:org.mbari.vars.core:1.2.3")
-    implementation("org.mbari.vars:org.mbari.vars.services:1.2.3")
+    implementation("org.mbari.vars:org.mbari.vars.core:1.5.1")
+    implementation("org.mbari.vars:org.mbari.vars.services:1.5.1")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("org.mbari:imgfx:0.0.15")
     runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
     implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.7")
+    implementation("ch.qos.logback:logback-classic:1.4.8")
 }
 
 

@@ -51,6 +51,7 @@ public class ConceptPaneController {
 
         pane.getChildren().add(conceptComboBox);
 
+        // BUG FIX: This seemed to grab focus from other components and unintentionally trigger a concept name change
 //        toolBox.localizations()
 //                .getSelectedLocalizations()
 //                .addListener((ListChangeListener<? super Localization<? extends DataView<? extends Data,? extends Node>,? extends Node>>) c -> {
