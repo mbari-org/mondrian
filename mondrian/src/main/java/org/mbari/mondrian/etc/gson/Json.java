@@ -1,18 +1,15 @@
 package org.mbari.mondrian.etc.gson;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.mbari.vars.services.gson.AnnotationCreator;
-import org.mbari.vars.services.gson.ByteArrayConverter;
-import org.mbari.vars.services.gson.DurationConverter;
-import org.mbari.vars.services.gson.TimecodeConverter;
+import org.mbari.vars.services.gson.*;
 import org.mbari.vars.services.model.ImagedMoment;
 import org.mbari.vcr4j.time.Timecode;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 public class Json {
@@ -25,11 +22,11 @@ public class Json {
                 .registerTypeAdapter(ImagedMoment.class, new AnnotationCreator())
                 .registerTypeAdapter(Duration.class, new DurationConverter())
                 .registerTypeAdapter(Timecode.class, new TimecodeConverter())
+                .registerTypeAdapter(Instant.class, new InstantConverter())
                 .registerTypeAdapter(byte[].class, new ByteArrayConverter());
 
-        // Register java.time.Instant
-        return Converters.registerInstant(gsonBuilder)
-                .create();
+        return gsonBuilder.create();
+
     }
 
 

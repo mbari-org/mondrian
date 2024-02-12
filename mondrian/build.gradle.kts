@@ -10,9 +10,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
-    id("org.openjfx.javafxplugin") version "0.0.14"
-    id("com.github.ben-manes.versions") version "0.47.0"
-    id("com.adarshr.test-logger") version "3.2.0"
+    id("org.openjfx.javafxplugin") version "0.1.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.adarshr.test-logger") version "4.0.0"
     id("org.beryx.jlink") version "2.26.0"
 }
 
@@ -35,7 +35,7 @@ repositories {
 }
 
 javafx {
-    version = "20.0.1"
+    version = "21.0.1"
     modules("javafx.controls", "javafx.fxml", "javafx.media")
 }
 
@@ -67,8 +67,7 @@ if (currentOS.isMacOsX) {
 dependencies {
 
     // This dependency is used by the application.
-    implementation("com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation("com.github.mizosoft.methanol:methanol:1.7.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:3.14.4")
@@ -77,16 +76,16 @@ dependencies {
     // we get java.lang.NoClassDefFoundError: kotlin/jvm/internal/Intrinsics
     implementation("com.squareup.okhttp3:okhttp:3.14.9")
 
-    implementation("org.controlsfx:controlsfx:11.1.2")
+    implementation("org.controlsfx:controlsfx:11.2.0")
     implementation("org.mbari.commons:jcommons:0.0.6")
-    implementation("org.mbari.vars:org.mbari.vars.core:1.5.1")
-    implementation("org.mbari.vars:org.mbari.vars.services:1.5.1")
+    implementation("org.mbari.vars:org.mbari.vars.core:2.0.1")
+    implementation("org.mbari.vars:org.mbari.vars.services:2.0.1")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("org.mbari:imgfx:0.0.15")
     runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
     implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.8")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
 }
 
 

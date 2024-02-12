@@ -1,7 +1,6 @@
 module org.mbari.mondrian {
     requires ch.qos.logback.classic;
     requires com.google.gson;
-    requires gson.javatime.serialisers;
     requires io.reactivex.rxjava3;
     requires java.desktop;
     requires java.naming; // Need to use logback
