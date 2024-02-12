@@ -9,6 +9,7 @@ module org.mbari.mondrian {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.media;
+//    requires kotlin.stdlib;
     requires okhttp3;
     requires okhttp3.logging;
     requires org.controlsfx.controls;

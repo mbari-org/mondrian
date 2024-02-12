@@ -13,7 +13,7 @@ plugins {
     id("org.openjfx.javafxplugin") version "0.1.0"
     id("com.github.ben-manes.versions") version "0.51.0"
     id("com.adarshr.test-logger") version "4.0.0"
-    id("org.beryx.jlink") version "2.26.0"
+    id("org.beryx.jlink") version "3.0.1"
 }
 
 version = "1.1.2"
@@ -33,6 +33,10 @@ repositories {
         }
     }
 }
+
+//java {
+//    modularity.inferModulePath.set(true)
+//}
 
 javafx {
     version = "21.0.1"
@@ -82,9 +86,9 @@ dependencies {
     implementation("org.mbari.vars:org.mbari.vars.services:2.0.1")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("org.mbari:imgfx:0.0.15")
-    runtimeOnly("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
 //    implementation("io.github.palexdev:materialfx:11.16.1")
-    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.7")
+    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.12")
     implementation("ch.qos.logback:logback-classic:1.4.14")
 }
 
