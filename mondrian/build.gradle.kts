@@ -16,7 +16,7 @@ plugins {
     id("org.beryx.jlink") version "3.0.1"
 }
 
-version = "1.1.2"
+version = "2.0.0"
 
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_20
