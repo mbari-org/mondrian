@@ -16,7 +16,7 @@ plugins {
     id("org.beryx.jlink") version "3.0.1"
 }
 
-version = "2.0.0"
+version = "2.0.1"
 
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_20
@@ -82,8 +82,8 @@ dependencies {
 
     implementation("org.controlsfx:controlsfx:11.2.0")
     implementation("org.mbari.commons:jcommons:0.0.6")
-    implementation("org.mbari.vars:org.mbari.vars.core:2.0.1")
-    implementation("org.mbari.vars:org.mbari.vars.services:2.0.1")
+    implementation("org.mbari.vars:org.mbari.vars.core:2.0.5")
+    implementation("org.mbari.vars:org.mbari.vars.services:2.0.5")
     implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
     implementation("org.mbari:imgfx:0.0.15")
 //    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
