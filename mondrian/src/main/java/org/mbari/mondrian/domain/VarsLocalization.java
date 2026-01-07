@@ -15,10 +15,10 @@ import org.mbari.imgfx.roi.RectangleView;
 import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roi.RoiTranslators;
+import org.mbari.mondrian.util.Preconditions;
 import org.mbari.mondrian.util.SupportUtils;
-import org.mbari.vars.core.util.Preconditions;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.Collection;
 import java.util.List;

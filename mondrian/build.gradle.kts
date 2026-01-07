@@ -11,12 +11,12 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
     id("org.openjfx.javafxplugin") version "0.1.0"
-    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.github.ben-manes.versions") version "0.53.0"
     id("com.adarshr.test-logger") version "4.0.0"
-    id("org.beryx.jlink") version "3.0.1"
+    id("org.beryx.jlink") version "3.2.0"
 }
 
-version = "2.0.1"
+version = "2.1.0"
 
 //java {
 //    sourceCompatibility = JavaVersion.VERSION_20
@@ -39,11 +39,12 @@ repositories {
 //}
 
 javafx {
-    version = "21.0.1"
+    version = "25.0.1"
     modules("javafx.controls", "javafx.fxml", "javafx.media")
 }
 
 repositories {
+    mavenLocal()
     // Use Maven Central for resolving dependencies.
     mavenCentral()
     maven {
@@ -70,27 +71,27 @@ if (currentOS.isMacOsX) {
 
 dependencies {
 
+    // This has to match the okhttp version used in org.mbari.vars.services or
+    // we get java.lang.NoClassDefFoundError: kotlin/jvm/internal/Intrinsics
+//    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+
     // This dependency is used by the application.
+    implementation("ch.qos.logback:logback-classic:1.5.24")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation("com.github.mizosoft.methanol:methanol:1.7.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:3.14.4")
-
-    // This has to match the okhttp version used in org.mbari.vars.services or
-    // we get java.lang.NoClassDefFoundError: kotlin/jvm/internal/Intrinsics
-    implementation("com.squareup.okhttp3:okhttp:3.14.9")
-
-    implementation("org.controlsfx:controlsfx:11.2.0")
-    implementation("org.mbari.commons:jcommons:0.0.6")
-    implementation("org.mbari.vars:org.mbari.vars.core:2.0.5")
-    implementation("org.mbari.vars:org.mbari.vars.services:2.0.5")
-    implementation("org.mbari.vcr4j:vcr4j-core:5.2.0")
-    implementation("org.mbari:imgfx:0.0.15")
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-//    implementation("io.github.palexdev:materialfx:11.16.1")
-    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.12")
-    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("org.controlsfx:controlsfx:11.2.3")
+    implementation("org.mbari.commons:jcommons:0.0.7")
+    implementation("org.mbari.imgfx:imgfx:0.0.17")
+    implementation("org.mbari.vars:annosaurus-java-sdk:0.0.9")
+    implementation("org.mbari.vars:oni-java-sdk:0.0.5")
+    implementation("org.mbari.vars:raziel-java-sdk:0.0.2")
+    implementation("org.mbari.vars:vampire-squid-java-sdk:0.0.12")
+    implementation("org.mbari.vcr4j:vcr4j-core:5.3.1")
+    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.17")
 }
+
 
 
 testing {
@@ -98,7 +99,7 @@ testing {
         // Configure the built-in test suite
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
-            useJUnitJupiter("5.9.1")
+            useJUnitJupiter("6.0.2")
 
         }
     }
@@ -120,7 +121,6 @@ val runtimeJvmArgs = arrayListOf(
     "-Xms1g",
     "--add-opens", "java.base/java.lang.invoke=retrofit2",
     "--add-opens", "java.base/java.lang.invoke=mondrian.merged.module",
-    "--add-opens", "org.mbari.vars.services/org.mbari.vars.services.model=com.google.gson",
     "--add-reads", "mondrian.merged.module=org.slf4j",
     "--add-reads", "mondrian.merged.module=com.google.gson"
 )
@@ -184,7 +184,7 @@ jlink {
             ))
             imageOptions = listOf("--icon", "src/jpackage/win/icon_256x256.ico")
         }
-        installerOptions.addAll(customInstallerOptions)
+        installerOptions = customInstallerOptions
     }
 }
 
@@ -205,7 +205,7 @@ tasks.jpackageImage.get().doLast {
                 files
                     .filter { it.isFile }
                     .forEach { file ->
-                        exec {
+                        tasks.register<Exec>("signing_${file.name}") { 
                             println("MACOSX: Signing ${file}")
                             workingDir = file("build/jpackage")
                             executable = "codesign"
@@ -222,7 +222,7 @@ tasks.jpackageImage.get().doLast {
                     }
             }
 
-            exec {
+            tasks.register<Exec>("signing_app") {
                 println("MACOSX: Signing application")
                 workingDir = file("build/jpackage")
                 executable = "codesign"

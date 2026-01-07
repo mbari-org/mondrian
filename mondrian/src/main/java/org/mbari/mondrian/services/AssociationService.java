@@ -1,6 +1,6 @@
 package org.mbari.mondrian.services;
 
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.oni.sdk.r1.models.Association;
 
 import java.util.Collection;
 import java.util.List;

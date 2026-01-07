@@ -1,7 +1,6 @@
 package org.mbari.mondrian.javafx.roi;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -9,7 +8,7 @@ import org.mbari.imgfx.AutoscalePaneController;
 import org.mbari.imgfx.roi.Data;
 import org.mbari.imgfx.roi.DataView;
 import org.mbari.imgfx.roi.Localization;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.Optional;
 import java.util.UUID;

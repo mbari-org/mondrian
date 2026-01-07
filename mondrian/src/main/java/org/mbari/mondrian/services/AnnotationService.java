@@ -1,7 +1,7 @@
 package org.mbari.mondrian.services;
 
 import org.mbari.mondrian.domain.Page;
-import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 
 import java.util.Collection;
 import java.util.List;

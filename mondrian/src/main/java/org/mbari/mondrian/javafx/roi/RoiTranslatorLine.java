@@ -8,7 +8,7 @@ import org.mbari.imgfx.roi.LineView;
 import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.domain.Points;
 import org.mbari.mondrian.etc.gson.Json;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.List;
 import java.util.Optional;

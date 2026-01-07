@@ -2,11 +2,11 @@ package org.mbari.mondrian;
 
 import javafx.beans.property.ObjectProperty;
 import org.mbari.imgfx.etc.rx.EventBus;
+import org.mbari.mondrian.etc.jdk.AES;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.AnnotationColors;
 import org.mbari.mondrian.javafx.AnnotationPaneController;
 import org.mbari.mondrian.javafx.Localizations;
-import org.mbari.vars.core.crypto.AES;
 
 import java.util.Collection;
 import java.util.ResourceBundle;

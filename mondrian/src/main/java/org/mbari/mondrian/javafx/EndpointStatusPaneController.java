@@ -10,7 +10,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import org.mbari.vars.services.model.EndpointStatus;
+import org.mbari.vars.raziel.sdk.r1.models.EndpointStatus;
 
 import java.util.Collection;
 import java.util.List;

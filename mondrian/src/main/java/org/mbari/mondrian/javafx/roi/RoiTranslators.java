@@ -3,7 +3,7 @@ package org.mbari.mondrian.javafx.roi;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Shape;
 import org.mbari.imgfx.roi.*;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.Map;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package org.mbari.mondrian.services;
 
-import org.mbari.vars.services.model.User;
+import org.mbari.vars.oni.sdk.r1.models.User;
 
 import java.util.List;
 import java.util.Optional;

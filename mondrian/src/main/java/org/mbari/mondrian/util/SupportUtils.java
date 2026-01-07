@@ -5,8 +5,8 @@ import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.events.AddLocalizationEvents;
 import org.mbari.mondrian.msg.messages.AddVarsLocalizationMsg;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.ArrayList;
 import java.util.List;

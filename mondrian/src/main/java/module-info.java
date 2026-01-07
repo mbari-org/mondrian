@@ -18,10 +18,12 @@ module org.mbari.mondrian {
     requires org.kordamp.ikonli.material2;
     requires org.mbari.imgfx;
     requires org.mbari.jcommons;
-    requires org.mbari.vars.core;
     requires org.slf4j.jdk.platform.logging; // A provider for logging
-    requires transitive org.mbari.vars.services;
     requires vcr4j.core;
+    requires raziel.java.sdk;
+    requires org.mbari.vars.annosaurus.sdk;
+    requires org.mbari.vars.oni.sdk;
+    requires vampire.squid.java.sdk;
 
     opens org.mbari.mondrian to javafx.graphics;
     opens org.mbari.mondrian.domain to com.google.gson;

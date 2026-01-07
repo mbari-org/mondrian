@@ -14,8 +14,8 @@ import org.mbari.mondrian.javafx.roi.RoiTranslators;
 import org.mbari.mondrian.msg.messages.RemoveVarsLocalizationMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.util.SupportUtils;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Image;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
 
 import java.util.List;
 

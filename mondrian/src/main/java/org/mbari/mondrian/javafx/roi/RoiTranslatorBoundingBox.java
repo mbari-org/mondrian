@@ -9,7 +9,7 @@ import org.mbari.imgfx.roi.RectangleView;
 import org.mbari.imgfx.roi.RectangleViewEditor;
 import org.mbari.mondrian.domain.BoundingBox;
 import org.mbari.mondrian.etc.gson.Json;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 
 import java.util.Optional;

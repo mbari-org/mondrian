@@ -23,8 +23,7 @@ import org.mbari.mondrian.msg.commands.UpdateLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.util.CollectionUtils;
 import org.mbari.mondrian.util.SupportUtils;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Image;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -3,6 +3,7 @@ package org.mbari.mondrian;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Alert;
 import org.mbari.imgfx.etc.rx.EventBus;
+import org.mbari.mondrian.etc.jdk.AES;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.AnnotationColors;
 import org.mbari.mondrian.javafx.Localizations;
@@ -12,8 +13,6 @@ import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.services.ServiceFactory;
 import org.mbari.mondrian.services.noop.NoopServiceFactory;
 import org.mbari.mondrian.services.vars.VarsServiceFactory;
-import org.mbari.vars.core.crypto.AES;
-
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,19 +1,16 @@
 package org.mbari.mondrian;
 
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.Paging;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Image;
-import org.mbari.vars.services.model.User;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
+import org.mbari.vars.oni.sdk.r1.models.User;
+
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class contains the current images in the annotation application. These images can also
