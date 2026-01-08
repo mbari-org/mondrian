@@ -27,7 +27,7 @@ public class AsyncUtils {
             r = Optional.ofNullable(f.get(timeout.toMillis(), TimeUnit.MILLISECONDS));
         }
         catch (Exception e) {
-            log.info("An exception was thrown when waiting for a future to complete", e);
+            log.atInfo().withCause(e).log("An exception was thrown when waiting for a future to complete");
             r = Optional.empty();
         }
         return r;

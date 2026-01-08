@@ -23,6 +23,7 @@ import org.mbari.mondrian.msg.commands.UpdateLocalizationCmd;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.util.CollectionUtils;
 import org.mbari.mondrian.util.SupportUtils;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 import org.mbari.vars.annosaurus.sdk.r1.models.Image;
 
 import java.util.ArrayList;
@@ -287,7 +288,7 @@ public class AppController {
                         log.atInfo().log(page + "");
                         var images = page.content()
                                 .stream()
-                                .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
+                                .sorted(Comparator.comparing(Image::getRecordedTimestamp))
                                 .distinct()
                                 .toList();
                         var newPage = new Page<>(images, size, pageNumber, page.totalSize());
@@ -314,7 +315,7 @@ public class AppController {
                     else {
                         var images = page.content()
                                 .stream()
-                                .sorted(Comparator.comparing(org.mbari.vars.services.model.Image::getRecordedTimestamp))
+                                .sorted(Comparator.comparing(Image::getRecordedTimestamp))
                                 .distinct()
                                 .toList();
                         var newPage = new Page<>(images, size, pageNumber, page.totalSize());

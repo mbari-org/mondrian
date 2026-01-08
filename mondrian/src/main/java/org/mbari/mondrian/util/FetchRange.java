@@ -1,7 +1,7 @@
 package org.mbari.mondrian.util;
 
 import org.mbari.jcommons.math.Matlib;
-import org.mbari.vars.core.util.Preconditions;
+import org.mbari.mondrian.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;

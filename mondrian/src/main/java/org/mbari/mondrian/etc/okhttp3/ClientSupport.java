@@ -4,8 +4,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.vars.services.RemoteRequestException;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -40,12 +38,12 @@ public class ClientSupport {
                 }
             }
             catch (Exception e) {
-                throw new RemoteRequestException(e);
+                throw new RuntimeException(e);
             }
             if (returnValue == null) {
                 var msg = String.format("No body was returned from %s. Response code %d",
                         request.url(), responseCode);
-                throw new RemoteRequestException(msg);
+                throw new RuntimeException(msg);
             }
             return returnValue;
         });
