@@ -8,7 +8,7 @@ import org.mbari.mondrian.javafx.roi.Datum;
 import org.mbari.mondrian.javafx.roi.Datums;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
 import org.mbari.mondrian.msg.messages.UpdateVarsLocalizationMsg;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 public class UpdateLocalizationCmd implements Command {
 

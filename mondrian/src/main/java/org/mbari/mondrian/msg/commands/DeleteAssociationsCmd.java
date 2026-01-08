@@ -3,15 +3,13 @@ package org.mbari.mondrian.msg.commands;
 import javafx.scene.control.Alert;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
-import org.mbari.mondrian.msg.messages.UpdateAnnotationInViewMsg;
-import org.mbari.vars.core.util.Preconditions;
-import org.mbari.vars.services.model.Association;
+import org.mbari.mondrian.util.Preconditions;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

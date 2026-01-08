@@ -1,9 +1,10 @@
 package org.mbari.mondrian.domain;
 
 import org.mbari.mondrian.etc.gson.Json;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Association;
-import org.mbari.vars.services.model.Image;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
+
 
 import java.util.List;
 

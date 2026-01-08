@@ -1,7 +1,7 @@
 package org.mbari.mondrian.services.noop;
 
 import org.mbari.mondrian.services.UsersService;
-import org.mbari.vars.services.model.User;
+import org.mbari.vars.oni.sdk.r1.models.User;
 
 import java.util.List;
 import java.util.Optional;

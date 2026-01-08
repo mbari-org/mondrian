@@ -12,10 +12,11 @@ import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.javafx.settings.MLSettingsPaneController;
 import org.mbari.mondrian.msg.commands.BulkCreateAnnotations;
 import org.mbari.mondrian.util.ImageUtils;
-import org.mbari.vars.core.util.Preconditions;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Association;
-import org.mbari.vars.services.model.Image;
+import org.mbari.mondrian.util.Preconditions;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
+
 import static org.mbari.mondrian.util.MathUtil.doubleToInt;
 
 import javax.imageio.ImageIO;

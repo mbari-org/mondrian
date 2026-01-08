@@ -1,12 +1,12 @@
 package org.mbari.mondrian.services.vars;
 
 import org.mbari.mondrian.domain.Page;
-import org.mbari.mondrian.etc.okhttp3.ClientSupport;
 import org.mbari.mondrian.services.AnnotationService;
-import org.mbari.vars.services.MediaService;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Media;
-import org.mbari.vars.services.model.MultiRequest;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.MultiRequest;
+import org.mbari.vars.vampiresquid.sdk.r1.MediaService;
+import org.mbari.vars.vampiresquid.sdk.r1.models.Media;
+
 
 import java.util.Collection;
 import java.util.List;
@@ -16,10 +16,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class AnnosaurusAnnotationService implements AnnotationService {
 
-    private final org.mbari.vars.services.AnnotationService annotationService;
+    private final org.mbari.vars.annosaurus.sdk.r1.AnnotationService annotationService;
     private final MediaService mediaService;
 
-    public AnnosaurusAnnotationService(org.mbari.vars.services.AnnotationService annotationService, MediaService mediaService) {
+    public AnnosaurusAnnotationService(org.mbari.vars.annosaurus.sdk.r1.AnnotationService annotationService, MediaService mediaService) {
         this.annotationService = annotationService;
         this.mediaService = mediaService;
     }
@@ -85,7 +85,7 @@ public class AnnosaurusAnnotationService implements AnnotationService {
         var limit = (long) size;
         var offset = (long) page * size;
         return mediaService.findByVideoSequenceName(videoSequenceName).thenCompose(media -> {
-            var videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
+            List<UUID> videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
             var multiRequest = new MultiRequest(videoReferenceUuids);
             return annotationService.countByMultiRequest(multiRequest)
                     .thenCompose(mrc -> annotationService.findByMultiRequest(multiRequest, limit, offset)
@@ -98,7 +98,7 @@ public class AnnosaurusAnnotationService implements AnnotationService {
         var limit = (long) size;
         var offset = (long) page * size;
         return mediaService.findByVideoName(videoName).thenCompose(media -> {
-            var videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
+            List<UUID> videoReferenceUuids = media.stream().map(Media::getVideoReferenceUuid).toList();
             var multiRequest = new MultiRequest(videoReferenceUuids);
             return annotationService.countByMultiRequest(multiRequest).thenCompose(mrc -> annotationService.findByMultiRequest(multiRequest, limit, offset).thenApply(annos -> new Page<>(annos, size, page, mrc.getCount())));
         });

@@ -1,35 +1,26 @@
 package org.mbari.mondrian.services.vars;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.mbari.mondrian.Initializer;
+import org.mbari.mondrian.etc.jdk.AES;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.mondrian.etc.okhttp3.ClientSupport;
-import org.mbari.vars.core.crypto.AES;
-import org.mbari.vars.core.util.StringUtils;
-import org.mbari.vars.services.RemoteAuthException;
-import org.mbari.vars.services.ConfigurationService;
-import org.mbari.vars.services.RemoteRequestException;
-import org.mbari.vars.services.gson.DurationConverter;
-import org.mbari.vars.services.model.Authorization;
-import org.mbari.vars.services.model.EndpointConfig;
-import org.mbari.vars.services.model.HealthStatusCheck;
+import org.mbari.vars.raziel.sdk.r1.RazielKiotaClient;
+import org.mbari.vars.raziel.sdk.r1.models.BearerAuth;
+import org.mbari.vars.raziel.sdk.r1.models.EndpointConfig;
+import org.mbari.vars.raziel.sdk.r1.models.ServiceStatus;
 
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
-public class Raziel implements ConfigurationService {
+public class Raziel {
 
     public record ConnectionParams(URL url, String username, String password) {
 
@@ -71,69 +62,29 @@ public class Raziel implements ConfigurationService {
         }
     }
 
-    private final ClientSupport clientSupport;
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Duration.class, new DurationConverter())
-            .create();
-    private final Logging log = new Logging(getClass());
-
-    public Raziel(ClientSupport clientSupport) {
-        this.clientSupport = clientSupport;
+    private URI correctUrl(URL baseUrl) {
+        return baseUrl.toExternalForm().endsWith("/config")
+                ? URI.create(baseUrl.toExternalForm().substring(0, baseUrl.toExternalForm().length() - "/config".length()))
+                : URI.create(baseUrl.toExternalForm());
     }
 
-    @Override
-    public CompletableFuture<Authorization> authenticate(URL baseUrl, String username, String password) {
-        var url = StringUtils.asUrl(baseUrl.toExternalForm() + "/auth")
-                .orElseThrow(() -> new RemoteAuthException("Invalid base url: " + baseUrl));
-        var request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization", Credentials.basic(username, password))
-                .addHeader("Accept", "application/json")
-                .post(RequestBody.create(MediaType.parse("text/plain"), ""))
-                .build();
-        Function<String, Authorization> fn = (body) -> gson.fromJson(body, Authorization.class);
-        return clientSupport.execRequest(request, fn).handle((auth, ex) -> {
-            if (ex != null) {
-                // Map all exception to RemoteAuthException
-                throw new RemoteAuthException(ex);
-            }
-            else {
-                return auth;
-            }
-        });
+    public CompletableFuture<BearerAuth> authenticate(URL baseUrl, String username, String password) {
+        var razielUrl = correctUrl(baseUrl);
+        var client = new RazielKiotaClient(razielUrl);
+        return client.authenticate(username, password);
     }
 
 
-    @Override
     public CompletableFuture<List<EndpointConfig>> endpoints(URL baseUrl, String jwt) {
-        var url = StringUtils.asUrl(baseUrl.toExternalForm() + "/endpoints")
-                .orElseThrow(() -> new RemoteRequestException("Invalid base url: " + baseUrl));
-        var request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer " + jwt)
-                .get()
-                .build();
-        Function<String, List<EndpointConfig>> fn = (body) -> {
-            var array = gson.fromJson(body, EndpointConfig[].class);
-            return Arrays.asList(array);
-        };
-        return clientSupport.execRequest(request, fn);
+        var razielUrl = correctUrl(baseUrl);
+        var client = new RazielKiotaClient(razielUrl);
+        return client.endpoints(jwt);
     }
 
-    @Override
-    public CompletableFuture<List<HealthStatusCheck>> healthStatus(URL baseUrl) {
-        var url = StringUtils.asUrl(baseUrl.toExternalForm() + "/health/status")
-                .orElseThrow(() -> new RemoteRequestException("Invalid base url: " + baseUrl));
-        var request = new Request.Builder()
-                .url(url)
-                .addHeader("Accept", "application/json")
-                .get()
-                .build();
-        Function<String, List<HealthStatusCheck>> fn = (body) -> {
-            var array = gson.fromJson(body, HealthStatusCheck[].class);
-            return Arrays.asList(array);
-        };
-        return clientSupport.execRequest(request, fn);
+    public CompletableFuture<List<ServiceStatus>> healthStatus(URL baseUrl) {
+        var razielUrl = correctUrl(baseUrl);
+        var client = new RazielKiotaClient(razielUrl);
+        return client.healthStatus();
     }
 
 

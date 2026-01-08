@@ -3,9 +3,10 @@ package org.mbari.mondrian.services.vars;
 import org.mbari.mondrian.Services;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.etc.okhttp3.ClientSupport;
+import org.mbari.mondrian.services.MediaService;
 import org.mbari.mondrian.services.ServiceFactory;
-import org.mbari.vars.services.ServicesBuilder;
-import org.mbari.vars.services.model.EndpointConfig;
+import org.mbari.vars.oni.sdk.r1.UserService;
+
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,24 @@ public class VarsServiceFactory implements ServiceFactory {
     }
 
     public static ServiceData loadServices() {
+
+        // Fetch info from Raziel and build services
+        var serviceBuilder = new ServiceBuilder(true);
+        var annosaurusClient = serviceBuilder.getAnnotationService();
+        var oniClient = serviceBuilder.getConceptService();
+        var vampireSquidClient = serviceBuilder.getMediaService();
+
+        //
+        var nameService = new KbNamesService(oniClient);
+        var annotationService = new AnnosaurusAnnotationService(annosaurusClient, vampireSquidClient);
+        var mediaService = new VampireSquidService(vampireSquidClient);
+        var usersService = new VarsUserService((UserService) oniClient);
+        var imageService = new AnnosaurusImageService()
+
+
+    }
+
+    public static ServiceData loadServices2() {
         var opt = Raziel.ConnectionParams.load();
         var emptyServiceData = new ServiceData(ServicesBuilder.noop(), List.of());
         if (opt.isPresent()) {

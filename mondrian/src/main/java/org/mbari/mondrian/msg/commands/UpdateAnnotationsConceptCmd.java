@@ -5,8 +5,9 @@ import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.domain.VarsLocalization;
 import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
 import org.mbari.mondrian.msg.messages.ShowAlertMsg;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.User;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.oni.sdk.r1.models.User;
+
 
 import java.time.Instant;
 import java.util.ArrayList;

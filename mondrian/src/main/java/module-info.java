@@ -20,10 +20,10 @@ module org.mbari.mondrian {
     requires org.mbari.jcommons;
     requires org.slf4j.jdk.platform.logging; // A provider for logging
     requires vcr4j.core;
-    requires raziel.java.sdk;
+    requires org.mbari.vars.raziel.sdk;
     requires org.mbari.vars.annosaurus.sdk;
     requires org.mbari.vars.oni.sdk;
-    requires vampire.squid.java.sdk;
+    requires org.mbari.vars.vampiresquid.sdk;
 
     opens org.mbari.mondrian to javafx.graphics;
     opens org.mbari.mondrian.domain to com.google.gson;

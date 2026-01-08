@@ -3,7 +3,7 @@ package org.mbari.mondrian.services.noop;
 import org.mbari.mondrian.domain.Counter;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.services.ImageService;
-import org.mbari.vars.services.model.Image;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
 
 import java.util.List;
 import java.util.Optional;

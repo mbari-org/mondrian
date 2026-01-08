@@ -22,8 +22,9 @@ import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.javafx.roweditor.RowEditorController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.util.IPrefs;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Image;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
+
 
 import java.util.*;
 import java.util.function.Consumer;

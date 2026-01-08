@@ -1,7 +1,7 @@
 package org.mbari.mondrian.services.noop;
 
 import org.mbari.mondrian.services.AssociationService;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 import java.util.Collection;
 import java.util.List;

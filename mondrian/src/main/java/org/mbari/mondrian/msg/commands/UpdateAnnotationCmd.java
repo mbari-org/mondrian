@@ -1,9 +1,8 @@
 package org.mbari.mondrian.msg.commands;
 
 import org.mbari.mondrian.ToolBox;
-import org.mbari.mondrian.msg.messages.RerenderAnnotationsMsg;
 import org.mbari.mondrian.msg.messages.UpdateAnnotationInViewMsg;
-import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 
 import java.time.Instant;
 import java.util.List;

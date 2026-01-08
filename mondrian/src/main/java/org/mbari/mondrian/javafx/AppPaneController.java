@@ -20,8 +20,8 @@ import org.mbari.mondrian.javafx.settings.SettingsDialogController;
 import org.mbari.mondrian.msg.messages.*;
 import org.mbari.mondrian.services.pythia.MLUtils;
 import org.mbari.mondrian.util.SupportUtils;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.User;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.oni.sdk.r1.models.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,7 +73,7 @@ public class AppPaneController {
         });
     }
 
-    public void setImage(org.mbari.vars.services.model.Image image) {
+    public void setImage(org.mbari.vars.annosaurus.sdk.r1.models.Image image) {
 
     }
 

@@ -1,7 +1,7 @@
 package org.mbari.mondrian.msg.messages;
 
 import org.mbari.mondrian.domain.Selection;
-import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 
 import java.util.Collection;
 

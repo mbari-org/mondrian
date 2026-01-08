@@ -8,14 +8,21 @@ import org.mbari.mondrian.etc.gson.Json;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.etc.okhttp3.ClientSupport;
 import org.mbari.mondrian.services.ImageService;
+import org.mbari.mondrian.util.AsyncUtils;
 import org.mbari.mondrian.util.FetchRange;
-import org.mbari.vars.core.util.AsyncUtils;
-import org.mbari.vars.services.AnnotationService;
-import org.mbari.vars.services.MediaService;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.EndpointConfig;
-import org.mbari.vars.services.model.Image;
-import org.mbari.vars.services.model.Media;
+import org.mbari.vars.annosaurus.sdk.r1.AnnotationService;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Image;
+import org.mbari.vars.raziel.sdk.r1.models.EndpointConfig;
+import org.mbari.vars.vampiresquid.sdk.r1.MediaService;
+import org.mbari.vars.vampiresquid.sdk.r1.models.Media;
+//import org.mbari.vars.core.util.AsyncUtils;
+//import org.mbari.vars.services.AnnotationService;
+//import org.mbari.vars.services.MediaService;
+//import org.mbari.vars.services.model.Annotation;
+//import org.mbari.vars.services.model.EndpointConfig;
+//import org.mbari.vars.services.model.Image;
+//import org.mbari.vars.services.model.Media;
 
 
 import java.util.*;
@@ -24,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class AnnosaurusImageService implements ImageService {
 
-    private final org.mbari.vars.services.AnnotationService annotationService;
+    private final AnnotationService annotationService;
     private final MediaService mediaService;
     private final ClientSupport clientSupport;
     private final EndpointConfig annosaurusEndpointConfig;
@@ -64,7 +71,8 @@ public class AnnosaurusImageService implements ImageService {
     }
 
     private CompletableFuture<List<Image>> fetchImagesByMediaUuid(UUID videoReferenceUuid, long limit, long offset) {
-        var url = annosaurusEndpointConfig.getUrl() + "/fast/images/videoreference/" + videoReferenceUuid;
+
+        var url = annosaurusEndpointConfig.url() + "/fast/images/videoreference/" + videoReferenceUuid;
         var httpUrl = HttpUrl.parse(url).newBuilder()
                 .addQueryParameter("limit", String.valueOf(limit))
                 .addQueryParameter("offset", String.valueOf(offset))
@@ -82,7 +90,7 @@ public class AnnosaurusImageService implements ImageService {
     @Override
     public CompletableFuture<Counter> countImagesByMediaUuid(UUID mediaUuid) {
         var request = new Request.Builder()
-                .url(annosaurusEndpointConfig.getUrl() + "/fast/images/count/videoreference/" + mediaUuid)
+                .url(annosaurusEndpointConfig.url() + "/fast/images/count/videoreference/" + mediaUuid)
                 .header("Accept", "application/json")
                 .build();
         return clientSupport.execRequest(request, s -> Json.decode(s, Counter.class));

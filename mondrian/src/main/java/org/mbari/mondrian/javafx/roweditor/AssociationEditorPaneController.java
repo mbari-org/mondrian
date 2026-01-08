@@ -23,8 +23,10 @@ import org.mbari.mondrian.javafx.Icons;
 import org.mbari.mondrian.javafx.decorators.FilteredComboBoxDecorator;
 import org.mbari.mondrian.javafx.decorators.HierarchicalConceptComboBoxDecorator;
 import org.mbari.mondrian.util.FXMLUtils;
-import org.mbari.vars.core.util.ListUtils;
-import org.mbari.vars.services.model.*;
+import org.mbari.mondrian.util.ListUtils;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
+import org.mbari.vars.oni.sdk.r1.models.ConceptAssociationTemplate;
 
 
 public class AssociationEditorPaneController {

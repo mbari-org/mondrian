@@ -16,9 +16,10 @@ import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.services.vars.Raziel;
 import org.mbari.mondrian.util.FXMLUtils;
 import org.mbari.mondrian.util.JFXUtils;
-import org.mbari.vars.services.impl.raziel.RazielConfigurationService;
+import org.mbari.vars.raziel.sdk.r1.RazielKiotaClient;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.Optional;
@@ -110,33 +111,39 @@ public class RazielSettingsPaneController implements SettingsPane {
             Platform.runLater(() -> msgLabel.setText(msg));
             return;
         }
-        var service = new RazielConfigurationService();
         var rcp = opt.get();
-        service.checkStatus(rcp.url(), rcp.username(), rcp.password())
-                .handle((statuses, ex) -> {
-                    if (ex != null) {
-                        var s = resources.getString("settings.raziel.pane.msg.authfailed");
-                        Platform.runLater(() -> msgLabel.setText(s));
-                        log.atDebug()
-                                .withCause(ex)
-                                .log("An exception occurred while running text against Raziel at" + rcp.url());
-                    }
-                    else {
-                        var sortedStatuses = statuses.stream()
-                                .sorted(Comparator.comparing(es -> es.getEndpointConfig().getName()))
-                                .collect(Collectors.toList());
-                        var panes = EndpointStatusPaneController.from(sortedStatuses)
-                                .stream()
-                                .map(EndpointStatusPaneController::getRoot)
-                                .toList();
-                        Platform.runLater(() -> {
-                            msgLabel.setText(null);
-                            endpointStatusPane.getChildren().addAll(panes);
-                        });
+        try {
+            var service = new RazielKiotaClient(rcp.url().toURI());
+            service.checkStatus(rcp.username(), rcp.password())
+                    .handle((statuses, ex) -> {
+                        if (ex != null) {
+                            var s = resources.getString("settings.raziel.pane.msg.authfailed");
+                            Platform.runLater(() -> msgLabel.setText(s));
+                            log.atDebug()
+                                    .withCause(ex)
+                                    .log("An exception occurred while running text against Raziel at" + rcp.url());
+                        } else {
+                            var sortedStatuses = statuses.stream()
+                                    .sorted(Comparator.comparing(es -> es.endpointConfig().name()))
+                                    .collect(Collectors.toList());
+                            var panes = EndpointStatusPaneController.from(sortedStatuses)
+                                    .stream()
+                                    .map(EndpointStatusPaneController::getRoot)
+                                    .toList();
+                            Platform.runLater(() -> {
+                                msgLabel.setText(null);
+                                endpointStatusPane.getChildren().addAll(panes);
+                            });
 
-                    }
-                    return null;
-                });
+                        }
+                        return null;
+                    });
+        }
+        catch (Exception e) {
+            var s = resources.getString("settings.raziel.pane.msg.authfailed");
+            Platform.runLater(() -> msgLabel.setText(s));
+            log.atDebug().withCause(e).log(() -> "Failed to test raziel connection params");
+        }
 
     }
 

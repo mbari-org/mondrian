@@ -1,6 +1,7 @@
 package org.mbari.mondrian.msg.messages;
 
-import org.mbari.vars.services.model.Annotation;
+
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 
 /**
  * Message to be sent after an annotation has been changed in the database and we need

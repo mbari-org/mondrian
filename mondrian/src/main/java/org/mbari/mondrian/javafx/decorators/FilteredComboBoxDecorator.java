@@ -13,7 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.mbari.mondrian.etc.jdk.Logging;
-import org.mbari.vars.core.util.StringUtils;
+import org.mbari.mondrian.util.StringUtils;
+
 
 import java.util.function.Predicate;
 

@@ -12,7 +12,7 @@ import javafx.scene.control.Tooltip;
 import javafx.util.Callback;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.util.CollectionUtils;
-import org.mbari.vars.services.model.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 
 import java.util.ArrayList;
 import java.util.Collection;

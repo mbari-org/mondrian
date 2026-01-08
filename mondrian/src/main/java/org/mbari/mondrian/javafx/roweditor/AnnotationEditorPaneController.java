@@ -19,8 +19,8 @@ import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.ToolBox;
 import org.mbari.mondrian.javafx.Icons;
 import org.mbari.mondrian.msg.commands.DeleteAssociationsCmd;
-import org.mbari.vars.services.model.Annotation;
-import org.mbari.vars.services.model.Association;
+import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
+import org.mbari.vars.annosaurus.sdk.r1.models.Association;
 
 
 import java.net.URL;

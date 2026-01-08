@@ -4,8 +4,9 @@ import org.mbari.mondrian.domain.Concept;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.services.NamesService;
-import org.mbari.vars.services.ConceptService;
-import org.mbari.vars.services.model.ConceptAssociationTemplate;
+import org.mbari.vars.oni.sdk.r1.ConceptService;
+import org.mbari.vars.oni.sdk.r1.models.ConceptAssociationTemplate;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +67,7 @@ public class KbNamesService implements NamesService {
 
     @Override
     public CompletableFuture<String> findDefaultName() {
-        return conceptService.findRoot().thenApply(org.mbari.vars.services.model.Concept::getName);
+        return conceptService.findRoot().thenApply(org.mbari.vars.oni.sdk.r1.models.Concept::getName);
     }
 
     @Override

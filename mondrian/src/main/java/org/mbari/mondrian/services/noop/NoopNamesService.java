@@ -3,7 +3,7 @@ package org.mbari.mondrian.services.noop;
 import org.mbari.mondrian.domain.Concept;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.services.NamesService;
-import org.mbari.vars.services.model.ConceptAssociationTemplate;
+import org.mbari.vars.oni.sdk.r1.models.ConceptAssociationTemplate;
 
 import java.util.List;
 import java.util.Optional;
