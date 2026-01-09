@@ -81,10 +81,10 @@ public class RazielSettingsPaneController implements SettingsPane {
             var ok = urlText != null && userText != null && pwdText != null &&
                     urlText.length() > 0 && userText.length() > 0 && pwdText.length() > 0;
             if (ok) {
-                if (!urlText.startsWith("http://")) {
-                    urlText = "http://" + urlText;
-                }
-                URL url = new URL(urlText);
+//                if (!urlText.startsWith("http://")) {
+//                    urlText = "http://" + urlText;
+//                }
+                URL url = URI.create(urlText).toURL();
                 var rcp = new Raziel.ConnectionParams(url, userText, pwdText);
                 return Optional.of(rcp);
             }

@@ -7,6 +7,9 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
+import java.nio.file.FileSystems
+import java.nio.file.Files
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -18,25 +21,11 @@ plugins {
 
 version = "2.1.0"
 
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_20
-//    targetCompatibility = JavaVersion.VERSION_20
-//}
-
-repositories {
-    maven {
-        name = "MBARI"
-        url = uri("https://maven.pkg.github.com/mbari-org/maven")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
-        }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
-
-//java {
-//    modularity.inferModulePath.set(true)
-//}
 
 javafx {
     version = "25.0.1"
@@ -47,15 +36,6 @@ repositories {
     mavenLocal()
     // Use Maven Central for resolving dependencies.
     mavenCentral()
-    maven {
-        name = "MBARI"
-        url = uri("https://maven.pkg.github.com/mbari-org/maven")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
-            print(message = "username: $username")
-        }
-    }
 }
 
 //Resolve the used operating system
@@ -67,6 +47,12 @@ if (currentOS.isMacOsX) {
     platform = "linux"
 } else if (currentOS.isWindows) {
     platform = "win"
+}
+
+configurations.all {
+    // Exclude stax-api as javax.xml.stream is part of java.xml platform module
+    exclude(group = "javax.xml.stream", module = "stax-api")
+    exclude(group = "stax", module = "stax-api")
 }
 
 dependencies {
@@ -119,7 +105,7 @@ val runtimeJvmArgs = arrayListOf(
     "-XX:+TieredCompilation",
     "-XX:TieredStopAtLevel=1",
     "-Xms1g",
-    "--add-opens", "java.base/java.lang.invoke=retrofit2",
+//    "--add-opens", "java.base/java.lang.invoke=retrofit2",
     "--add-opens", "java.base/java.lang.invoke=mondrian.merged.module",
     "--add-reads", "mondrian.merged.module=org.slf4j",
     "--add-reads", "mondrian.merged.module=com.google.gson"
@@ -136,8 +122,44 @@ application {
     applicationDefaultJvmArgs = runtimeJvmArgs
 }
 
+// Patch reactor-core jar to remove problematic service providers
+// This runs before jlink processes dependencies
+tasks.register("patchReactorCore") {
+    doLast {
+        val reactorJars = configurations.runtimeClasspath.get().files.filter {
+            it.name.contains("reactor-core") && it.name.endsWith(".jar")
+        }
+        reactorJars.forEach { jarFile ->
+            println("Patching ${jarFile.name} to remove optional service providers")
+            val fs = FileSystems.newFileSystem(jarFile.toPath(), null as ClassLoader?)
+            try {
+                val servicesToRemove = listOf(
+                    "META-INF/services/io.micrometer.context.ContextAccessor",
+                    "META-INF/services/reactor.blockhound.integration.BlockHoundIntegration"
+                )
+                servicesToRemove.forEach { servicePath ->
+                    val path = fs.getPath(servicePath)
+                    if (Files.exists(path)) {
+                        Files.delete(path)
+                        println("  Removed $servicePath")
+                    }
+                }
+            } finally {
+                fs.close()
+            }
+        }
+    }
+}
+
+tasks.named("createMergedModule") {
+    dependsOn("patchReactorCore")
+}
+
 jlink {
-    options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+    // Use the configured Java toolchain
+    javaHome.set(project.javaToolchains.launcherFor(java.toolchain).get().metadata.installationPath.asFile)
+
+    options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages", "--ignore-signing-information"))
 
     launcher {
         name = "Mondrian"
@@ -146,6 +168,17 @@ jlink {
 
     mergedModule {
         additive = true
+
+        // Add missing platform module requirements
+//        requires("java.logging")
+
+        // Add uses clauses for Azure and OpenTelemetry service loaders if needed at runtime
+        uses("io.opentelemetry.context.ContextStorageProvider")
+        uses("com.azure.core.util.tracing.Tracer")
+        uses("com.azure.core.util.serializer.JsonSerializer")
+        uses("com.azure.core.util.serializer.MemberNameConverter")
+        uses("com.azure.core.http.policy.AfterRetryPolicyProvider")
+        uses("com.azure.core.http.policy.BeforeRetryPolicyProvider")
     }
 
 //    launcher {
@@ -199,43 +232,48 @@ tasks.jpackageImage.get().doLast {
                 file("${projectDir}/build/jpackage/Mondrian.app/Contents/runtime/Contents/MacOS")
             )
 
+            val entitlements = "${projectDir}/src/jpackage/macos/java.entitlements"
+            val jpackageDir = file("${projectDir}/build/jpackage")
+
             dirsToBeSigned.forEach { dir ->
                 println("Signing $dir")
                 val files = layout.files(dir.listFiles())
                 files
                     .filter { it.isFile }
-                    .forEach { file ->
-                        tasks.register<Exec>("signing_${file.name}") { 
-                            println("MACOSX: Signing ${file}")
-                            workingDir = file("build/jpackage")
-                            executable = "codesign"
-                            args = listOf(
-                                "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
-                                "--options", "runtime",
-                                "--timestamp",
-                                "-vvv",
-                                "-f",
-                                "--sign", signer,
-                                file.absolutePath
-                            )
-                        }
+                    .forEach { f ->
+                        println("MACOSX: Signing ${f}")
+                        ProcessBuilder(listOf(
+                            "codesign",
+                            "--entitlements", entitlements,
+                            "--options", "runtime",
+                            "--timestamp",
+                            "-vvv",
+                            "-f",
+                            "--sign", signer,
+                            f.absolutePath
+                        ))
+                            .directory(jpackageDir)
+                            .inheritIO()
+                            .start()
+                            .waitFor()
                     }
             }
 
-            tasks.register<Exec>("signing_app") {
-                println("MACOSX: Signing application")
-                workingDir = file("build/jpackage")
-                executable = "codesign"
-                args = listOf(
-                    "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
-                    "--options", "runtime",
-                    "--timestamp",
-                    "-vvv",
-                    "-f",
-                    "--sign", signer,
-                    "Mondrian.app")
-
-            }
+            println("MACOSX: Signing application")
+            ProcessBuilder(listOf(
+                "codesign",
+                "--entitlements", entitlements,
+                "--options", "runtime",
+                "--timestamp",
+                "-vvv",
+                "-f",
+                "--sign", signer,
+                "Mondrian.app"
+            ))
+                .directory(jpackageDir)
+                .inheritIO()
+                .start()
+                .waitFor()
         }
     }
 }

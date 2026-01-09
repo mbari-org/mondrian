@@ -71,18 +71,14 @@ public class ImageListViewController {
     }
 
     public void setSelectedImage(Image image) {
-        if (image != null && listView.getItems().contains(image)) {
-            listView.getSelectionModel().select(image);
-        }
-        else {
-            listView.getSelectionModel().clearSelection();
-        }
-//        if (image == null) {
-//            listView.getSelectionModel().clearSelection();
-//        }
-//        else {
-//            listView.getSelectionModel().select(image);
-//        }
+        Platform.runLater(() -> {
+            if (image != null && listView.getItems().contains(image)) {
+                listView.getSelectionModel().select(image);
+            }
+            else {
+                listView.getSelectionModel().clearSelection();
+            }
+        });
     }
 
     public VBox getPane() {

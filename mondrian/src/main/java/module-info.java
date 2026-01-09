@@ -3,6 +3,7 @@ module org.mbari.mondrian {
     requires com.google.gson;
     requires io.reactivex.rxjava3;
     requires java.desktop;
+    requires java.logging;
     requires java.naming; // Need to use logback
     requires java.prefs;
     requires javafx.base;

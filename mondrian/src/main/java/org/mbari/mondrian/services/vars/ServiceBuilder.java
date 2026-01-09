@@ -80,6 +80,7 @@ public class ServiceBuilder {
             loadConfigurations();
             var config = endpoints.stream()
                     .filter(e -> e.name().equals("vampire-squid"))
+                    .map(this::adaptEndpointConfigForKiota)
                     .findFirst();
             if (config.isPresent()) {
                 var endpoint = config.get();
@@ -103,6 +104,7 @@ public class ServiceBuilder {
             loadConfigurations();
             var config = endpoints.stream()
                     .filter(e -> e.name().equals("oni"))
+                    .map(this::adaptEndpointConfigForKiota)
                     .findFirst();
             if (config.isPresent()) {
                 var endpoint = config.get();
