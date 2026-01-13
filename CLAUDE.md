@@ -9,8 +9,8 @@ Mondrian is a VARS (Video Annotation and Reference System) image annotation appl
 ## Development Commands
 
 ### Prerequisites
-- Java 21+ (modular application)
-- GitHub credentials for MBARI Maven repository access
+- Java 25 (modular JPMS application)
+- GitHub credentials for MBARI Maven repository access (libs hosted at github.com/mbari-org/maven)
 - VARS microservice stack running (see [m3-quickstart](https://github.com/mbari-org/m3-quickstart))
 
 Set credentials via environment variables or gradle properties:
@@ -31,6 +31,9 @@ cd mondrian
 
 # Run the application
 ./gradlew run
+
+# Run with remote debugger attached (port 5005)
+./gradlew runDebug
 
 # Run tests
 ./gradlew test
@@ -68,11 +71,13 @@ The application uses a centralized EventBus for loose coupling between component
 ### Core Components
 
 **Dependency Injection**: `ToolBox` record (accessed via `Initializer.getToolBox()`) provides:
-- `EventBus` - Central message bus (RxJava PublishSubject)
-- `Services` - Record aggregating all microservice interfaces
-- `Data` - Observable application state (current images, selected image, annotations, user)
-- `CommandManager` - Undo/redo support
-- `I18nBundle` - Internationalization
+- `eventBus` - Central message bus (RxJava PublishSubject)
+- `servicesProperty` - ObjectProperty wrapping the Services record (allows hot-reload)
+- `data` - Observable application state (current images, selected image, annotations, user)
+- `localizations` - Manages UI localization state and selection
+- `annotationColors` - Color schemes for annotations
+- `i18n` - Internationalization ResourceBundle
+- `aes` - Encryption for credential storage
 
 **Application Flow**:
 ```
@@ -121,22 +126,23 @@ When adding new ROI types:
 
 All service methods return `CompletableFuture<T>` for async operations.
 
-**Service Interfaces**:
+**Service Interfaces** (aggregated in `Services` record):
 - `AnnotationService` - CRUD for annotations
 - `AssociationService` - CRUD for associations (ROI data)
 - `ImageService` - Query images by video sequence, concept, etc.
 - `MediaService` - Media/video metadata
 - `NamesService` - Taxonomy/concept hierarchy
 - `UsersService` - User authentication/info
-- `MLPredictionService` - Machine learning predictions
+
+**Separate Services**:
+- `MLPredictionService` - Machine learning predictions (optional, not in Services record)
 
 **VARS Microservices Integration**:
-- **Raziel** - OAuth2 authentication and endpoint discovery (credentials in `~/.vars/raziel.json`)
+- **Raziel** - OAuth2 authentication and endpoint discovery (credentials stored encrypted in `~/.vars/raziel.txt`)
 - **Annosaurus** - Annotation storage (annotations, associations, images)
 - **Vampire Squid** - Media/video metadata
-- **KB Server** - Taxonomic concepts
 - **Oni** - User management
-- **Pythia** - ML predictions (optional)
+- **Megalodon/Pythia** - ML predictions (optional)
 
 ## Module System
 
@@ -144,13 +150,12 @@ This is a Java Platform Module System (JPMS) application. See `module-info.java`
 
 **Critical JVM Args** (in `build.gradle.kts`):
 ```
---add-opens java.base/java.lang.invoke=retrofit2
 --add-opens java.base/java.lang.invoke=mondrian.merged.module
 --add-reads mondrian.merged.module=org.slf4j
 --add-reads mondrian.merged.module=com.google.gson
 ```
 
-These are required for Retrofit and module compatibility. Do not remove.
+These are required for jlink merged module compatibility. Do not remove.
 
 ## Testing
 
@@ -172,17 +177,18 @@ These are required for Retrofit and module compatibility. Do not remove.
 1. Define message record in `org.mbari.mondrian.msg.messages`
 2. Subscribe in appropriate controller:
    ```java
-   eventBus.toObservable()
+   eventBus.toObserverable()
        .ofType(YourMessage.class)
        .observeOn(JavaFxScheduler.platform())
        .subscribe(msg -> handleMessage(msg));
    ```
+   Note: The method name is `toObserverable()` (with typo) in the codebase.
 
 ### Accessing Application State
 ```java
 var toolBox = Initializer.getToolBox();
 var data = toolBox.data();
-var services = toolBox.services();
+var services = toolBox.servicesProperty().get();
 var eventBus = toolBox.eventBus();
 ```
 
@@ -190,11 +196,12 @@ var eventBus = toolBox.eventBus();
 
 - **JavaFX 25** - UI framework
 - **RxJava 3** - Reactive event bus
-- **imgfx** (MBARI) - Image annotation UI components
-- **vars-*-java-sdk** (MBARI) - Microservice clients
+- **imgfx** (MBARI) - Image annotation UI components with ROI drawing
+- **vars-*-java-sdk** (MBARI) - Kiota-generated microservice clients (annosaurus, oni, raziel, vampire-squid)
 - **Gson** - JSON serialization
 - **OkHttp3** - HTTP client
 - **Logback** - Logging
+- **ControlsFX** - Extended JavaFX controls
 
 ## Important Notes
 

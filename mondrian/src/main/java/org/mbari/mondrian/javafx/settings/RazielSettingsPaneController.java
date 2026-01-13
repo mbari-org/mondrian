@@ -14,6 +14,7 @@ import org.mbari.mondrian.Initializer;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.messages.ReloadMsg;
 import org.mbari.mondrian.services.vars.Raziel;
+import org.mbari.mondrian.services.vars.ServiceBuilder;
 import org.mbari.mondrian.util.FXMLUtils;
 import org.mbari.mondrian.util.JFXUtils;
 import org.mbari.vars.raziel.sdk.r1.RazielKiotaClient;
@@ -21,6 +22,7 @@ import org.mbari.vars.raziel.sdk.r1.RazielKiotaClient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.security.Provider.Service;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -113,7 +115,8 @@ public class RazielSettingsPaneController implements SettingsPane {
         }
         var rcp = opt.get();
         try {
-            var service = new RazielKiotaClient(rcp.url().toURI());
+            var uri = URI.create(ServiceBuilder.adaptUrl(rcp.url().toString()));
+            var service = new RazielKiotaClient(uri);
             service.checkStatus(rcp.username(), rcp.password())
                     .handle((statuses, ex) -> {
                         if (ex != null) {

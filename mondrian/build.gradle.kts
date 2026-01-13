@@ -122,6 +122,19 @@ application {
     applicationDefaultJvmArgs = runtimeJvmArgs
 }
 
+tasks.register<JavaExec>("runDebug") {
+    description = "Run the application with debug enabled on port 5005"
+    group = "application"
+    dependsOn(tasks.jar)
+    mainModule.set("org.mbari.mondrian")
+    mainClass.set("org.mbari.mondrian.App")
+    classpath = files(tasks.jar) + sourceSets["main"].runtimeClasspath
+    modularity.inferModulePath.set(true)
+    jvmArgs = runtimeJvmArgs + listOf(
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+    )
+}
+
 // Patch reactor-core jar to remove problematic service providers
 // This runs before jlink processes dependencies
 tasks.register("patchReactorCore") {

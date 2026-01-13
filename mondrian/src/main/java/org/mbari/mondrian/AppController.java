@@ -15,6 +15,7 @@ import org.mbari.imgfx.roi.Localization;
 import org.mbari.mondrian.domain.Page;
 import org.mbari.mondrian.domain.Selection;
 import org.mbari.mondrian.domain.VarsLocalization;
+import org.mbari.mondrian.etc.jdk.Functions;
 import org.mbari.mondrian.etc.jdk.Logging;
 import org.mbari.mondrian.msg.commands.CreateVarsLocalizationCmd;
 import org.mbari.mondrian.msg.commands.DeleteVarsLocalizationsCmd;
@@ -285,11 +286,11 @@ public class AppController {
                         log.atWarn().withCause(ex).log("Failed to get images");
                     }
                     else {
-                        log.atInfo().log(page + "");
+//                        log.atInfo().log("Received page: " + page);
                         var images = page.content()
                                 .stream()
+                                .filter(Functions.distinctBy(Image::getUrl))
                                 .sorted(Comparator.comparing(Image::getRecordedTimestamp))
-                                .distinct()
                                 .toList();
                         var newPage = new Page<>(images, size, pageNumber, page.totalSize());
                         var selection = new Selection<>(source, newPage);
@@ -315,8 +316,8 @@ public class AppController {
                     else {
                         var images = page.content()
                                 .stream()
+                                .filter(Functions.distinctBy(Image::getUrl))
                                 .sorted(Comparator.comparing(Image::getRecordedTimestamp))
-                                .distinct()
                                 .toList();
                         var newPage = new Page<>(images, size, pageNumber, page.totalSize());
                         var selection = new Selection<>(source, newPage);

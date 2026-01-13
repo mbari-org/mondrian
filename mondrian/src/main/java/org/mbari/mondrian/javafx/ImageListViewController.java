@@ -66,8 +66,10 @@ public class ImageListViewController {
     }
 
     public void setImages(Collection<Image> images) {
-        this.images.setAll(images);
-        applyImageType();
+        Platform.runLater(() -> {
+            this.images.setAll(images);
+            applyImageType();
+        });
     }
 
     public void setSelectedImage(Image image) {

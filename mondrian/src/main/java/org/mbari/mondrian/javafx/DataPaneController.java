@@ -87,6 +87,7 @@ public class DataPaneController implements IPrefs {
         rx.ofType(SetImagesMsg.class)
                 .subscribe(msg -> {
                     imageListViewController.setSelectedImage(null);
+                    log.atInfo().log("Set images to " + msg.images());
                     imageListViewController.setImages(msg.images());
 
                 }, this::logError);
