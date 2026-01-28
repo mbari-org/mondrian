@@ -27,10 +27,8 @@ import org.mbari.mondrian.util.SupportUtils;
 import org.mbari.vars.annosaurus.sdk.r1.models.Annotation;
 import org.mbari.vars.annosaurus.sdk.r1.models.Image;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AppController {
@@ -38,6 +36,12 @@ public class AppController {
     private final ToolBox toolBox;
     private final Logging log = new Logging(getClass());
     private static final String KEY_CONCEPT_DEFAULT = "data.concept.default";
+
+    private final Comparator<Image> imageComparator = (a, b) -> {
+        var t0 = Optional.ofNullable(a.getRecordedTimestamp()).orElse(Instant.EPOCH);
+        var t1 = Optional.ofNullable(b.getRecordedTimestamp()).orElse(Instant.EPOCH);
+        return t0.compareTo(t1);
+    };
 
     public AppController(ToolBox toolBox) {
         this.toolBox = toolBox;
@@ -287,14 +291,19 @@ public class AppController {
                     }
                     else {
 //                        log.atInfo().log("Received page: " + page);
-                        var images = page.content()
-                                .stream()
-                                .filter(Functions.distinctBy(Image::getUrl))
-                                .sorted(Comparator.comparing(Image::getRecordedTimestamp))
-                                .toList();
-                        var newPage = new Page<>(images, size, pageNumber, page.totalSize());
-                        var selection = new Selection<>(source, newPage);
-                        toolBox.eventBus().publish(new SetImagesMsg(selection));
+                        try {
+                            var images = page.content()
+                                    .stream()
+                                    .filter(Functions.distinctBy(Image::getUrl))
+                                    .sorted(imageComparator)
+                                    .toList();
+                            var newPage = new Page<>(images, size, pageNumber, page.totalSize());
+                            var selection = new Selection<>(source, newPage);
+                            toolBox.eventBus().publish(new SetImagesMsg(selection));
+                        }
+                        catch (Exception e) {
+                            log.atError().withCause(e).log("Failed to load images");
+                        }
                     }
                     return null;
                 });
@@ -314,14 +323,19 @@ public class AppController {
                         log.atWarn().withCause(ex).log("Failed to get images");
                     }
                     else {
-                        var images = page.content()
-                                .stream()
-                                .filter(Functions.distinctBy(Image::getUrl))
-                                .sorted(Comparator.comparing(Image::getRecordedTimestamp))
-                                .toList();
-                        var newPage = new Page<>(images, size, pageNumber, page.totalSize());
-                        var selection = new Selection<>(source, newPage);
-                        toolBox.eventBus().publish(new SetImagesMsg(selection));
+                        try {
+                            var images = page.content()
+                                    .stream()
+                                    .filter(Functions.distinctBy(Image::getUrl))
+                                    .sorted(imageComparator)
+                                    .toList();
+                            var newPage = new Page<>(images, size, pageNumber, page.totalSize());
+                            var selection = new Selection<>(source, newPage);
+                            toolBox.eventBus().publish(new SetImagesMsg(selection));
+                        }
+                        catch (Exception e) {
+                            log.atError().withCause(e).log("Failed to load images");
+                        }
                     }
                     return null;
                 });

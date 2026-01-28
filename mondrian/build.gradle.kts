@@ -85,8 +85,30 @@ testing {
         // Configure the built-in test suite
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
-            useJUnitJupiter("6.0.2")
+            useJUnitJupiter("5.10.2")
+        }
 
+        // Integration test suite (replaces nebula.integtest plugin)
+        register<JvmTestSuite>("integrationTest") {
+            useJUnitJupiter("5.10.2")
+            sources {
+                java {
+                    srcDirs("src/integTest/java")
+                }
+                resources {
+                    srcDirs("src/integTest/resources")
+                }
+            }
+            dependencies {
+                implementation(project())
+            }
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
         }
     }
 }
@@ -98,6 +120,13 @@ tasks.named<Test>("test") {
 
     testLogging {
         events("passed")
+    }
+}
+
+tasks.named<Test>("integrationTest") {
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
     }
 }
 
